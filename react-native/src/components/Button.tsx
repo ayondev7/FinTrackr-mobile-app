@@ -81,7 +81,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={disabled === true || loading === true}
       className={`
         ${getVariantStyles()}
         ${getSizeStyles()}

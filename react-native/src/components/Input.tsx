@@ -14,9 +14,9 @@ export const Input: React.FC<InputProps> = ({
   icon,
   rightIcon,
   className = '',
-  multiline,
   ...props
 }) => {
+  const { multiline, editable, secureTextEntry, autoFocus, ...restProps } = props;
   return (
     <View className="w-full">
       {label && (
@@ -44,7 +44,10 @@ export const Input: React.FC<InputProps> = ({
           className="flex-1 py-3 text-gray-900 dark:text-white text-base"
           placeholderTextColor="#9CA3AF"
           multiline={multiline === true}
-          {...props}
+          editable={editable !== false}
+          secureTextEntry={secureTextEntry === true}
+          autoFocus={autoFocus === true}
+          {...restProps}
         />
         
         {rightIcon && <View className="ml-2">{rightIcon}</View>}

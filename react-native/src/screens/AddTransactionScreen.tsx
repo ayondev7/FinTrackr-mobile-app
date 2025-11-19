@@ -99,7 +99,7 @@ export const AddTransactionScreen = () => {
             Category *
           </Text>
           <ScrollView
-            horizontal
+            horizontal={true}
             showsHorizontalScrollIndicator={false}
             className="flex-row -mx-1"
           >
@@ -157,7 +157,7 @@ export const AddTransactionScreen = () => {
             placeholder="Add notes..."
             value={description}
             onChangeText={setDescription}
-            multiline
+            multiline={true}
             numberOfLines={3}
           />
         </Card>
