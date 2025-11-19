@@ -14,6 +14,7 @@ export const Input: React.FC<InputProps> = ({
   icon,
   rightIcon,
   className = '',
+  multiline,
   ...props
 }) => {
   return (
@@ -42,6 +43,7 @@ export const Input: React.FC<InputProps> = ({
         <TextInput
           className="flex-1 py-3 text-gray-900 dark:text-white text-base"
           placeholderTextColor="#9CA3AF"
+          multiline={multiline === true}
           {...props}
         />
         
