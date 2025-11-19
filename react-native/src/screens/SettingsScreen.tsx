@@ -3,18 +3,34 @@ import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { Card } from '../components';
 import { useThemeStore, useUserStore } from '../store';
 import { colors } from '../constants/theme';
+import { 
+  User, 
+  Moon, 
+  Sun, 
+  DollarSign, 
+  Bell, 
+  Target, 
+  Download, 
+  Trash2, 
+  ChevronRight,
+  Settings
+} from 'lucide-react-native';
 
 export const SettingsScreen = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { user, updateUser } = useUserStore();
   const themeColors = colors[theme];
+  const isDark = theme === 'dark';
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
       <View className="p-6">
-        <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-6">
-          Settings ⚙️
-        </Text>
+        <View className="flex-row items-center gap-3 mb-6">
+          <Text className="text-gray-900 dark:text-white text-3xl font-bold">
+            Settings
+          </Text>
+          <Settings size={28} color={isDark ? '#FFF' : '#111827'} />
+        </View>
 
         <Card className="mb-6 p-6">
           <View className="items-center mb-4">
@@ -47,7 +63,11 @@ export const SettingsScreen = () => {
                 className="w-10 h-10 rounded-xl items-center justify-center"
                 style={{ backgroundColor: `${themeColors.primary}20` }}
               >
-                <Text className="text-xl">{theme === 'light' ? '☀️' : '🌙'}</Text>
+                {theme === 'light' ? (
+                  <Sun size={20} color={themeColors.primary} />
+                ) : (
+                  <Moon size={20} color={themeColors.primary} />
+                )}
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">
@@ -77,7 +97,7 @@ export const SettingsScreen = () => {
                 className="w-10 h-10 rounded-xl items-center justify-center"
                 style={{ backgroundColor: `${themeColors.success}20` }}
               >
-                <Text className="text-xl">💰</Text>
+                <DollarSign size={20} color={themeColors.success} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">
@@ -88,7 +108,7 @@ export const SettingsScreen = () => {
                 </Text>
               </View>
             </View>
-            <Text className="text-gray-400">›</Text>
+            <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
 
           <TouchableOpacity className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700">
@@ -97,7 +117,7 @@ export const SettingsScreen = () => {
                 className="w-10 h-10 rounded-xl items-center justify-center"
                 style={{ backgroundColor: `${themeColors.info}20` }}
               >
-                <Text className="text-xl">🔔</Text>
+                <Bell size={20} color={themeColors.info} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">
@@ -108,7 +128,7 @@ export const SettingsScreen = () => {
                 </Text>
               </View>
             </View>
-            <Text className="text-gray-400">›</Text>
+            <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
 
           <TouchableOpacity className="p-4 flex-row items-center justify-between">
@@ -117,7 +137,7 @@ export const SettingsScreen = () => {
                 className="w-10 h-10 rounded-xl items-center justify-center"
                 style={{ backgroundColor: `${themeColors.warning}20` }}
               >
-                <Text className="text-xl">🎯</Text>
+                <Target size={20} color={themeColors.warning} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">
@@ -128,7 +148,7 @@ export const SettingsScreen = () => {
                 </Text>
               </View>
             </View>
-            <Text className="text-gray-400">›</Text>
+            <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
         </Card>
 
@@ -142,7 +162,7 @@ export const SettingsScreen = () => {
                 className="w-10 h-10 rounded-xl items-center justify-center"
                 style={{ backgroundColor: `${themeColors.primary}20` }}
               >
-                <Text className="text-xl">📤</Text>
+                <Download size={20} color={themeColors.primary} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">
@@ -153,7 +173,7 @@ export const SettingsScreen = () => {
                 </Text>
               </View>
             </View>
-            <Text className="text-gray-400">›</Text>
+            <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
 
           <TouchableOpacity className="p-4 flex-row items-center justify-between">
@@ -162,7 +182,7 @@ export const SettingsScreen = () => {
                 className="w-10 h-10 rounded-xl items-center justify-center"
                 style={{ backgroundColor: `${themeColors.danger}20` }}
               >
-                <Text className="text-xl">🗑️</Text>
+                <Trash2 size={20} color={themeColors.danger} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">
@@ -173,7 +193,7 @@ export const SettingsScreen = () => {
                 </Text>
               </View>
             </View>
-            <Text className="text-gray-400">›</Text>
+            <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
         </Card>
 

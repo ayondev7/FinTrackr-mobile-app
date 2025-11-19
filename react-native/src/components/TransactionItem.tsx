@@ -4,6 +4,7 @@ import { Transaction } from '../types';
 import { CategoryBadge } from './CategoryBadge';
 import { useThemeStore } from '../store/themeStore';
 import { colors } from '../constants/theme';
+import { ArrowUpRight, ArrowDownLeft } from 'lucide-react-native';
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -16,6 +17,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 }) => {
   const { theme } = useThemeStore();
   const themeColors = colors[theme as keyof typeof colors];
+  const isDark = theme === 'dark';
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -45,11 +47,15 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
     return colorMap[categoryId] || themeColors.primary;
   };
 
+  const isExpense = transaction.type === 'expense';
+  const Icon = isExpense ? ArrowUpRight : ArrowDownLeft;
+  const iconColor = isExpense ? '#EF4444' : '#22C55E'; // red-500 : green-500
+
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-3 shadow-sm"
+      className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 dark:border-slate-700"
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
@@ -58,9 +64,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
               className="w-12 h-12 rounded-xl items-center justify-center"
               style={{ backgroundColor: `${getCategoryColor(transaction.categoryId)}20` }}
             >
-              <Text className="text-2xl">
-                {transaction.type === 'expense' ? '📤' : '📥'}
-              </Text>
+              <Icon size={24} color={getCategoryColor(transaction.categoryId)} />
             </View>
             
             <View className="flex-1">
@@ -99,7 +103,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
         <View className="items-end ml-3">
           <Text
             className={`text-lg font-bold ${
-              transaction.type === 'expense'
+              isExpense
                 ? 'text-red-500'
                 : 'text-green-500'
             }`}

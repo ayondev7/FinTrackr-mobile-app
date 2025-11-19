@@ -4,12 +4,14 @@ import { Card, TransactionItem } from '../components';
 import { useUserStore, useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { formatCurrency } from '../utils/helpers';
+import { ArrowDownCircle, ArrowUpCircle, ChevronRight } from 'lucide-react-native';
 
 export const DashboardScreen = () => {
   const { user } = useUserStore();
   const { transactions } = useTransactionStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
+  const isDark = theme === 'dark';
 
   const recentTransactions = transactions.slice(0, 5);
 
@@ -53,7 +55,7 @@ export const DashboardScreen = () => {
               className="w-12 h-12 rounded-xl items-center justify-center mb-3"
               style={{ backgroundColor: `${themeColors.success}20` }}
             >
-              <Text className="text-2xl">📥</Text>
+              <ArrowDownCircle size={24} color={themeColors.success} />
             </View>
             <Text className="text-gray-600 dark:text-gray-400 text-sm mb-1">
               Revenue
@@ -74,7 +76,7 @@ export const DashboardScreen = () => {
               className="w-12 h-12 rounded-xl items-center justify-center mb-3"
               style={{ backgroundColor: `${themeColors.danger}20` }}
             >
-              <Text className="text-2xl">📤</Text>
+              <ArrowUpCircle size={24} color={themeColors.danger} />
             </View>
             <Text className="text-gray-600 dark:text-gray-400 text-sm mb-1">
               Expenses
@@ -149,13 +151,14 @@ export const DashboardScreen = () => {
           <Text className="text-lg font-bold text-gray-900 dark:text-white">
             Recent Transactions
           </Text>
-          <TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center">
             <Text
-              className="text-sm font-medium"
+              className="text-sm font-medium mr-1"
               style={{ color: themeColors.primary }}
             >
               See All
             </Text>
+            <ChevronRight size={16} color={themeColors.primary} />
           </TouchableOpacity>
         </View>
 

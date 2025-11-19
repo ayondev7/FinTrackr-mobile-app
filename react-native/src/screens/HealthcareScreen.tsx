@@ -3,6 +3,7 @@ import { View, Text, ScrollView } from 'react-native';
 import { Card } from '../components';
 import { useTransactionStore, useCategoryStore, useUserStore } from '../store';
 import { formatCurrency } from '../utils/helpers';
+import { HeartPulse } from 'lucide-react-native';
 
 export const HealthcareScreen = () => {
   const { transactions } = useTransactionStore();
@@ -37,9 +38,12 @@ export const HealthcareScreen = () => {
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
       <View className="p-6">
-        <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
-          Healthcare 🏥
-        </Text>
+        <View className="flex-row items-center gap-3 mb-2">
+          <Text className="text-gray-900 dark:text-white text-3xl font-bold">
+            Healthcare
+          </Text>
+          <HeartPulse size={28} color="#EF4444" />
+        </View>
         <Text className="text-gray-500 dark:text-gray-400 text-base mb-6">
           Track medical expenses
         </Text>

@@ -3,11 +3,13 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { TransactionItem } from '../components';
 import { useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
+import { FileText } from 'lucide-react-native';
 
 export const TransactionsScreen = () => {
   const { transactions } = useTransactionStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
+  const isDark = theme === 'dark';
 
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'revenue'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
@@ -141,8 +143,8 @@ export const TransactionsScreen = () => {
 
         {filteredTransactions.length === 0 && (
           <View className="items-center justify-center py-12">
-            <Text className="text-6xl mb-4">📝</Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-center">
+            <FileText size={64} color={isDark ? '#4B5563' : '#D1D5DB'} />
+            <Text className="text-gray-500 dark:text-gray-400 text-center mt-4">
               No transactions found
             </Text>
           </View>

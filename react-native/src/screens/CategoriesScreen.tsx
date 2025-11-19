@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Card } from '../components';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
+import { Folder, Briefcase, Plus } from 'lucide-react-native';
 
 export const CategoriesScreen = () => {
   const { categories } = useCategoryStore();
@@ -24,10 +25,11 @@ export const CategoriesScreen = () => {
         </Text>
 
         <TouchableOpacity
-          className="bg-indigo-600 dark:bg-indigo-500 rounded-2xl p-4 mb-6 items-center"
+          className="bg-indigo-600 dark:bg-indigo-500 rounded-2xl p-4 mb-6 flex-row items-center justify-center gap-2"
           activeOpacity={0.7}
         >
-          <Text className="text-white text-lg font-semibold">+ Add New Category</Text>
+          <Plus size={20} color="#FFF" />
+          <Text className="text-white text-lg font-semibold">Add New Category</Text>
         </TouchableOpacity>
 
         <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
@@ -42,7 +44,7 @@ export const CategoriesScreen = () => {
                     className="w-12 h-12 rounded-xl items-center justify-center"
                     style={{ backgroundColor: `${category.color}20` }}
                   >
-                    <Text className="text-2xl">📁</Text>
+                    <Folder size={24} color={category.color} />
                   </View>
                   <View className="flex-1">
                     <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
@@ -79,7 +81,7 @@ export const CategoriesScreen = () => {
                     className="w-12 h-12 rounded-xl items-center justify-center"
                     style={{ backgroundColor: `${category.color}20` }}
                   >
-                    <Text className="text-2xl">💼</Text>
+                    <Briefcase size={24} color={category.color} />
                   </View>
                   <View className="flex-1">
                     <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">

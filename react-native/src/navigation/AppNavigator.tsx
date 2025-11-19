@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import {
@@ -15,34 +15,33 @@ import {
   PredictionsScreen,
   SettingsScreen,
 } from '../screens';
+import { LayoutDashboard, CreditCard, Plus, PieChart, Settings } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const TabIcon = ({ emoji, focused }: { emoji: string; focused: boolean }) => (
-  <Text style={{ fontSize: focused ? 28 : 24 }}>{emoji}</Text>
-);
-
 const MainTabs = () => {
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
+  const isDark = theme === 'dark';
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme === 'dark' ? '#1E293B' : '#FFFFFF',
-          borderTopColor: theme === 'dark' ? '#334155' : '#E5E7EB',
+          backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+          borderTopColor: isDark ? '#334155' : '#E5E7EB',
           height: Platform.OS === 'ios' ? 88 : 68,
           paddingBottom: Platform.OS === 'ios' ? 24 : 12,
           paddingTop: 8,
         },
         tabBarActiveTintColor: themeColors.primary,
-        tabBarInactiveTintColor: theme === 'dark' ? '#94A3B8' : '#9CA3AF',
+        tabBarInactiveTintColor: isDark ? '#94A3B8' : '#9CA3AF',
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          marginTop: 4,
         },
       }}
     >
@@ -50,14 +49,14 @@ const MainTabs = () => {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} />,
         }}
       />
       <Tab.Screen
         name="Transactions"
         component={TransactionsScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="💳" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <CreditCard color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -73,15 +72,15 @@ const MainTabs = () => {
                 backgroundColor: themeColors.primary,
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: 20,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
+                marginBottom: 24,
+                shadowColor: themeColors.primary,
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.4,
+                shadowRadius: 12,
                 elevation: 8,
               }}
             >
-              <Text style={{ fontSize: 28, color: '#FFFFFF' }}>➕</Text>
+              <Plus color="#FFFFFF" size={32} strokeWidth={2.5} />
             </View>
           ),
           tabBarLabel: '',
@@ -91,14 +90,14 @@ const MainTabs = () => {
         name="Analytics"
         component={AnalyticsScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <PieChart color={color} size={size} />,
         }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
     </Tab.Navigator>

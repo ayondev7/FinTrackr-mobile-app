@@ -3,11 +3,13 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Button, Input, Card } from '../components';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
+import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react-native';
 
 export const AddTransactionScreen = () => {
   const { categories } = useCategoryStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
+  const isDark = theme === 'dark';
 
   const [type, setType] = useState<'expense' | 'revenue'>('expense');
   const [amount, setAmount] = useState('');
@@ -45,12 +47,16 @@ export const AddTransactionScreen = () => {
           <View className="flex-row gap-3 mb-4">
             <TouchableOpacity
               onPress={() => setType('expense')}
-              className={`flex-1 py-3 rounded-xl ${
+              className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
                 type === 'expense'
                   ? 'bg-red-500'
                   : 'bg-gray-100 dark:bg-slate-700'
               }`}
             >
+              <ArrowUpCircle 
+                size={20} 
+                color={type === 'expense' ? '#FFF' : isDark ? '#D1D5DB' : '#374151'} 
+              />
               <Text
                 className={`text-center font-semibold ${
                   type === 'expense'
@@ -58,18 +64,22 @@ export const AddTransactionScreen = () => {
                     : 'text-gray-700 dark:text-gray-300'
                 }`}
               >
-                📤 Expense
+                Expense
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => setType('revenue')}
-              className={`flex-1 py-3 rounded-xl ${
+              className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
                 type === 'revenue'
                   ? 'bg-green-500'
                   : 'bg-gray-100 dark:bg-slate-700'
               }`}
             >
+              <ArrowDownCircle 
+                size={20} 
+                color={type === 'revenue' ? '#FFF' : isDark ? '#D1D5DB' : '#374151'} 
+              />
               <Text
                 className={`text-center font-semibold ${
                   type === 'revenue'
@@ -77,7 +87,7 @@ export const AddTransactionScreen = () => {
                     : 'text-gray-700 dark:text-gray-300'
                 }`}
               >
-                📥 Revenue
+                Revenue
               </Text>
             </TouchableOpacity>
           </View>
@@ -90,7 +100,7 @@ export const AddTransactionScreen = () => {
             keyboardType="decimal-pad"
             value={amount}
             onChangeText={setAmount}
-            icon={<Text className="text-gray-400 text-lg">$</Text>}
+            icon={<DollarSign size={20} color="#9CA3AF" />}
           />
         </Card>
 
