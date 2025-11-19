@@ -70,7 +70,12 @@ export const AnalyticsScreen = () => {
             }}
             width={screenWidth - 80}
             height={220}
-            chartConfig={chartConfig}
+            chartConfig={{
+              ...chartConfig,
+              propsForBackgroundLines: {
+                strokeWidth: 0,
+              },
+            }}
             style={{
               borderRadius: 16,
             }}
@@ -78,6 +83,7 @@ export const AnalyticsScreen = () => {
             yAxisSuffix=""
             fromZero
             showValuesOnTopOfBars
+            withInnerLines={false}
           />
         </Card>
 
@@ -97,12 +103,19 @@ export const AnalyticsScreen = () => {
             chartConfig={{
               ...chartConfig,
               color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
+              propsForBackgroundLines: {
+                strokeWidth: 0,
+              },
             }}
             bezier
             style={{
               borderRadius: 16,
             }}
             yAxisLabel="$"
+            withInnerLines={false}
+            withOuterLines={false}
+            withVerticalLines={false}
+            withHorizontalLines={false}
           />
         </Card>
 
