@@ -1,0 +1,115 @@
+[
+  {
+    "id": "cat-1",
+    "name": "Groceries",
+    "icon": "cart",
+    "color": "#FF6B9D",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-2",
+    "name": "Healthcare",
+    "icon": "medical",
+    "color": "#4ECDC4",
+    "type": "expense",
+    "isHealthcare": true,
+    "subCategories": [
+      {
+        "id": "sub-1",
+        "name": "Medicine",
+        "parentId": "cat-2"
+      },
+      {
+        "id": "sub-2",
+        "name": "Doctor Visits",
+        "parentId": "cat-2"
+      },
+      {
+        "id": "sub-3",
+        "name": "Hospital Bills",
+        "parentId": "cat-2"
+      }
+    ]
+  },
+  {
+    "id": "cat-3",
+    "name": "Transportation",
+    "icon": "car",
+    "color": "#FFD93D",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-4",
+    "name": "Entertainment",
+    "icon": "game-controller",
+    "color": "#A78BFA",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-5",
+    "name": "Dining Out",
+    "icon": "restaurant",
+    "color": "#FB923C",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-6",
+    "name": "Utilities",
+    "icon": "bulb",
+    "color": "#34D399",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-7",
+    "name": "Shopping",
+    "icon": "bag",
+    "color": "#EC4899",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-8",
+    "name": "Education",
+    "icon": "school",
+    "color": "#60A5FA",
+    "type": "expense",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-9",
+    "name": "Salary",
+    "icon": "wallet",
+    "color": "#10B981",
+    "type": "revenue",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-10",
+    "name": "Freelance",
+    "icon": "briefcase",
+    "color": "#8B5CF6",
+    "type": "revenue",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-11",
+    "name": "Investment Returns",
+    "icon": "trending-up",
+    "color": "#06B6D4",
+    "type": "revenue",
+    "isHealthcare": false
+  },
+  {
+    "id": "cat-12",
+    "name": "Gift",
+    "icon": "gift",
+    "color": "#F472B6",
+    "type": "revenue",
+    "isHealthcare": false
+  }
+]

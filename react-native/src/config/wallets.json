@@ -1,0 +1,26 @@
+[
+  {
+    "id": "wallet-1",
+    "name": "Cash",
+    "type": "cash",
+    "balance": 2500.00,
+    "icon": "cash",
+    "color": "#10B981"
+  },
+  {
+    "id": "wallet-2",
+    "name": "Bank Account",
+    "type": "bank",
+    "balance": 12000.00,
+    "icon": "card",
+    "color": "#3B82F6"
+  },
+  {
+    "id": "wallet-3",
+    "name": "Digital Wallet",
+    "type": "digital",
+    "balance": 1020.00,
+    "icon": "phone-portrait",
+    "color": "#8B5CF6"
+  }
+]
