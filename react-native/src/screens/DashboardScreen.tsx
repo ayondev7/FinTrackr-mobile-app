@@ -43,14 +43,71 @@ export const DashboardScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-4" style={{ paddingTop: insets.top + 16 }}>
-        <View className="mb-6">
-          <Text className="text-gray-600 dark:text-gray-400 text-base mb-2">
-            Total Balance
-          </Text>
-          <Text className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+      <View className="px-4" style={{ paddingTop: insets.top + 16 }}>
+        <View 
+          className="mb-6 p-6 rounded-3xl overflow-hidden"
+          style={{
+            backgroundColor: isDark ? '#6366F1' : '#6366F1',
+            shadowColor: '#6366F1',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.3,
+            shadowRadius: 16,
+            elevation: 8,
+          }}
+        >
+          <View 
+            className="absolute rounded-full"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              width: 160,
+              height: 160,
+              right: -40,
+              top: -40,
+            }}
+          />
+          <View 
+            className="absolute rounded-full"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              width: 120,
+              height: 120,
+              left: -20,
+              bottom: -20,
+            }}
+          />
+          
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-indigo-100 text-sm font-medium tracking-wide">
+              TOTAL BALANCE
+            </Text>
+            <View 
+              className="px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+            >
+              <Text className="text-white text-xs font-bold">
+                {user.currency}
+              </Text>
+            </View>
+          </View>
+          
+          <Text className="text-white text-5xl font-bold mb-4 tracking-tight">
             {formatCurrency(user.currentBalance, user.currency)}
           </Text>
+          
+          <View className="flex-row items-center gap-2">
+            <View 
+              className="flex-row items-center px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: 'rgba(16, 185, 129, 0.25)' }}
+            >
+              <TrendingUp size={14} color="#10B981" />
+              <Text className="text-green-300 text-xs font-bold ml-1">
+                +12.5%
+              </Text>
+            </View>
+            <Text className="text-indigo-100 text-xs font-medium">
+              vs last month
+            </Text>
+          </View>
         </View>
 
         <View className="flex-row gap-3 mb-6">
