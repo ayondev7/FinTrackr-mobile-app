@@ -25,7 +25,10 @@ export const SettingsScreen = () => {
   const isDark = theme === 'dark';
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
+    <ScrollView 
+      className="flex-1 bg-gray-50 dark:bg-slate-900"
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <View className="flex-row items-center gap-3 mb-6">
           <Text className="text-gray-900 dark:text-white text-3xl font-bold">

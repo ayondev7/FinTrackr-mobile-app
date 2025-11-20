@@ -42,7 +42,10 @@ export const DashboardScreen = () => {
   const { totalExpense, totalRevenue } = calculateTotals();
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
+    <ScrollView 
+      className="flex-1 bg-gray-50 dark:bg-slate-900"
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       <View className="px-4" style={{ paddingTop: insets.top + 16 }}>
         <View 
           className="mb-6 p-6 rounded-3xl overflow-hidden"
@@ -294,8 +297,6 @@ export const DashboardScreen = () => {
         {recentTransactions.map((transaction) => (
           <TransactionItem key={transaction.id} transaction={transaction} />
         ))}
-
-        <View className="h-6" />
       </View>
     </ScrollView>
   );

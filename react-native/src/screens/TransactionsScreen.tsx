@@ -122,7 +122,10 @@ export const TransactionsScreen = () => {
         </View>
       </View>
 
-      <ScrollView className="flex-1 p-4">
+      <ScrollView 
+        className="flex-1 p-4"
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-gray-600 dark:text-gray-400 text-sm">
             {filteredTransactions.length} transactions
@@ -151,8 +154,6 @@ export const TransactionsScreen = () => {
             </Text>
           </View>
         )}
-
-        <View className="h-6" />
       </ScrollView>
     </View>
   );

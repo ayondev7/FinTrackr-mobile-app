@@ -53,7 +53,10 @@ export const AnalyticsScreen = () => {
   }));
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
+    <ScrollView 
+      className="flex-1 bg-gray-50 dark:bg-slate-900"
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-6">
           Analytics
