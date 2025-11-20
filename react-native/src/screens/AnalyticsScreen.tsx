@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Card } from '../components';
+import { Card, StatsCard } from '../components';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { useTransactionStore, useThemeStore, useUserStore } from '../store';
 import { colors } from '../constants/theme';
+import { TrendingUp, TrendingDown, DollarSign, Activity, CreditCard } from 'lucide-react-native';
 
 export const AnalyticsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -130,23 +131,22 @@ export const AnalyticsScreen = () => {
           </Text>
           {pieData.length > 0 ? (
             <View className="items-center">
-              <View className="relative items-center justify-center">
+              <View className="relative items-center justify-center" style={{ width: 220, height: 220 }}>
                 <PieChart
                   data={pieData}
-                  width={screenWidth - 48}
+                  width={220}
                   height={220}
                   chartConfig={chartConfig}
                   accessor="amount"
                   backgroundColor="transparent"
-                  paddingLeft="0"
-                  center={[screenWidth / 4, 0]}
-                  absolute
+                  paddingLeft="55"
                   hasLegend={false}
+                  center={[0, 0]}
                 />
                 {/* Donut Hole */}
                 <View 
                   className="absolute w-32 h-32 bg-white dark:bg-slate-800 rounded-full items-center justify-center"
-                  style={{ pointerEvents: 'none' }}
+                  style={{ pointerEvents: 'none', top: 46, left: 46 }}
                 >
                   <Text className="text-gray-500 dark:text-gray-400 text-xs">Total</Text>
                   <Text className="text-gray-900 dark:text-white font-bold text-lg">
@@ -175,39 +175,40 @@ export const AnalyticsScreen = () => {
           )}
         </Card>
 
-        <View className="flex-row flex-wrap gap-4 mb-6">
-          <Card className="flex-1 min-w-[45%] p-4">
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Avg. Daily Expense
-            </Text>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">
-              $42.50
-            </Text>
-          </Card>
-          <Card className="flex-1 min-w-[45%] p-4">
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Total Transactions
-            </Text>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">
-              {transactions.length}
-            </Text>
-          </Card>
-          <Card className="flex-1 min-w-[45%] p-4">
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Largest Expense
-            </Text>
-            <Text className="text-red-500 text-2xl font-bold">
-              $250.00
-            </Text>
-          </Card>
-          <Card className="flex-1 min-w-[45%] p-4">
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Largest Revenue
-            </Text>
-            <Text className="text-green-500 text-2xl font-bold">
-              $5,000.00
-            </Text>
-          </Card>
+        <View className="flex-row flex-wrap justify-between gap-y-4 mb-6">
+          <View className="w-[48%]">
+            <StatsCard
+              title="Avg. Daily"
+              value="$42.50"
+              icon={<Activity size={20} color={themeColors.primary} />}
+              color={themeColors.primary}
+              trend={{ value: "+12%", isPositive: true }}
+            />
+          </View>
+          <View className="w-[48%]">
+            <StatsCard
+              title="Total Txns"
+              value={transactions.length.toString()}
+              icon={<CreditCard size={20} color="#8B5CF6" />}
+              color="#8B5CF6"
+            />
+          </View>
+          <View className="w-[48%]">
+            <StatsCard
+              title="Max Expense"
+              value="$250.00"
+              icon={<TrendingDown size={20} color="#EF4444" />}
+              color="#EF4444"
+            />
+          </View>
+          <View className="w-[48%]">
+            <StatsCard
+              title="Max Revenue"
+              value="$5,000.00"
+              icon={<TrendingUp size={20} color="#10B981" />}
+              color="#10B981"
+            />
+          </View>
         </View>
       </View>
     </ScrollView>

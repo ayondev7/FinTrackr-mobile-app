@@ -107,18 +107,11 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
             onLongPress={onLongPress}
             className="flex-1 items-center justify-center h-full"
           >
-             <View className={`flex-row items-center px-3 py-2 rounded-2xl ${isFocused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : 'bg-transparent'}`}>
+             <View className={`items-center justify-center w-12 h-12 rounded-full ${isFocused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : 'bg-transparent'}`}>
                 <IconComponent 
                     size={24} 
                     color={isFocused ? themeColors.primary : (isDark ? '#94A3B8' : '#64748B')} 
                 />
-                {isFocused && (
-                    <Text 
-                        className="ml-2 font-semibold text-indigo-600 dark:text-indigo-400 text-xs"
-                        numberOfLines={1}
-                    >
-                    </Text>
-                )}
              </View>
           </TouchableOpacity>
         );
