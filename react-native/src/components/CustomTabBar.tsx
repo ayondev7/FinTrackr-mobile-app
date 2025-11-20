@@ -12,7 +12,7 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
 
   return (
     <View 
-      className="absolute bottom-5 left-5 right-5 bg-white dark:bg-slate-800 rounded-[35px] h-[70px] flex-row items-center justify-between shadow-lg shadow-black/25 elevation-5"
+      className="absolute px-4 bottom-5 left-5 right-5 bg-white dark:bg-slate-800 rounded-[35px] h-[70px] flex-row items-center justify-between shadow-md shadow-black/25 elevation-5"
       style={{
         shadowColor: "#000",
         shadowOffset: {
@@ -117,7 +117,6 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
                         className="ml-2 font-semibold text-indigo-600 dark:text-indigo-400 text-xs"
                         numberOfLines={1}
                     >
-                        {label}
                     </Text>
                 )}
              </View>
