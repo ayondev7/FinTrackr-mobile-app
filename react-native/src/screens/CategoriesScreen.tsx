@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Card } from '../components';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { Folder, Briefcase, Plus } from 'lucide-react-native';
 
 export const CategoriesScreen = () => {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { categories } = useCategoryStore();
   const { theme } = useThemeStore();
@@ -29,6 +31,7 @@ export const CategoriesScreen = () => {
         <TouchableOpacity
           className="bg-indigo-600 dark:bg-indigo-500 rounded-2xl p-4 mb-6 flex-row items-center justify-center gap-2"
           activeOpacity={0.7}
+          onPress={() => navigation.navigate('AddCategory' as never)}
         >
           <Plus size={20} color="#FFF" />
           <Text className="text-white text-lg font-semibold">Add New Category</Text>

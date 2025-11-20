@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Input, Card } from '../components';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
-import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react-native';
+import { ArrowUpCircle, ArrowDownCircle, DollarSign, X, Check } from 'lucide-react-native';
 
 export const AddTransactionScreen = () => {
   const insets = useSafeAreaInsets();
@@ -36,11 +36,30 @@ export const AddTransactionScreen = () => {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-4" style={{ paddingTop: insets.top + 16 }}>
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+    <View className="flex-1 bg-gray-50 dark:bg-slate-900">
+      <View 
+        className="bg-white dark:bg-slate-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-row items-center justify-between"
+        style={{ paddingTop: insets.top + 16 }}
+      >
+        <TouchableOpacity onPress={() => {}} className="p-2">
+          <X size={24} color={isDark ? '#F1F5F9' : '#1F2937'} />
+        </TouchableOpacity>
+        <Text className="text-xl font-bold text-gray-900 dark:text-white">
           Add Transaction
         </Text>
+        <TouchableOpacity 
+          onPress={handleSubmit}
+          disabled={!amount.trim() || !selectedCategory}
+          className="p-2"
+        >
+          <Check 
+            size={24} 
+            color={(amount.trim() && selectedCategory) ? themeColors.primary : isDark ? '#475569' : '#9CA3AF'} 
+          />
+        </TouchableOpacity>
+      </View>
+      <ScrollView className="flex-1">
+        <View className="p-4">
 
         <Card className="mb-6">
           <Text className="text-gray-700 dark:text-gray-300 font-medium mb-3">
@@ -203,18 +222,9 @@ export const AddTransactionScreen = () => {
           </TouchableOpacity>
         </Card>
 
-        <View className="flex-row gap-3 mb-6">
-          <Button
-            title="Cancel"
-            variant="outline"
-            onPress={() => {}}
-            fullWidth
-          />
-          <Button title="Add Transaction" onPress={handleSubmit} fullWidth />
-        </View>
-
         <View className="h-6" />
       </View>
     </ScrollView>
+    </View>
   );
 };

@@ -11,6 +11,7 @@ import {
   AddTransactionScreen,
   AnalyticsScreen,
   CategoriesScreen,
+  AddCategoryScreen,
   HealthcareScreen,
   PredictionsScreen,
   SettingsScreen,
@@ -171,6 +172,7 @@ export const AppNavigator = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="Categories" component={CategoriesScreen} />
+        <Stack.Screen name="AddCategory" component={AddCategoryScreen} />
         <Stack.Screen name="Healthcare" component={HealthcareScreen} />
         <Stack.Screen name="Predictions" component={PredictionsScreen} />
       </Stack.Navigator>

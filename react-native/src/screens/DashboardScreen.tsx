@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Card, TransactionItem } from '../components';
 import { useUserStore, useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { formatCurrency } from '../utils/helpers';
-import { ArrowDownCircle, ArrowUpCircle, ChevronRight } from 'lucide-react-native';
+import { ArrowDownCircle, ArrowUpCircle, ChevronRight, TrendingUp, Activity, HeartPulse } from 'lucide-react-native';
 
 export const DashboardScreen = () => {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { user } = useUserStore();
   const { transactions } = useTransactionStore();
@@ -148,6 +150,74 @@ export const DashboardScreen = () => {
             </View>
           </View>
         </Card>
+
+        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          Quick Actions
+        </Text>
+        <View className="flex-row gap-3 mb-6">
+          <TouchableOpacity
+            className="flex-1"
+            onPress={() => navigation.navigate('Predictions' as never)}
+            activeOpacity={0.7}
+          >
+            <Card className="p-4">
+              <View
+                className="w-10 h-10 rounded-xl items-center justify-center mb-2"
+                style={{ backgroundColor: `${themeColors.warning}20` }}
+              >
+                <TrendingUp size={20} color={themeColors.warning} />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
+                Predictions
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                Forecast
+              </Text>
+            </Card>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-1"
+            onPress={() => navigation.navigate('Healthcare' as never)}
+            activeOpacity={0.7}
+          >
+            <Card className="p-4">
+              <View
+                className="w-10 h-10 rounded-xl items-center justify-center mb-2"
+                style={{ backgroundColor: `${themeColors.danger}20` }}
+              >
+                <HeartPulse size={20} color={themeColors.danger} />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
+                Healthcare
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                Medical
+              </Text>
+            </Card>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-1"
+            onPress={() => navigation.navigate('Categories' as never)}
+            activeOpacity={0.7}
+          >
+            <Card className="p-4">
+              <View
+                className="w-10 h-10 rounded-xl items-center justify-center mb-2"
+                style={{ backgroundColor: `${themeColors.info}20` }}
+              >
+                <Activity size={20} color={themeColors.info} />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
+                Categories
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                Manage
+              </Text>
+            </Card>
+          </TouchableOpacity>
+        </View>
 
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-lg font-bold text-gray-900 dark:text-white">

@@ -47,3 +47,5 @@ export const PREDICTION_STATUS = {
   WARNING: 'warning' as const,
   CRITICAL: 'critical' as const,
 };
+
+export { ICON_OPTIONS, COLOR_OPTIONS } from './categoryOptions';
