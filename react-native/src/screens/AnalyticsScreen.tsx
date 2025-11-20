@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../components';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { useTransactionStore, useThemeStore, useUserStore } from '../store';
 import { colors } from '../constants/theme';
 
 export const AnalyticsScreen = () => {
+  const insets = useSafeAreaInsets();
   const { transactions } = useTransactionStore();
   const { theme } = useThemeStore();
   const { user } = useUserStore();
@@ -52,7 +54,7 @@ export const AnalyticsScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-6">
+      <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-6">
           Analytics
         </Text>

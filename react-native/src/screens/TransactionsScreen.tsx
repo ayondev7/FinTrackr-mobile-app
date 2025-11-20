@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TransactionItem } from '../components';
 import { useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { FileText } from 'lucide-react-native';
 
 export const TransactionsScreen = () => {
+  const insets = useSafeAreaInsets();
   const { transactions } = useTransactionStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
@@ -36,7 +38,7 @@ export const TransactionsScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-gray-700">
+      <View className="p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-gray-700" style={{ paddingTop: insets.top + 16 }}>
         <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           Transactions
         </Text>

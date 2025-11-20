@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../components';
 import { useTransactionStore, useCategoryStore, useUserStore } from '../store';
 import { formatCurrency } from '../utils/helpers';
 import { HeartPulse } from 'lucide-react-native';
 
 export const HealthcareScreen = () => {
+  const insets = useSafeAreaInsets();
   const { transactions } = useTransactionStore();
   const { categories } = useCategoryStore();
   const { user } = useUserStore();
@@ -37,7 +39,7 @@ export const HealthcareScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-6">
+      <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <View className="flex-row items-center gap-3 mb-2">
           <Text className="text-gray-900 dark:text-white text-3xl font-bold">
             Healthcare

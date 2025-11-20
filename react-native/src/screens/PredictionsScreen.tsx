@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../components';
 import { useTransactionStore, useUserStore } from '../store';
 import { formatCurrency } from '../utils/helpers';
 
 export const PredictionsScreen = () => {
+  const insets = useSafeAreaInsets();
   const { transactions } = useTransactionStore();
   const { user } = useUserStore();
 
@@ -35,7 +37,7 @@ export const PredictionsScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-6">
+      <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
           Predictions 📊
         </Text>

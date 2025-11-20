@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../components';
 import { useThemeStore, useUserStore } from '../store';
 import { colors } from '../constants/theme';
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react-native';
 
 export const SettingsScreen = () => {
+  const insets = useSafeAreaInsets();
   const { theme, toggleTheme } = useThemeStore();
   const { user, updateUser } = useUserStore();
   const themeColors = colors[theme];
@@ -24,7 +26,7 @@ export const SettingsScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-6">
+      <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <View className="flex-row items-center gap-3 mb-6">
           <Text className="text-gray-900 dark:text-white text-3xl font-bold">
             Settings

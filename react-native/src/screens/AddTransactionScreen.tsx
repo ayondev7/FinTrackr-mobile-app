@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Input, Card } from '../components';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react-native';
 
 export const AddTransactionScreen = () => {
+  const insets = useSafeAreaInsets();
   const { categories } = useCategoryStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
@@ -35,7 +37,7 @@ export const AddTransactionScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-4">
+      <View className="p-4" style={{ paddingTop: insets.top + 16 }}>
         <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
           Add Transaction
         </Text>

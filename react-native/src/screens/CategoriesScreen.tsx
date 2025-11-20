@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../components';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { Folder, Briefcase, Plus } from 'lucide-react-native';
 
 export const CategoriesScreen = () => {
+  const insets = useSafeAreaInsets();
   const { categories } = useCategoryStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
@@ -19,7 +21,7 @@ export const CategoriesScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-6">
+      <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-6">
           Categories
         </Text>

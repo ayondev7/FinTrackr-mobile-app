@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, TransactionItem } from '../components';
 import { useUserStore, useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
@@ -7,6 +8,7 @@ import { formatCurrency } from '../utils/helpers';
 import { ArrowDownCircle, ArrowUpCircle, ChevronRight } from 'lucide-react-native';
 
 export const DashboardScreen = () => {
+  const insets = useSafeAreaInsets();
   const { user } = useUserStore();
   const { transactions } = useTransactionStore();
   const { theme } = useThemeStore();
@@ -39,7 +41,7 @@ export const DashboardScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View className="p-4">
+      <View className="p-4" style={{ paddingTop: insets.top + 16 }}>
         <View className="mb-6">
           <Text className="text-gray-600 dark:text-gray-400 text-base mb-2">
             Total Balance
