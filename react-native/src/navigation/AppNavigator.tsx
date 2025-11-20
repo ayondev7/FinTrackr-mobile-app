@@ -2,9 +2,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text, Platform } from 'react-native';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
+import { CustomTabBar } from '../components';
 import {
   DashboardScreen,
   TransactionsScreen,
@@ -16,132 +16,23 @@ import {
   PredictionsScreen,
   SettingsScreen,
 } from '../screens';
-import { LayoutDashboard, CreditCard, Plus, PieChart, Settings } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const MainTabs = () => {
-  const { theme } = useThemeStore();
-  const themeColors = colors[theme];
-  const isDark = theme === 'dark';
-
   return (
     <Tab.Navigator
+      tabBar={props => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 20,
-          left: 20,
-          right: 20,
-          backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
-          borderRadius: 35,
-          height: 70,
-          borderTopWidth: 0,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 10,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.5,
-          elevation: 5,
-          paddingBottom: 0,
-        },
       }}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarIcon: ({ focused, color }) => (
-            <View className={`flex-row items-center px-4 py-2 rounded-full ${focused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : ''}`}>
-              <LayoutDashboard color={focused ? themeColors.primary : color} size={24} />
-              {focused && (
-                <Text className="ml-2 font-semibold" style={{ color: themeColors.primary }}>
-                  Home
-                </Text>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Transactions"
-        component={TransactionsScreen}
-        options={{
-          tabBarIcon: ({ focused, color }) => (
-            <View className={`flex-row items-center px-4 py-2 rounded-full ${focused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : ''}`}>
-              <CreditCard color={focused ? themeColors.primary : color} size={24} />
-              {focused && (
-                <Text className="ml-2 font-semibold" style={{ color: themeColors.primary }}>
-                  Txns
-                </Text>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Add"
-        component={AddTransactionScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: 28,
-                backgroundColor: themeColors.primary,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 30,
-                shadowColor: themeColors.primary,
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.4,
-                shadowRadius: 12,
-                elevation: 8,
-              }}
-            >
-              <Plus color="#FFFFFF" size={32} strokeWidth={2.5} />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Analytics"
-        component={AnalyticsScreen}
-        options={{
-          tabBarIcon: ({ focused, color }) => (
-            <View className={`flex-row items-center px-4 py-2 rounded-full ${focused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : ''}`}>
-              <PieChart color={focused ? themeColors.primary : color} size={24} />
-              {focused && (
-                <Text className="ml-2 font-semibold" style={{ color: themeColors.primary }}>
-                  Stats
-                </Text>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          tabBarIcon: ({ focused, color }) => (
-            <View className={`flex-row items-center px-4 py-2 rounded-full ${focused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : ''}`}>
-              <Settings color={focused ? themeColors.primary : color} size={24} />
-              {focused && (
-                <Text className="ml-2 font-semibold" style={{ color: themeColors.primary }}>
-                  Set
-                </Text>
-              )}
-            </View>
-          ),
-        }}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Transactions" component={TransactionsScreen} />
+      <Tab.Screen name="Add" component={AddTransactionScreen} />
+      <Tab.Screen name="Analytics" component={AnalyticsScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 };
