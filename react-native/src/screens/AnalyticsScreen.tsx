@@ -63,6 +63,140 @@ export const AnalyticsScreen = () => {
           Analytics
         </Text>
 
+        <View className="flex-row flex-wrap justify-between gap-y-4 mb-6">
+          {/* Avg Daily Card - Blue Gradient */}
+          <View className="w-[48%]">
+            <View 
+              className="rounded-3xl p-5 shadow-2xl"
+              style={{
+                backgroundColor: isDark ? '#1E293B' : '#EFF6FF',
+                borderWidth: 2,
+                borderColor: isDark ? '#3B82F6' : '#BFDBFE',
+              }}
+            >
+              <View className="flex-row items-center justify-between mb-3">
+                <View 
+                  className="p-3 rounded-2xl shadow-md"
+                  style={{ backgroundColor: isDark ? '#3B82F6' : '#60A5FA' }}
+                >
+                  <Activity size={24} color="#FFFFFF" />
+                </View>
+                <View 
+                  className="px-3 py-1.5 rounded-full shadow-sm"
+                  style={{ backgroundColor: '#10B981' }}
+                >
+                  <Text className="text-white text-xs font-bold">↗ 12%</Text>
+                </View>
+              </View>
+              <Text className="text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wide mb-1">
+                Avg. Daily
+              </Text>
+              <Text className="text-blue-900 dark:text-blue-100 text-2xl font-black">
+                $42.50
+              </Text>
+            </View>
+          </View>
+
+          {/* Total Transactions Card - Purple Gradient */}
+          <View className="w-[48%]">
+            <View 
+              className="rounded-3xl p-5 shadow-2xl"
+              style={{
+                backgroundColor: isDark ? '#1E1B3A' : '#F5F3FF',
+                borderWidth: 2,
+                borderColor: isDark ? '#8B5CF6' : '#DDD6FE',
+              }}
+            >
+              <View className="flex-row items-center justify-between mb-3">
+                <View 
+                  className="p-3 rounded-2xl shadow-md"
+                  style={{ backgroundColor: isDark ? '#8B5CF6' : '#A78BFA' }}
+                >
+                  <CreditCard size={24} color="#FFFFFF" />
+                </View>
+                <View 
+                  className="w-8 h-8 rounded-full items-center justify-center"
+                  style={{ backgroundColor: isDark ? '#8B5CF6' : '#A78BFA' }}
+                >
+                  <Text className="text-white text-lg font-bold">{transactions.length}</Text>
+                </View>
+              </View>
+              <Text className="text-purple-600 dark:text-purple-300 text-xs font-bold uppercase tracking-wide mb-1">
+                Total Txns
+              </Text>
+              <Text className="text-purple-900 dark:text-purple-100 text-2xl font-black">
+                {transactions.length} Txns
+              </Text>
+            </View>
+          </View>
+
+          {/* Max Expense Card - Red Gradient */}
+          <View className="w-[48%]">
+            <View 
+              className="rounded-3xl p-5 shadow-2xl"
+              style={{
+                backgroundColor: isDark ? '#2D1B1E' : '#FEF2F2',
+                borderWidth: 2,
+                borderColor: isDark ? '#EF4444' : '#FECACA',
+              }}
+            >
+              <View className="flex-row items-center justify-between mb-3">
+                <View 
+                  className="p-3 rounded-2xl shadow-md"
+                  style={{ backgroundColor: isDark ? '#EF4444' : '#F87171' }}
+                >
+                  <TrendingDown size={24} color="#FFFFFF" />
+                </View>
+                <View 
+                  className="px-2 py-1 rounded-lg"
+                  style={{ backgroundColor: isDark ? '#7F1D1D' : '#FEE2E2' }}
+                >
+                  <Text className="text-red-600 dark:text-red-400 text-xs font-bold">MAX</Text>
+                </View>
+              </View>
+              <Text className="text-red-600 dark:text-red-300 text-xs font-bold uppercase tracking-wide mb-1">
+                Max Expense
+              </Text>
+              <Text className="text-red-900 dark:text-red-100 text-2xl font-black">
+                $250.00
+              </Text>
+            </View>
+          </View>
+
+          {/* Max Revenue Card - Green Gradient */}
+          <View className="w-[48%]">
+            <View 
+              className="rounded-3xl p-5 shadow-2xl"
+              style={{
+                backgroundColor: isDark ? '#1B2D23' : '#F0FDF4',
+                borderWidth: 2,
+                borderColor: isDark ? '#10B981' : '#BBF7D0',
+              }}
+            >
+              <View className="flex-row items-center justify-between mb-3">
+                <View 
+                  className="p-3 rounded-2xl shadow-md"
+                  style={{ backgroundColor: isDark ? '#10B981' : '#34D399' }}
+                >
+                  <TrendingUp size={24} color="#FFFFFF" />
+                </View>
+                <View 
+                  className="px-2 py-1 rounded-lg"
+                  style={{ backgroundColor: isDark ? '#065F46' : '#D1FAE5' }}
+                >
+                  <Text className="text-green-600 dark:text-green-400 text-xs font-bold">TOP</Text>
+                </View>
+              </View>
+              <Text className="text-green-600 dark:text-green-300 text-xs font-bold uppercase tracking-wide mb-1">
+                Max Revenue
+              </Text>
+              <Text className="text-green-900 dark:text-green-100 text-2xl font-black">
+                $5,000.00
+              </Text>
+            </View>
+          </View>
+        </View>
+
         <Card className="mb-6 p-4">
           <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
             Monthly Overview
@@ -139,9 +273,10 @@ export const AnalyticsScreen = () => {
                   chartConfig={chartConfig}
                   accessor="amount"
                   backgroundColor="transparent"
-                  paddingLeft="55"
+                  paddingLeft="48"
                   hasLegend={false}
-                  center={[0, 0]}
+                  center={[0, -8]}
+                  absolute
                 />
                 {/* Donut Hole */}
                 <View 
@@ -174,42 +309,6 @@ export const AnalyticsScreen = () => {
             <Text className="text-gray-500 text-center py-8">No expense data available</Text>
           )}
         </Card>
-
-        <View className="flex-row flex-wrap justify-between gap-y-4 mb-6">
-          <View className="w-[48%]">
-            <StatsCard
-              title="Avg. Daily"
-              value="$42.50"
-              icon={<Activity size={20} color={themeColors.primary} />}
-              color={themeColors.primary}
-              trend={{ value: "+12%", isPositive: true }}
-            />
-          </View>
-          <View className="w-[48%]">
-            <StatsCard
-              title="Total Txns"
-              value={transactions.length.toString()}
-              icon={<CreditCard size={20} color="#8B5CF6" />}
-              color="#8B5CF6"
-            />
-          </View>
-          <View className="w-[48%]">
-            <StatsCard
-              title="Max Expense"
-              value="$250.00"
-              icon={<TrendingDown size={20} color="#EF4444" />}
-              color="#EF4444"
-            />
-          </View>
-          <View className="w-[48%]">
-            <StatsCard
-              title="Max Revenue"
-              value="$5,000.00"
-              icon={<TrendingUp size={20} color="#10B981" />}
-              color="#10B981"
-            />
-          </View>
-        </View>
       </View>
     </ScrollView>
   );
