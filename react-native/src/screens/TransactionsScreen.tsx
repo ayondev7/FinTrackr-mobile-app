@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TransactionItem } from '../components';
 import { useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
-import { FileText } from 'lucide-react-native';
+import { FileText, Calendar } from 'lucide-react-native';
 
 export const TransactionsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -15,11 +15,37 @@ export const TransactionsScreen = () => {
 
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'revenue'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
+  const [timePeriod, setTimePeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+
+  const getDateRangeForPeriod = () => {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch (timePeriod) {
+      case 'daily':
+        return { start: startOfDay, end: new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000) };
+      case 'weekly':
+        const startOfWeek = new Date(startOfDay);
+        startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay());
+        return { start: startOfWeek, end: new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000) };
+      case 'monthly':
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        return { start: startOfMonth, end: endOfMonth };
+      case 'yearly':
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+        return { start: startOfYear, end: endOfYear };
+    }
+  };
 
   const filteredTransactions = transactions
     .filter((txn) => {
-      if (filterType === 'all') return true;
-      return txn.type === filterType;
+      if (filterType !== 'all' && txn.type !== filterType) return false;
+      
+      const txnDate = new Date(txn.date);
+      const { start, end } = getDateRangeForPeriod();
+      return txnDate >= start && txnDate <= end;
     })
     .sort((a, b) => {
       if (sortBy === 'date') {
@@ -28,12 +54,20 @@ export const TransactionsScreen = () => {
       return b.amount - a.amount;
     });
 
+  const { start, end } = getDateRangeForPeriod();
+  
   const totalExpense = transactions
-    .filter((txn) => txn.type === 'expense')
+    .filter((txn) => {
+      const txnDate = new Date(txn.date);
+      return txn.type === 'expense' && txnDate >= start && txnDate <= end;
+    })
     .reduce((sum, txn) => sum + txn.amount, 0);
 
   const totalRevenue = transactions
-    .filter((txn) => txn.type === 'revenue')
+    .filter((txn) => {
+      const txnDate = new Date(txn.date);
+      return txn.type === 'revenue' && txnDate >= start && txnDate <= end;
+    })
     .reduce((sum, txn) => sum + txn.amount, 0);
 
   return (
@@ -43,6 +77,86 @@ export const TransactionsScreen = () => {
           Transactions
         </Text>
 
+        {/* Time Period Filter */}
+        <View className="flex-row gap-2 mb-4">
+          <TouchableOpacity
+            onPress={() => setTimePeriod('daily')}
+            className={`flex-1 py-2 px-2 rounded-lg ${
+              timePeriod === 'daily'
+                ? 'bg-indigo-600 dark:bg-indigo-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-medium text-xs ${
+                timePeriod === 'daily'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Daily
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setTimePeriod('weekly')}
+            className={`flex-1 py-2 px-2 rounded-lg ${
+              timePeriod === 'weekly'
+                ? 'bg-indigo-600 dark:bg-indigo-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-medium text-xs ${
+                timePeriod === 'weekly'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Weekly
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setTimePeriod('monthly')}
+            className={`flex-1 py-2 px-2 rounded-lg ${
+              timePeriod === 'monthly'
+                ? 'bg-indigo-600 dark:bg-indigo-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-medium text-xs ${
+                timePeriod === 'monthly'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Monthly
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setTimePeriod('yearly')}
+            className={`flex-1 py-2 px-2 rounded-lg ${
+              timePeriod === 'yearly'
+                ? 'bg-indigo-600 dark:bg-indigo-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-medium text-xs ${
+                timePeriod === 'yearly'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Yearly
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Transaction Type Filter */}
         <View className="flex-row gap-2 mb-4">
           <TouchableOpacity
             onPress={() => setFilterType('all')}
