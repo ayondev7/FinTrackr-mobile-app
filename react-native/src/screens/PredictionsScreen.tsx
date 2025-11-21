@@ -78,41 +78,59 @@ export const PredictionsScreen = () => {
           Your 6-month sustainability prediction
         </Text>
 
-        <Card className="mb-6 p-6" variant="elevated" style={{ backgroundColor: isPositive ? '#10B98110' : '#EF444410' }}>
+        <View 
+          className="mb-6 p-6 rounded-3xl border-2"
+          style={{ 
+            backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+            borderColor: isPositive 
+              ? (isDark ? '#10B981' : '#BBF7D0') 
+              : (isDark ? '#EF4444' : '#FECACA')
+          }}
+        >
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-1">
-              <Text className="text-gray-600 dark:text-gray-400 text-sm mb-1">
+              <Text className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide mb-2">
                 Balance Trend
               </Text>
               <View className="flex-row items-center gap-2">
-                {isPositive ? (
-                  <TrendingUp size={32} color="#10B981" />
-                ) : (
-                  <TrendingDown size={32} color="#EF4444" />
-                )}
+                <View
+                  className="p-2 rounded-xl"
+                  style={{ backgroundColor: isPositive ? '#10B98120' : '#EF444420' }}
+                >
+                  {isPositive ? (
+                    <TrendingUp size={28} color="#10B981" strokeWidth={2.5} />
+                  ) : (
+                    <TrendingDown size={28} color="#EF4444" strokeWidth={2.5} />
+                  )}
+                </View>
                 <Text className={`text-3xl font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                   {isPositive ? 'Growing' : 'Declining'}
                 </Text>
               </View>
             </View>
             <View
-              className="w-16 h-16 rounded-full items-center justify-center"
-              style={{ backgroundColor: isPositive ? '#10B98120' : '#EF444420' }}
+              className="w-14 h-14 rounded-2xl items-center justify-center"
+              style={{ backgroundColor: isPositive ? '#10B98115' : '#EF444415' }}
             >
               {isPositive ? (
-                <CheckCircle size={32} color="#10B981" />
+                <CheckCircle size={28} color="#10B981" strokeWidth={2} />
               ) : (
-                <AlertCircle size={32} color="#EF4444" />
+                <AlertCircle size={28} color="#EF4444" strokeWidth={2} />
               )}
             </View>
           </View>
-          <Text className="text-gray-600 dark:text-gray-400 text-sm">
-            {isPositive 
-              ? `Your balance will grow by ${formatCurrency(netMonthly * 6, user.currency)} in 6 months`
-              : `Your balance will decrease by ${formatCurrency(Math.abs(netMonthly * 6), user.currency)} in 6 months`
-            }
-          </Text>
-        </Card>
+          <View 
+            className="p-4 rounded-2xl"
+            style={{ backgroundColor: isPositive ? '#10B98108' : '#EF444408' }}
+          >
+            <Text className="text-gray-700 dark:text-gray-300 text-sm leading-5">
+              {isPositive 
+                ? `Your balance will grow by ${formatCurrency(netMonthly * 6, user.currency)} in 6 months`
+                : `Your balance will decrease by ${formatCurrency(Math.abs(netMonthly * 6), user.currency)} in 6 months`
+              }
+            </Text>
+          </View>
+        </View>
 
         <Card className="mb-6 p-4">
           <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
