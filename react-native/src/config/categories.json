@@ -5,7 +5,7 @@
     "icon": "cart",
     "color": "#FF6B9D",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": true
   },
   {
     "id": "cat-2",
@@ -13,7 +13,7 @@
     "icon": "medical",
     "color": "#4ECDC4",
     "type": "expense",
-    "isHealthcare": true,
+    "isPinned": true,
     "subCategories": [
       {
         "id": "sub-1",
@@ -38,7 +38,7 @@
     "icon": "car",
     "color": "#FFD93D",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-4",
@@ -46,7 +46,7 @@
     "icon": "game-controller",
     "color": "#A78BFA",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-5",
@@ -54,7 +54,7 @@
     "icon": "restaurant",
     "color": "#FB923C",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": true
   },
   {
     "id": "cat-6",
@@ -62,7 +62,7 @@
     "icon": "bulb",
     "color": "#34D399",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-7",
@@ -70,7 +70,7 @@
     "icon": "bag",
     "color": "#EC4899",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-8",
@@ -78,7 +78,7 @@
     "icon": "school",
     "color": "#60A5FA",
     "type": "expense",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-9",
@@ -86,7 +86,7 @@
     "icon": "wallet",
     "color": "#10B981",
     "type": "revenue",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-10",
@@ -94,7 +94,7 @@
     "icon": "briefcase",
     "color": "#8B5CF6",
     "type": "revenue",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-11",
@@ -102,7 +102,7 @@
     "icon": "trending-up",
     "color": "#06B6D4",
     "type": "revenue",
-    "isHealthcare": false
+    "isPinned": false
   },
   {
     "id": "cat-12",
@@ -110,6 +110,6 @@
     "icon": "gift",
     "color": "#F472B6",
     "type": "revenue",
-    "isHealthcare": false
+    "isPinned": false
   }
 ]

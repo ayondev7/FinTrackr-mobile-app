@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { CategoryItem } from './CategoryItem';
 
 interface Category {
@@ -7,6 +8,7 @@ interface Category {
   name: string;
   type: string;
   color: string;
+  isPinned?: boolean;
 }
 
 interface CategoryListProps {
@@ -16,6 +18,8 @@ interface CategoryListProps {
 }
 
 export const CategoryList = ({ title, categories, iconType = 'folder' }: CategoryListProps) => {
+  const navigation = useNavigation();
+
   return (
     <>
       <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
@@ -23,7 +27,16 @@ export const CategoryList = ({ title, categories, iconType = 'folder' }: Categor
       </Text>
       <View className="mb-6">
         {categories.map((category) => (
-          <CategoryItem key={category.id} category={category} iconType={iconType} />
+          <CategoryItem 
+            key={category.id} 
+            category={category} 
+            iconType={iconType}
+            onPress={() => {
+              (navigation as any).navigate('CategoryDetail', {
+                categoryId: category.id,
+              });
+            }}
+          />
         ))}
       </View>
     </>

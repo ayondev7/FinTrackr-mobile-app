@@ -72,11 +72,7 @@ export const DashboardScreen = () => {
           dangerColor={themeColors.danger}
         />
 
-        <QuickActions
-          warningColor={themeColors.warning}
-          dangerColor={themeColors.danger}
-          infoColor={themeColors.info}
-        />
+        <QuickActions />
 
         <RecentTransactions
           transactions={recentTransactions}

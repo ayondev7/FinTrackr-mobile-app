@@ -1,90 +1,74 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { TrendingUp, HeartPulse, Activity } from 'lucide-react-native';
+import { Folder, Plus } from 'lucide-react-native';
 import { Card } from '../Card';
+import { useCategoryStore } from '../../store';
 
-interface QuickActionsProps {
-  warningColor: string;
-  dangerColor: string;
-  infoColor: string;
-}
-
-export const QuickActions: React.FC<QuickActionsProps> = ({
-  warningColor,
-  dangerColor,
-  infoColor,
-}) => {
+export const QuickActions = () => {
   const navigation = useNavigation();
+  const { getPinnedCategories } = useCategoryStore();
+  const pinnedCategories = getPinnedCategories();
+
+  if (pinnedCategories.length === 0) {
+    return (
+      <>
+        <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          Quick Access
+        </Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Categories' as never)}
+          activeOpacity={0.7}
+          className="mb-6"
+        >
+          <Card className="p-6 items-center">
+            <Plus size={32} color="#6B7280" className="mb-2" />
+            <Text className="text-gray-600 dark:text-gray-400 text-sm text-center">
+              Pin your favorite categories for quick access
+            </Text>
+          </Card>
+        </TouchableOpacity>
+      </>
+    );
+  }
 
   return (
     <>
       <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-        Quick Actions
+        Quick Access
       </Text>
       <View className="flex-row gap-3 mb-6">
-        <TouchableOpacity
-          className="flex-1"
-          onPress={() => navigation.navigate('Predictions' as never)}
-          activeOpacity={0.7}
-        >
-          <Card className="p-4">
-            <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: `${warningColor}20` }}
-            >
-              <TrendingUp size={20} color={warningColor} />
-            </View>
-            <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
-              Predictions
-            </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-xs">
-              Forecast
-            </Text>
-          </Card>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="flex-1"
-          onPress={() => navigation.navigate('Healthcare' as never)}
-          activeOpacity={0.7}
-        >
-          <Card className="p-4">
-            <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: `${dangerColor}20` }}
-            >
-              <HeartPulse size={20} color={dangerColor} />
-            </View>
-            <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
-              Healthcare
-            </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-xs">
-              Medical
-            </Text>
-          </Card>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="flex-1"
-          onPress={() => navigation.navigate('Categories' as never)}
-          activeOpacity={0.7}
-        >
-          <Card className="p-4">
-            <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: `${infoColor}20` }}
-            >
-              <Activity size={20} color={infoColor} />
-            </View>
-            <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
-              Categories
-            </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-xs">
-              Manage
-            </Text>
-          </Card>
-        </TouchableOpacity>
+        {pinnedCategories.map((category) => (
+          <TouchableOpacity
+            key={category.id}
+            className="flex-1"
+            onPress={() => {
+              (navigation as any).navigate('CategoryDetail', {
+                categoryId: category.id,
+              });
+            }}
+            activeOpacity={0.7}
+          >
+            <Card className="p-4">
+              <View
+                className="w-10 h-10 rounded-xl items-center justify-center mb-2"
+                style={{ backgroundColor: `${category.color}20` }}
+              >
+                <Folder size={20} color={category.color} />
+              </View>
+              <Text
+                className="font-semibold text-sm mb-1"
+                numberOfLines={1}
+                style={{ color: category.color }}
+              >
+                {category.name}
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                View Details
+              </Text>
+            </Card>
+          </TouchableOpacity>
+        ))}
       </View>
     </>
   );

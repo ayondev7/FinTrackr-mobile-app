@@ -9,13 +9,18 @@ interface SubCategory {
   count: number;
 }
 
-interface SubCategoryBreakdownProps {
+interface BreakdownByTypeProps {
   subCategories: SubCategory[];
   totalSpent: number;
+  categoryColor: string;
   currency: string;
 }
 
-export const SubCategoryBreakdown = ({ subCategories, totalSpent, currency }: SubCategoryBreakdownProps) => {
+export const BreakdownByType = ({ subCategories, totalSpent, categoryColor, currency }: BreakdownByTypeProps) => {
+  if (subCategories.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
@@ -28,7 +33,7 @@ export const SubCategoryBreakdown = ({ subCategories, totalSpent, currency }: Su
               <Text className="text-gray-900 dark:text-white font-semibold text-base">
                 {item.description}
               </Text>
-              <Text className="text-teal-500 font-bold text-lg">
+              <Text className="font-bold text-lg" style={{ color: categoryColor }}>
                 {formatCurrency(item.amount, currency)}
               </Text>
             </View>

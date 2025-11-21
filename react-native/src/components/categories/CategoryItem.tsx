@@ -1,26 +1,34 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../Card';
-import { Folder, Briefcase } from 'lucide-react-native';
+import { Folder, Briefcase, Pin } from 'lucide-react-native';
+import { useCategoryStore } from '../../store';
 
 interface Category {
   id: string;
   name: string;
   type: string;
   color: string;
+  isPinned?: boolean;
 }
 
 interface CategoryItemProps {
   category: Category;
   iconType?: 'folder' | 'briefcase';
+  onPress?: () => void;
 }
 
-export const CategoryItem = ({ category, iconType = 'folder' }: CategoryItemProps) => {
+export const CategoryItem = ({ category, iconType = 'folder', onPress }: CategoryItemProps) => {
   const Icon = iconType === 'folder' ? Folder : Briefcase;
+  const { togglePin } = useCategoryStore();
   
   return (
     <Card className="mb-3 p-4">
-      <View className="flex-row items-center justify-between">
+      <TouchableOpacity 
+        className="flex-row items-center justify-between"
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
         <View className="flex-row items-center gap-3 flex-1">
           <View
             className="w-12 h-12 rounded-xl items-center justify-center"
@@ -42,11 +50,21 @@ export const CategoryItem = ({ category, iconType = 'folder' }: CategoryItemProp
             </View>
           </View>
         </View>
-        <View
-          className="w-6 h-6 rounded-full"
-          style={{ backgroundColor: category.color }}
-        />
-      </View>
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            togglePin(category.id);
+          }}
+          className="p-2"
+          activeOpacity={0.7}
+        >
+          <Pin 
+            size={20} 
+            color={category.isPinned ? category.color : '#9CA3AF'}
+            fill={category.isPinned ? category.color : 'transparent'}
+          />
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Card>
   );
 };

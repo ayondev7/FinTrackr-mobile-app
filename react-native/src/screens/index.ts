@@ -4,6 +4,6 @@ export { AddTransactionScreen } from './AddTransactionScreen';
 export { AnalyticsScreen } from './AnalyticsScreen';
 export { CategoriesScreen } from './CategoriesScreen';
 export { AddCategoryScreen } from './AddCategoryScreen';
-export { HealthcareScreen } from './HealthcareScreen';
+export { CategoryDetailScreen } from './CategoryDetailScreen';
 export { PredictionsScreen } from './PredictionsScreen';
 export { SettingsScreen } from './SettingsScreen';

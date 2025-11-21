@@ -7,10 +7,11 @@ interface CategoryState {
   addCategory: (category: Category) => void;
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
+  togglePin: (id: string) => void;
   getCategoryById: (id: string) => Category | undefined;
   getExpenseCategories: () => Category[];
   getRevenueCategories: () => Category[];
-  getHealthcareCategories: () => Category[];
+  getPinnedCategories: () => Category[];
 }
 
 export const useCategoryStore = create<CategoryState>((set, get) => ({
@@ -33,6 +34,13 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
       categories: state.categories.filter((cat) => cat.id !== id),
     })),
   
+  togglePin: (id) =>
+    set((state) => ({
+      categories: state.categories.map((cat) =>
+        cat.id === id ? { ...cat, isPinned: !cat.isPinned } : cat
+      ),
+    })),
+  
   getCategoryById: (id) => {
     return get().categories.find((cat) => cat.id === id);
   },
@@ -49,7 +57,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
     );
   },
   
-  getHealthcareCategories: () => {
-    return get().categories.filter((cat) => cat.isHealthcare);
+  getPinnedCategories: () => {
+    return get().categories.filter((cat) => cat.isPinned).slice(0, 3);
   },
 }));

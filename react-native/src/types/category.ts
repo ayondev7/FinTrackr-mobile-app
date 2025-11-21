@@ -4,7 +4,7 @@ export interface Category {
   icon: string;
   color: string;
   type: 'expense' | 'revenue' | 'both';
-  isHealthcare?: boolean;
+  isPinned?: boolean;
   subCategories?: SubCategory[];
 }
 
