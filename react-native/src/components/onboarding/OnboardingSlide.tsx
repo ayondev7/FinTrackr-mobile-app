@@ -8,7 +8,6 @@ interface OnboardingSlideProps {
   description: string;
   image: any;
   bgColor: string;
-  icon: string;
   children?: React.ReactNode;
 }
 
@@ -17,7 +16,6 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
   description,
   image,
   bgColor,
-  icon,
   children,
 }) => {
   return (
@@ -41,10 +39,10 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
               source={image}
               className="rounded-3xl"
               style={{
-                width: width * 0.7,
-                height: width * 0.7,
+                width: width * 0.8,
+                height: width * 0.8,
               }}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </View>
         </View>
