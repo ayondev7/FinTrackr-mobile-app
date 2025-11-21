@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Switch } from 'react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { Moon, Sun } from 'lucide-react-native';
 
 interface ThemeSectionProps {

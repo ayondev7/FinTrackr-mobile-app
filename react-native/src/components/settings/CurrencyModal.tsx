@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { X, Check } from 'lucide-react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { CURRENCIES } from '../../constants';
 
 interface CurrencyModalProps {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { Download, Trash2, ChevronRight } from 'lucide-react-native';
 
 interface DataPrivacySectionProps {

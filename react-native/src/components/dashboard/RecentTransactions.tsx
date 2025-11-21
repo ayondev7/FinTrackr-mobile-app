@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
-import { TransactionItem } from '../TransactionItem';
+import { TransactionItem } from '../shared/TransactionItem';
 import { Transaction } from '../../types';
 
 interface RecentTransactionsProps {

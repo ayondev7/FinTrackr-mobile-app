@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { X, Save } from 'lucide-react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { useCategoryStore } from '../../store';
 
 interface BudgetModalProps {

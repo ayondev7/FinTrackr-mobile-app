@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { X, Bell, TrendingDown, Calendar, AlertCircle } from 'lucide-react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 
 interface NotificationModalProps {
   visible: boolean;

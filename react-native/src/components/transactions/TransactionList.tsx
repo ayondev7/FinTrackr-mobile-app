@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { FileText } from 'lucide-react-native';
-import { TransactionItem } from '../TransactionItem';
+import { TransactionItem } from '../shared/TransactionItem';
 import { Transaction } from '../../types';
 
 interface TransactionListProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { ArrowDownCircle, ArrowUpCircle } from 'lucide-react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { formatCurrency } from '../../utils/helpers';
 
 interface RevenueExpenseCardsProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { formatAmount } from '../../utils/helpers';
 
 interface DistributionChartProps {

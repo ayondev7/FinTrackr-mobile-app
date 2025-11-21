@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 import { Folder, Briefcase, Pin } from 'lucide-react-native';
 import { useCategoryStore } from '../../store';
 

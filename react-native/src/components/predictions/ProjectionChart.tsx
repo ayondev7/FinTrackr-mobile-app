@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 
 interface Projection {
   month: string;

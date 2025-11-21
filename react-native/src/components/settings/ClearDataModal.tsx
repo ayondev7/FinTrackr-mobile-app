@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, Alert } from 'react-native';
 import { X, Trash2, AlertTriangle } from 'lucide-react-native';
-import { Card } from '../Card';
+import { Card } from '../shared/Card';
 
 interface ClearDataModalProps {
   visible: boolean;

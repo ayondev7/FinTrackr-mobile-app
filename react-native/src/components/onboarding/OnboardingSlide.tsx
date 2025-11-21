@@ -46,20 +46,26 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
           >
             <Text className="text-5xl">{icon}</Text>
           </View>
-          <Image
-            source={{ uri: image }}
-            className="rounded-3xl"
+          <View
             style={{
-              width: width * 0.75,
-              height: width * 0.75,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 15 },
               shadowOpacity: 0.15,
               shadowRadius: 25,
               elevation: 10,
+              borderRadius: 24,
             }}
-            resizeMode="cover"
-          />
+          >
+            <Image
+              source={{ uri: image }}
+              className="rounded-3xl"
+              style={{
+                width: width * 0.75,
+                height: width * 0.75,
+              }}
+              resizeMode="cover"
+            />
+          </View>
         </View>
       </View>
     </View>
