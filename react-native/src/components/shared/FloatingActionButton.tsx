@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import { Plus, X, Receipt, Tag } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useThemeStore } from '../store';
-import { colors } from '../constants/theme';
+import { useThemeStore } from '../../store';
+import { colors } from '../../constants/theme';
 
 export const FloatingActionButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);

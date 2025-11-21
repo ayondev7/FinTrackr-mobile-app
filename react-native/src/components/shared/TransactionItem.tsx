@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Transaction } from '../types';
+import { Transaction } from '../../types';
 import { CategoryBadge } from './CategoryBadge';
-import { useThemeStore } from '../store/themeStore';
-import { colors } from '../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { colors } from '../../constants/theme';
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react-native';
-import { formatAmount as formatAmountWithCommas } from '../utils/helpers';
+import { formatAmount as formatAmountWithCommas } from '../../utils/helpers';
 
 interface TransactionItemProps {
   transaction: Transaction;

@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LayoutDashboard, CreditCard, TrendingUp, PieChart, Settings } from 'lucide-react-native';
-import { useThemeStore } from '../store';
-import { colors } from '../constants/theme';
+import { useThemeStore } from '../../store';
+import { colors } from '../../constants/theme';
 
 export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const { theme } = useThemeStore();

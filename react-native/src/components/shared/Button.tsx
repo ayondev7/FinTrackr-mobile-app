@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, View } from 'react-native';
-import { useThemeStore } from '../store/themeStore';
-import { colors } from '../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { colors } from '../../constants/theme';
 
 interface ButtonProps {
   title: string;

@@ -6,7 +6,7 @@ const { width } = Dimensions.get('window');
 interface OnboardingSlideProps {
   title: string;
   description: string;
-  image: string;
+  image: any;
   bgColor: string;
   icon: string;
 }
@@ -57,7 +57,7 @@ export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
             }}
           >
             <Image
-              source={{ uri: image }}
+              source={image}
               className="rounded-3xl"
               style={{
                 width: width * 0.75,

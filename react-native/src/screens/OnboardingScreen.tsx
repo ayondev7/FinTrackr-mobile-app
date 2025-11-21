@@ -9,7 +9,7 @@ interface OnboardingSlide {
   id: string;
   title: string;
   description: string;
-  image: string;
+  image: any;
   bgColor: string;
   icon: string;
 }
@@ -19,32 +19,32 @@ const slides: OnboardingSlide[] = [
     id: '1',
     title: 'Take Control Of\nYour Finances',
     description: 'Track every penny with ease. Monitor all your expenses and income in one beautifully designed app.',
-    image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500&h=500&fit=crop',
-    bgColor: '#F8F5FF',
+    image: require('../../assets/1.png'),
+    bgColor: '#E8F4F8',
     icon: '💰',
   },
   {
     id: '2',
     title: 'Visualize Your\nSpending Patterns',
     description: 'Get powerful insights with beautiful charts and analytics. See exactly where your money goes.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=500&fit=crop',
-    bgColor: '#FFF5F0',
+    image: require('../../assets/2.png'),
+    bgColor: '#F0E8F8',
     icon: '📊',
   },
   {
     id: '3',
     title: 'Smart Budget\nManagement',
     description: 'Set monthly budgets for categories and get alerts when approaching limits. Stay on track effortlessly.',
-    image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500&h=500&fit=crop',
-    bgColor: '#F0F9FF',
+    image: require('../../assets/3.png'),
+    bgColor: '#E8F8F0',
     icon: '🎯',
   },
   {
     id: '4',
     title: 'Plan Ahead With\nSmart Predictions',
     description: 'AI-powered predictions help you understand your financial future and achieve your goals faster.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=500&fit=crop',
-    bgColor: '#F0FFF4',
+    image: require('../../assets/4.png'),
+    bgColor: '#FFF8E8',
     icon: '🔮',
   },
 ];
