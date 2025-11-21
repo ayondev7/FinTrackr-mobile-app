@@ -28,7 +28,7 @@ const slides: OnboardingSlide[] = [
     title: 'Visualize Your\nSpending Patterns',
     description: 'Get powerful insights with beautiful charts and analytics. See exactly where your money goes.',
     image: require('../../assets/2.png'),
-    bgColor: '#F0E8F8',
+    bgColor: '#E8F4F8',
     icon: '📊',
   },
   {
@@ -36,7 +36,7 @@ const slides: OnboardingSlide[] = [
     title: 'Smart Budget\nManagement',
     description: 'Set monthly budgets for categories and get alerts when approaching limits. Stay on track effortlessly.',
     image: require('../../assets/3.png'),
-    bgColor: '#E8F8F0',
+    bgColor: '#E8F4F8',
     icon: '🎯',
   },
   {
@@ -44,7 +44,7 @@ const slides: OnboardingSlide[] = [
     title: 'Plan Ahead With\nSmart Predictions',
     description: 'AI-powered predictions help you understand your financial future and achieve your goals faster.',
     image: require('../../assets/4.png'),
-    bgColor: '#FFF8E8',
+    bgColor: '#E8F4F8',
     icon: '🔮',
   },
 ];
@@ -75,47 +75,47 @@ export const OnboardingScreen: React.FC = () => {
     setHasSeenOnboarding(true);
   };
 
-  const renderSlide = ({ item }: { item: OnboardingSlide }) => (
-    <OnboardingSlide
-      title={item.title}
-      description={item.description}
-      image={item.image}
-      bgColor={item.bgColor}
-      icon={item.icon}
-    />
+  const renderSlide = ({ item, index }: { item: OnboardingSlide; index: number }) => (
+    <View style={{ width, flex: 1, backgroundColor: item.bgColor }}>
+      <OnboardingSlide
+        title={item.title}
+        description={item.description}
+        image={item.image}
+        bgColor={item.bgColor}
+        icon={item.icon}
+      >
+        <View className="px-8 mt-12">
+          <Paginator data={slides} scrollX={scrollX} />
+          <OnboardingFooter
+            currentIndex={currentIndex}
+            totalSlides={slides.length}
+            onSkip={handleFinish}
+            onNext={scrollTo}
+          />
+        </View>
+      </OnboardingSlide>
+    </View>
   );
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="flex-3">
-        <FlatList
-          ref={slidesRef}
-          data={slides}
-          renderItem={renderSlide}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          bounces={false}
-          keyExtractor={(item) => item.id}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            { useNativeDriver: false }
-          )}
-          onViewableItemsChanged={viewableItemsChanged}
-          viewabilityConfig={viewConfig}
-          scrollEventThrottle={32}
-        />
-      </View>
-
-      <View className="flex-1 justify-end px-8 pb-10">
-        <Paginator data={slides} scrollX={scrollX} />
-        <OnboardingFooter
-          currentIndex={currentIndex}
-          totalSlides={slides.length}
-          onSkip={handleFinish}
-          onNext={scrollTo}
-        />
-      </View>
+    <View className="flex-1">
+      <FlatList
+        ref={slidesRef}
+        data={slides}
+        renderItem={renderSlide}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        bounces={false}
+        keyExtractor={(item) => item.id}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: false }
+        )}
+        onViewableItemsChanged={viewableItemsChanged}
+        viewabilityConfig={viewConfig}
+        scrollEventThrottle={32}
+      />
     </View>
   );
 };
