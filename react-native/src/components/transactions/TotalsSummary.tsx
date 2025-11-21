@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { formatAmount } from '../../utils/helpers';
 
 interface TotalsSummaryProps {
   totalExpense: number;
@@ -14,7 +15,7 @@ export const TotalsSummary: React.FC<TotalsSummaryProps> = ({ totalExpense, tota
           Total Expenses
         </Text>
         <Text className="text-base font-bold text-red-500">
-          ${totalExpense.toFixed(2)}
+          ${formatAmount(totalExpense)}
         </Text>
       </View>
       <View className="flex-1 ml-2">
@@ -22,7 +23,7 @@ export const TotalsSummary: React.FC<TotalsSummaryProps> = ({ totalExpense, tota
           Total Revenue
         </Text>
         <Text className="text-base font-bold text-green-500">
-          ${totalRevenue.toFixed(2)}
+          ${formatAmount(totalRevenue)}
         </Text>
       </View>
     </View>

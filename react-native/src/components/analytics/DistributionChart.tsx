@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { Card } from '../Card';
+import { formatAmount } from '../../utils/helpers';
 
 interface DistributionChartProps {
   analyticsType: 'expense' | 'revenue' | 'both';
@@ -55,7 +56,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
             >
               <Text className="text-gray-500 dark:text-gray-400 text-xs">Total</Text>
               <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                ${chartData.reduce((sum, item) => sum + item.amount, 0).toFixed(0)}
+                ${formatAmount(chartData.reduce((sum, item) => sum + item.amount, 0))}
               </Text>
             </View>
           </View>

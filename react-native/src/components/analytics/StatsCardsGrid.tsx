@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { TrendingUp, TrendingDown, Activity, CreditCard } from 'lucide-react-native';
+import { formatAmount } from '../../utils/helpers';
 
 interface StatsCardsGridProps {
   transactionCount: number;
@@ -37,7 +38,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
             Avg. Daily
           </Text>
           <Text className="text-blue-900 dark:text-blue-100 text-2xl font-black">
-            $42.50
+            ${formatAmount(42.50)}
           </Text>
         </View>
       </View>
@@ -101,7 +102,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
             Max Expense
           </Text>
           <Text className="text-red-900 dark:text-red-100 text-2xl font-black">
-            $250.00
+            ${formatAmount(250.00)}
           </Text>
         </View>
       </View>
@@ -133,7 +134,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
             Max Revenue
           </Text>
           <Text className="text-green-900 dark:text-green-100 text-2xl font-black">
-            $5,000.00
+            ${formatAmount(5000.00)}
           </Text>
         </View>
       </View>

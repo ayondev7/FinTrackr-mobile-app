@@ -5,6 +5,7 @@ import { CategoryBadge } from './CategoryBadge';
 import { useThemeStore } from '../store/themeStore';
 import { colors } from '../constants/theme';
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react-native';
+import { formatAmount as formatAmountWithCommas } from '../utils/helpers';
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -26,7 +27,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
   const formatAmount = (amount: number, type: string) => {
     const sign = type === 'expense' ? '-' : '+';
-    return `${sign}$${amount.toFixed(2)}`;
+    return `${sign}$${formatAmountWithCommas(amount)}`;
   };
 
   const getCategoryColor = (categoryId: string) => {
