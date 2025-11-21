@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useThemeStore, useUserStore, useTransactionStore, useCategoryStore } from '../store';
+import { useThemeStore, useUserStore, useTransactionStore, useCategoryStore, useOnboardingStore } from '../store';
 import { colors } from '../constants/theme';
 import { Settings } from 'lucide-react-native';
 import { 
@@ -22,6 +22,7 @@ export const SettingsScreen = () => {
   const { user, updateUser } = useUserStore();
   const { transactions, clearTransactions } = useTransactionStore();
   const { categories } = useCategoryStore();
+  const { reset: resetOnboarding } = useOnboardingStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
@@ -52,6 +53,21 @@ export const SettingsScreen = () => {
 
   const handleClearData = () => {
     clearTransactions();
+  };
+
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      'Reset Onboarding',
+      'This will log you out and show the onboarding screens again. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Reset', 
+          style: 'destructive',
+          onPress: () => resetOnboarding()
+        },
+      ]
+    );
   };
 
   return (
@@ -91,6 +107,20 @@ export const SettingsScreen = () => {
           onExportPress={() => setExportModalVisible(true)}
           onClearPress={() => setClearDataModalVisible(true)}
         />
+
+        <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-6">
+          <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">
+            Developer Options
+          </Text>
+          <TouchableOpacity
+            onPress={handleResetOnboarding}
+            className="bg-orange-500 p-4 rounded-xl"
+          >
+            <Text className="text-white text-center font-semibold">
+              Reset Onboarding
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <Text className="text-gray-500 dark:text-gray-400 text-center text-sm mb-4">
           FinTrackr v1.0.0

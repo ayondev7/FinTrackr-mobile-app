@@ -7,3 +7,7 @@ export { AddCategoryScreen } from './AddCategoryScreen';
 export { CategoryDetailScreen } from './CategoryDetailScreen';
 export { PredictionsScreen } from './PredictionsScreen';
 export { SettingsScreen } from './SettingsScreen';
+export { SplashScreen } from './SplashScreen';
+export { OnboardingScreen } from './OnboardingScreen';
+export { LoginScreen } from './LoginScreen';
+export { SignupScreen } from './SignupScreen';
