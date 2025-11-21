@@ -50,7 +50,7 @@ export const FloatingActionButton = () => {
 
   const rotation = rotateAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '45deg'],
+    outputRange: ['0deg', '90deg'],
   });
 
   const transactionButtonTranslateY = animation.interpolate({
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     right: 20,
-    bottom: 90,
+    bottom: 100,
     alignItems: 'center',
     zIndex: 1000,
   },
@@ -172,8 +172,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   mainButton: {
-    width: 64,
-    height: 64,
+    width: 50,
+    height: 50,
     borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
@@ -188,8 +188,8 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   secondaryButtonTouchable: {
-    width: 56,
-    height: 56,
+    width: 50,
+    height: 50,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
