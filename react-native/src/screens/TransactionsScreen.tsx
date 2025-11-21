@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TransactionItem } from '../components';
+import { 
+  TimePeriodFilter, 
+  TypeFilter, 
+  TotalsSummary, 
+  TransactionHeader, 
+  TransactionList 
+} from '../components/transactions';
 import { useTransactionStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
-import { FileText, Calendar } from 'lucide-react-native';
 
 export const TransactionsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -77,197 +82,37 @@ export const TransactionsScreen = () => {
           Transactions
         </Text>
 
-        {/* Time Period Filter */}
-        <View className="flex-row gap-2 mb-4">
-          <TouchableOpacity
-            onPress={() => setTimePeriod('daily')}
-            className={`flex-1 py-2 px-2 rounded-lg ${
-              timePeriod === 'daily'
-                ? 'bg-indigo-600 dark:bg-indigo-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium text-xs ${
-                timePeriod === 'daily'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Daily
-            </Text>
-          </TouchableOpacity>
+        <TimePeriodFilter
+          timePeriod={timePeriod}
+          onSelect={setTimePeriod}
+        />
 
-          <TouchableOpacity
-            onPress={() => setTimePeriod('weekly')}
-            className={`flex-1 py-2 px-2 rounded-lg ${
-              timePeriod === 'weekly'
-                ? 'bg-indigo-600 dark:bg-indigo-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium text-xs ${
-                timePeriod === 'weekly'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Weekly
-            </Text>
-          </TouchableOpacity>
+        <TypeFilter
+          filterType={filterType}
+          onSelect={setFilterType}
+        />
 
-          <TouchableOpacity
-            onPress={() => setTimePeriod('monthly')}
-            className={`flex-1 py-2 px-2 rounded-lg ${
-              timePeriod === 'monthly'
-                ? 'bg-indigo-600 dark:bg-indigo-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium text-xs ${
-                timePeriod === 'monthly'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Monthly
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setTimePeriod('yearly')}
-            className={`flex-1 py-2 px-2 rounded-lg ${
-              timePeriod === 'yearly'
-                ? 'bg-indigo-600 dark:bg-indigo-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium text-xs ${
-                timePeriod === 'yearly'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Yearly
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Transaction Type Filter */}
-        <View className="flex-row gap-2 mb-4">
-          <TouchableOpacity
-            onPress={() => setFilterType('all')}
-            className={`flex-1 py-2 px-4 rounded-xl ${
-              filterType === 'all'
-                ? 'bg-indigo-600 dark:bg-indigo-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium ${
-                filterType === 'all'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              All
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setFilterType('expense')}
-            className={`flex-1 py-2 px-4 rounded-xl ${
-              filterType === 'expense'
-                ? 'bg-red-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium ${
-                filterType === 'expense'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Expenses
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setFilterType('revenue')}
-            className={`flex-1 py-2 px-4 rounded-xl ${
-              filterType === 'revenue'
-                ? 'bg-green-500'
-                : 'bg-gray-100 dark:bg-slate-700'
-            }`}
-          >
-            <Text
-              className={`text-center font-medium ${
-                filterType === 'revenue'
-                  ? 'text-white'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Revenue
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View className="flex-row justify-between">
-          <View className="flex-1 mr-2">
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-              Total Expenses
-            </Text>
-            <Text className="text-base font-bold text-red-500">
-              ${totalExpense.toFixed(2)}
-            </Text>
-          </View>
-          <View className="flex-1 ml-2">
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-              Total Revenue
-            </Text>
-            <Text className="text-base font-bold text-green-500">
-              ${totalRevenue.toFixed(2)}
-            </Text>
-          </View>
-        </View>
+        <TotalsSummary
+          totalExpense={totalExpense}
+          totalRevenue={totalRevenue}
+        />
       </View>
 
       <ScrollView 
         className="flex-1 p-4"
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-gray-600 dark:text-gray-400 text-sm">
-            {filteredTransactions.length} transactions
-          </Text>
-          <TouchableOpacity
-            onPress={() => setSortBy(sortBy === 'date' ? 'amount' : 'date')}
-          >
-            <Text
-              className="text-sm font-medium"
-              style={{ color: themeColors.primary }}
-            >
-              Sort by: {sortBy === 'date' ? 'Date' : 'Amount'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <TransactionHeader
+          count={filteredTransactions.length}
+          sortBy={sortBy}
+          onToggleSort={() => setSortBy(sortBy === 'date' ? 'amount' : 'date')}
+          primaryColor={themeColors.primary}
+        />
 
-        {filteredTransactions.map((transaction) => (
-          <TransactionItem key={transaction.id} transaction={transaction} />
-        ))}
-
-        {filteredTransactions.length === 0 && (
-          <View className="items-center justify-center py-12">
-            <FileText size={64} color={isDark ? '#4B5563' : '#D1D5DB'} />
-            <Text className="text-gray-500 dark:text-gray-400 text-center mt-4">
-              No transactions found
-            </Text>
-          </View>
-        )}
+        <TransactionList
+          transactions={filteredTransactions}
+          isDark={isDark}
+        />
       </ScrollView>
     </View>
   );
