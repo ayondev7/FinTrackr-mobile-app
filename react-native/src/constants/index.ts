@@ -49,3 +49,4 @@ export const PREDICTION_STATUS = {
 };
 
 export { ICON_OPTIONS, COLOR_OPTIONS } from './categoryOptions';
+export { CURRENCIES } from './currencies';

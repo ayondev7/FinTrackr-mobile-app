@@ -1,3 +1,7 @@
+export const formatAmount = (amount: number): string => {
+  return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
 export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
   const symbols: Record<string, string> = {
     USD: '$',
@@ -8,7 +12,7 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
   };
   
   const symbol = symbols[currency] || '$';
-  return `${symbol}${amount.toFixed(2)}`;
+  return `${symbol}${formatAmount(amount)}`;
 };
 
 export const formatDate = (dateString: string, format: 'short' | 'medium' | 'long' = 'medium'): string => {

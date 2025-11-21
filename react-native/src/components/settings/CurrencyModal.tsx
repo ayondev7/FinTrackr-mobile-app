@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { X, Check } from 'lucide-react-native';
 import { Card } from '../Card';
+import { CURRENCIES } from '../../constants';
 
 interface CurrencyModalProps {
   visible: boolean;
@@ -9,27 +10,6 @@ interface CurrencyModalProps {
   selectedCurrency: string;
   onSelect: (currency: string) => void;
 }
-
-const currencies = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
-  { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
-  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
-  { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr' },
-  { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
-  { code: 'MXN', name: 'Mexican Peso', symbol: 'MX$' },
-  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
-  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-];
 
 export const CurrencyModal = ({ visible, onClose, selectedCurrency, onSelect }: CurrencyModalProps) => {
   return (
@@ -51,7 +31,7 @@ export const CurrencyModal = ({ visible, onClose, selectedCurrency, onSelect }: 
           </View>
           
           <ScrollView className="flex-1 p-6">
-            {currencies.map((currency) => (
+            {CURRENCIES.map((currency) => (
               <TouchableOpacity
                 key={currency.code}
                 onPress={() => {
