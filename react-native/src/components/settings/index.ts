@@ -2,3 +2,8 @@ export { ProfileCard } from './ProfileCard';
 export { ThemeSection } from './ThemeSection';
 export { PreferencesSection } from './PreferencesSection';
 export { DataPrivacySection } from './DataPrivacySection';
+export { CurrencyModal } from './CurrencyModal';
+export { NotificationModal } from './NotificationModal';
+export { BudgetModal } from './BudgetModal';
+export { ExportModal } from './ExportModal';
+export { ClearDataModal } from './ClearDataModal';

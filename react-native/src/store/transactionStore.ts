@@ -7,6 +7,7 @@ interface TransactionState {
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
+  clearTransactions: () => void;
   getTransactionsByCategory: (categoryId: string) => Transaction[];
   getTransactionsByType: (type: 'expense' | 'revenue') => Transaction[];
   getTransactionsByDateRange: (startDate: string, endDate: string) => Transaction[];
@@ -30,6 +31,11 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
   deleteTransaction: (id) =>
     set((state) => ({
       transactions: state.transactions.filter((txn) => txn.id !== id),
+    })),
+  
+  clearTransactions: () =>
+    set(() => ({
+      transactions: [],
     })),
   
   getTransactionsByCategory: (categoryId) => {

@@ -8,16 +8,31 @@ interface PreferencesSectionProps {
   successColor: string;
   infoColor: string;
   warningColor: string;
+  onCurrencyPress: () => void;
+  onNotificationPress: () => void;
+  onBudgetPress: () => void;
 }
 
-export const PreferencesSection = ({ currency, successColor, infoColor, warningColor }: PreferencesSectionProps) => {
+export const PreferencesSection = ({ 
+  currency, 
+  successColor, 
+  infoColor, 
+  warningColor,
+  onCurrencyPress,
+  onNotificationPress,
+  onBudgetPress
+}: PreferencesSectionProps) => {
   return (
     <>
       <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
         Preferences
       </Text>
       <Card className="mb-6">
-        <TouchableOpacity className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700">
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700"
+          onPress={onCurrencyPress}
+          activeOpacity={0.7}
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-10 h-10 rounded-xl items-center justify-center"
@@ -37,7 +52,11 @@ export const PreferencesSection = ({ currency, successColor, infoColor, warningC
           <ChevronRight size={20} color="#9CA3AF" />
         </TouchableOpacity>
 
-        <TouchableOpacity className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700">
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700"
+          onPress={onNotificationPress}
+          activeOpacity={0.7}
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-10 h-10 rounded-xl items-center justify-center"
@@ -57,7 +76,11 @@ export const PreferencesSection = ({ currency, successColor, infoColor, warningC
           <ChevronRight size={20} color="#9CA3AF" />
         </TouchableOpacity>
 
-        <TouchableOpacity className="p-4 flex-row items-center justify-between">
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between"
+          onPress={onBudgetPress}
+          activeOpacity={0.7}
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-10 h-10 rounded-xl items-center justify-center"

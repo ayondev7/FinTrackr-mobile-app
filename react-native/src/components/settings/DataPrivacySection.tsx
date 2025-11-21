@@ -6,16 +6,27 @@ import { Download, Trash2, ChevronRight } from 'lucide-react-native';
 interface DataPrivacySectionProps {
   primaryColor: string;
   dangerColor: string;
+  onExportPress: () => void;
+  onClearPress: () => void;
 }
 
-export const DataPrivacySection = ({ primaryColor, dangerColor }: DataPrivacySectionProps) => {
+export const DataPrivacySection = ({ 
+  primaryColor, 
+  dangerColor,
+  onExportPress,
+  onClearPress
+}: DataPrivacySectionProps) => {
   return (
     <>
       <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
         Data & Privacy
       </Text>
       <Card className="mb-6">
-        <TouchableOpacity className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700">
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700"
+          onPress={onExportPress}
+          activeOpacity={0.7}
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-10 h-10 rounded-xl items-center justify-center"
@@ -35,7 +46,11 @@ export const DataPrivacySection = ({ primaryColor, dangerColor }: DataPrivacySec
           <ChevronRight size={20} color="#9CA3AF" />
         </TouchableOpacity>
 
-        <TouchableOpacity className="p-4 flex-row items-center justify-between">
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between"
+          onPress={onClearPress}
+          activeOpacity={0.7}
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-10 h-10 rounded-xl items-center justify-center"
