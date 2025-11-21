@@ -1,12 +1,15 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LineChart } from 'react-native-chart-kit';
-import { Card } from '../components';
 import { useTransactionStore, useUserStore, useThemeStore } from '../store';
-import { formatCurrency } from '../utils/helpers';
 import { colors } from '../constants/theme';
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react-native';
+import { 
+  BalanceTrendCard, 
+  ProjectionChart, 
+  AverageCards, 
+  MonthlyBreakdown, 
+  SmartInsights 
+} from '../components/predictions';
 
 export const PredictionsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -78,234 +81,42 @@ export const PredictionsScreen = () => {
           Your 6-month sustainability prediction
         </Text>
 
-        <View 
-          className="mb-6 p-6 rounded-3xl border-2"
-          style={{ 
-            backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
-            borderColor: isPositive 
-              ? (isDark ? '#10B981' : '#BBF7D0') 
-              : (isDark ? '#EF4444' : '#FECACA')
-          }}
-        >
-          <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-1">
-              <Text className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide mb-2">
-                Balance Trend
-              </Text>
-              <View className="flex-row items-center gap-2">
-                <View
-                  className="p-2 rounded-xl"
-                  style={{ backgroundColor: isPositive ? '#10B98120' : '#EF444420' }}
-                >
-                  {isPositive ? (
-                    <TrendingUp size={28} color="#10B981" strokeWidth={2.5} />
-                  ) : (
-                    <TrendingDown size={28} color="#EF4444" strokeWidth={2.5} />
-                  )}
-                </View>
-                <Text className={`text-3xl font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {isPositive ? 'Growing' : 'Declining'}
-                </Text>
-              </View>
-            </View>
-            <View
-              className="w-14 h-14 rounded-2xl items-center justify-center"
-              style={{ backgroundColor: isPositive ? '#10B98115' : '#EF444415' }}
-            >
-              {isPositive ? (
-                <CheckCircle size={28} color="#10B981" strokeWidth={2} />
-              ) : (
-                <AlertCircle size={28} color="#EF4444" strokeWidth={2} />
-              )}
-            </View>
-          </View>
-          <View 
-            className="p-4 rounded-2xl"
-            style={{ backgroundColor: isPositive ? '#10B98108' : '#EF444408' }}
-          >
-            <Text className="text-gray-700 dark:text-gray-300 text-sm leading-5">
-              {isPositive 
-                ? `Your balance will grow by ${formatCurrency(netMonthly * 6, user.currency)} in 6 months`
-                : `Your balance will decrease by ${formatCurrency(Math.abs(netMonthly * 6), user.currency)} in 6 months`
-              }
-            </Text>
-          </View>
-        </View>
+        <BalanceTrendCard
+          isPositive={isPositive}
+          isDark={isDark}
+          netMonthly={netMonthly}
+          currency={user.currency}
+        />
 
-        <Card className="mb-6 p-4">
-          <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
-            6-Month Balance Projection
-          </Text>
-          <LineChart
-            data={{
-              labels: ['Now', ...projections.map(p => p.shortMonth)],
-              datasets: [{
-                data: [user.currentBalance, ...projections.map(p => p.balance)],
-              }],
-            }}
-            width={screenWidth - 80}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-            style={{
-              borderRadius: 16,
-            }}
-            yAxisLabel="$"
-            withInnerLines={false}
-            withOuterLines={false}
-            withVerticalLines={false}
-            withHorizontalLines={true}
-            withDots={true}
-            withShadow={false}
-          />
-        </Card>
+        <ProjectionChart
+          projections={projections}
+          currentBalance={user.currentBalance}
+          chartConfig={chartConfig}
+          screenWidth={screenWidth}
+        />
 
-        <View className="flex-row gap-3 mb-6">
-          <Card className="flex-1 p-4">
-            <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: '#EF444420' }}
-            >
-              <TrendingDown size={20} color="#EF4444" />
-            </View>
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Monthly Expense
-            </Text>
-            <Text className="text-red-500 text-lg font-bold">
-              {formatCurrency(avgMonthlyExpense, user.currency)}
-            </Text>
-          </Card>
+        <AverageCards
+          avgMonthlyExpense={avgMonthlyExpense}
+          avgMonthlyRevenue={avgMonthlyRevenue}
+          netMonthly={netMonthly}
+          isPositive={isPositive}
+          currency={user.currency}
+        />
 
-          <Card className="flex-1 p-4">
-            <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: '#10B98120' }}
-            >
-              <TrendingUp size={20} color="#10B981" />
-            </View>
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Monthly Revenue
-            </Text>
-            <Text className="text-green-500 text-lg font-bold">
-              {formatCurrency(avgMonthlyRevenue, user.currency)}
-            </Text>
-          </Card>
+        <MonthlyBreakdown
+          projections={projections}
+          currentBalance={user.currentBalance}
+          netMonthly={netMonthly}
+          currency={user.currency}
+          getStatus={getStatus}
+        />
 
-          <Card className="flex-1 p-4">
-            <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: isPositive ? '#10B98120' : '#EF444420' }}
-            >
-              {isPositive ? (
-                <TrendingUp size={20} color="#10B981" />
-              ) : (
-                <TrendingDown size={20} color="#EF4444" />
-              )}
-            </View>
-            <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-              Net Change
-            </Text>
-            <Text
-              className="text-lg font-bold"
-              style={{ color: isPositive ? '#10B981' : '#EF4444' }}
-            >
-              {isPositive ? '+' : ''}
-              {formatCurrency(netMonthly, user.currency)}
-            </Text>
-          </Card>
-        </View>
-
-        <Card className="mb-6 p-6" variant="elevated">
-          <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
-            Monthly Breakdown
-          </Text>
-          <View className="gap-3">
-            {projections.map((projection, index) => {
-              const status = getStatus(projection.balance);
-              const change = index === 0 
-                ? netMonthly 
-                : projection.balance - projections[index - 1].balance;
-              
-              return (
-                <View key={index} className="flex-row items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 rounded-xl">
-                  <View className="flex-row items-center gap-3 flex-1">
-                    <View
-                      className={`w-2 h-10 rounded-full ${
-                        status === 'healthy' ? 'bg-green-500' :
-                        status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`}
-                    />
-                    <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white font-semibold">
-                        {projection.month}
-                      </Text>
-                      <Text className="text-gray-500 dark:text-gray-400 text-xs">
-                        {change >= 0 ? '+' : ''}{formatCurrency(change, user.currency)}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text
-                    className="text-lg font-bold"
-                    style={{ color: projection.balance >= user.currentBalance ? '#10B981' : '#EF4444' }}
-                  >
-                    {formatCurrency(projection.balance, user.currency)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </Card>
-
-        <Card className="p-6 mb-6" variant="elevated">
-          <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
-            💡 Smart Insights
-          </Text>
-          <View className="gap-3">
-            {isPositive ? (
-              <>
-                <View className="flex-row gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                  <CheckCircle size={20} color="#10B981" />
-                  <Text className="text-gray-700 dark:text-gray-300 flex-1">
-                    Your finances are on a positive trajectory! Keep it up!
-                  </Text>
-                </View>
-                <View className="flex-row gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                  <AlertCircle size={20} color="#3B82F6" />
-                  <Text className="text-gray-700 dark:text-gray-300 flex-1">
-                    Consider saving {formatCurrency(netMonthly * 0.2, user.currency)}/month for emergencies
-                  </Text>
-                </View>
-                <View className="flex-row gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
-                  <TrendingUp size={20} color="#A855F7" />
-                  <Text className="text-gray-700 dark:text-gray-300 flex-1">
-                    At this rate, you'll have {formatCurrency(projections[5].balance, user.currency)} in 6 months
-                  </Text>
-                </View>
-              </>
-            ) : (
-              <>
-                <View className="flex-row gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
-                  <AlertCircle size={20} color="#EF4444" />
-                  <Text className="text-gray-700 dark:text-gray-300 flex-1">
-                    Warning: Your expenses exceed your revenue
-                  </Text>
-                </View>
-                <View className="flex-row gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
-                  <AlertCircle size={20} color="#F59E0B" />
-                  <Text className="text-gray-700 dark:text-gray-300 flex-1">
-                    Consider reducing monthly expenses by {formatCurrency(Math.abs(netMonthly), user.currency)}
-                  </Text>
-                </View>
-                <View className="flex-row gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                  <TrendingUp size={20} color="#3B82F6" />
-                  <Text className="text-gray-700 dark:text-gray-300 flex-1">
-                    Look for ways to increase your income streams
-                  </Text>
-                </View>
-              </>
-            )}
-          </View>
-        </Card>
+        <SmartInsights
+          isPositive={isPositive}
+          netMonthly={netMonthly}
+          projections={projections}
+          currency={user.currency}
+        />
       </View>
     </ScrollView>
   );

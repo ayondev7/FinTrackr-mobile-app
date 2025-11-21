@@ -1,18 +1,14 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Card } from '../components';
-import { useCategoryStore, useThemeStore } from '../store';
-import { colors } from '../constants/theme';
-import { Folder, Briefcase, Plus } from 'lucide-react-native';
+import { useCategoryStore } from '../store';
+import { AddCategoryButton, CategoryList } from '../components/categories';
 
 export const CategoriesScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { categories } = useCategoryStore();
-  const { theme } = useThemeStore();
-  const themeColors = colors[theme];
 
   const expenseCategories = categories.filter(
     (cat) => cat.type === 'expense' || cat.type === 'both'
@@ -28,88 +24,19 @@ export const CategoriesScreen = () => {
           Categories
         </Text>
 
-        <TouchableOpacity
-          className="bg-indigo-600 dark:bg-indigo-500 rounded-2xl p-4 mb-6 flex-row items-center justify-center gap-2"
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('AddCategory' as never)}
-        >
-          <Plus size={20} color="#FFF" />
-          <Text className="text-white text-lg font-semibold">Add New Category</Text>
-        </TouchableOpacity>
+        <AddCategoryButton onPress={() => navigation.navigate('AddCategory' as never)} />
 
-        <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
-          Expense Categories
-        </Text>
-        <View className="mb-6">
-          {expenseCategories.map((category) => (
-            <Card key={category.id} className="mb-3 p-4">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-3 flex-1">
-                  <View
-                    className="w-12 h-12 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: `${category.color}20` }}
-                  >
-                    <Folder size={24} color={category.color} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
-                      {category.name}
-                    </Text>
-                    <View
-                      className="px-2 py-1 rounded-full self-start"
-                      style={{ backgroundColor: `${category.color}20` }}
-                    >
-                      <Text className="text-xs font-medium" style={{ color: category.color }}>
-                        {category.type.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  className="w-6 h-6 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                />
-              </View>
-            </Card>
-          ))}
-        </View>
+        <CategoryList 
+          title="Expense Categories" 
+          categories={expenseCategories} 
+          iconType="folder" 
+        />
 
-        <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
-          Revenue Categories
-        </Text>
-        <View>
-          {revenueCategories.map((category) => (
-            <Card key={category.id} className="mb-3 p-4">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-3 flex-1">
-                  <View
-                    className="w-12 h-12 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: `${category.color}20` }}
-                  >
-                    <Briefcase size={24} color={category.color} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
-                      {category.name}
-                    </Text>
-                    <View
-                      className="px-2 py-1 rounded-full self-start"
-                      style={{ backgroundColor: `${category.color}20` }}
-                    >
-                      <Text className="text-xs font-medium" style={{ color: category.color }}>
-                        {category.type.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  className="w-6 h-6 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                />
-              </View>
-            </Card>
-          ))}
-        </View>
+        <CategoryList 
+          title="Revenue Categories" 
+          categories={revenueCategories} 
+          iconType="briefcase" 
+        />
       </View>
     </ScrollView>
   );
