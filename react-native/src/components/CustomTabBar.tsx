@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { LayoutDashboard, CreditCard, Plus, PieChart, Settings } from 'lucide-react-native';
+import { LayoutDashboard, CreditCard, TrendingUp, PieChart, Settings } from 'lucide-react-native';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 
@@ -58,8 +58,9 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
                 IconComponent = CreditCard; 
                 label = 'Txns';
                 break;
-            case 'Add': 
-                IconComponent = Plus; 
+            case 'Predictions': 
+                IconComponent = TrendingUp; 
+                label = 'Predict';
                 break;
             case 'Analytics': 
                 IconComponent = PieChart; 
@@ -72,29 +73,6 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
             default: 
                 IconComponent = LayoutDashboard;
         }
-        
-        if (route.name === 'Add') {
-             return (
-                <View key={route.key} className="w-[20%] items-center z-50">
-                    <TouchableOpacity
-                        onPress={onPress}
-                        onLongPress={onLongPress}
-                        className="top-[-30px] items-center justify-center"
-                        style={{
-                            shadowColor: themeColors.primary,
-                            shadowOffset: { width: 0, height: 8 },
-                            shadowOpacity: 0.4,
-                            shadowRadius: 12,
-                            elevation: 8,
-                        }}
-                    >
-                        <View className="w-14 h-14 rounded-full bg-indigo-600 items-center justify-center">
-                            <Plus color="white" size={32} strokeWidth={2.5} />
-                        </View>
-                    </TouchableOpacity>
-                </View>
-             )
-        }
 
         return (
           <TouchableOpacity
@@ -102,7 +80,6 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
             accessibilityRole="button"
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarTestID}
             onPress={onPress}
             onLongPress={onLongPress}
             className="flex-1 items-center justify-center h-full"

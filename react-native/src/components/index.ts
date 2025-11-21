@@ -5,3 +5,4 @@ export { CategoryBadge } from './CategoryBadge';
 export { TransactionItem } from './TransactionItem';
 export { StatsCard } from './StatsCard';
 export { CustomTabBar } from './CustomTabBar';
+export { FloatingActionButton } from './FloatingActionButton';

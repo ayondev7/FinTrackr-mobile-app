@@ -1,10 +1,11 @@
 import React from 'react';
+import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
-import { CustomTabBar } from '../components';
+import { CustomTabBar, FloatingActionButton } from '../components';
 import {
   DashboardScreen,
   TransactionsScreen,
@@ -22,18 +23,21 @@ const Stack = createNativeStackNavigator();
 
 const MainTabs = () => {
   return (
-    <Tab.Navigator
-      tabBar={props => <CustomTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Transactions" component={TransactionsScreen} />
-      <Tab.Screen name="Add" component={AddTransactionScreen} />
-      <Tab.Screen name="Analytics" component={AnalyticsScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        tabBar={props => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Tab.Screen name="Dashboard" component={DashboardScreen} />
+        <Tab.Screen name="Transactions" component={TransactionsScreen} />
+        <Tab.Screen name="Predictions" component={PredictionsScreen} />
+        <Tab.Screen name="Analytics" component={AnalyticsScreen} />
+        <Tab.Screen name="Settings" component={SettingsScreen} />
+      </Tab.Navigator>
+      <FloatingActionButton />
+    </View>
   );
 };
 
@@ -62,10 +66,10 @@ export const AppNavigator = () => {
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Add" component={AddTransactionScreen} />
         <Stack.Screen name="Categories" component={CategoriesScreen} />
         <Stack.Screen name="AddCategory" component={AddCategoryScreen} />
         <Stack.Screen name="Healthcare" component={HealthcareScreen} />
-        <Stack.Screen name="Predictions" component={PredictionsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
