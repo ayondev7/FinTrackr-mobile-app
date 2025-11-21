@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, StatsCard } from '../components';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
@@ -15,6 +15,8 @@ export const AnalyticsScreen = () => {
   const themeColors = colors[theme];
   const screenWidth = Dimensions.get('window').width;
   const isDark = theme === 'dark';
+  
+  const [analyticsType, setAnalyticsType] = useState<'expense' | 'revenue' | 'both'>('expense');
 
   const chartConfig = {
     backgroundColor: themeColors.card,
@@ -33,6 +35,11 @@ export const AnalyticsScreen = () => {
     }
   };
 
+  const getFilteredTransactions = () => {
+    if (analyticsType === 'both') return transactions;
+    return transactions.filter((txn) => txn.type === analyticsType);
+  };
+
   const expenseData = transactions
     .filter((txn) => txn.type === 'expense')
     .reduce((acc: any[], txn) => {
@@ -45,7 +52,32 @@ export const AnalyticsScreen = () => {
       return acc;
     }, []);
 
-  const pieData = expenseData.map((item, index) => ({
+  const revenueData = transactions
+    .filter((txn) => txn.type === 'revenue')
+    .reduce((acc: any[], txn) => {
+      const existing = acc.find((item) => item.name === txn.category);
+      if (existing) {
+        existing.amount += txn.amount;
+      } else {
+        acc.push({ name: txn.category, amount: txn.amount });
+      }
+      return acc;
+    }, []);
+
+  const getChartData = () => {
+    let dataToUse = [];
+    if (analyticsType === 'expense') {
+      dataToUse = expenseData;
+    } else if (analyticsType === 'revenue') {
+      dataToUse = revenueData;
+    } else {
+      dataToUse = [...expenseData, ...revenueData];
+    }
+    return dataToUse;
+  };
+
+  const chartData = getChartData();
+  const pieData = chartData.map((item, index) => ({
     name: item.name,
     amount: item.amount,
     color: Object.values(themeColors.chart)[index % 10],
@@ -59,9 +91,69 @@ export const AnalyticsScreen = () => {
       contentContainerStyle={{ paddingBottom: 100 }}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
-        <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-6">
+        <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-4">
           Analytics
         </Text>
+
+        {/* Analytics Type Filter */}
+        <View className="flex-row gap-2 mb-6">
+          <TouchableOpacity
+            onPress={() => setAnalyticsType('expense')}
+            className={`flex-1 py-2.5 px-4 rounded-xl ${
+              analyticsType === 'expense'
+                ? 'bg-red-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-semibold ${
+                analyticsType === 'expense'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Expenses
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setAnalyticsType('revenue')}
+            className={`flex-1 py-2.5 px-4 rounded-xl ${
+              analyticsType === 'revenue'
+                ? 'bg-green-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-semibold ${
+                analyticsType === 'revenue'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Revenue
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setAnalyticsType('both')}
+            className={`flex-1 py-2.5 px-4 rounded-xl ${
+              analyticsType === 'both'
+                ? 'bg-indigo-600 dark:bg-indigo-500'
+                : 'bg-gray-100 dark:bg-slate-700'
+            }`}
+          >
+            <Text
+              className={`text-center font-semibold ${
+                analyticsType === 'both'
+                  ? 'text-white'
+                  : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Both
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <View className="flex-row flex-wrap justify-between gap-y-4 mb-6">
           {/* Avg Daily Card - Blue Gradient */}
@@ -199,7 +291,7 @@ export const AnalyticsScreen = () => {
 
         <Card className="mb-6 p-4">
           <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
-            Monthly Overview
+            Monthly {analyticsType === 'expense' ? 'Expenses' : analyticsType === 'revenue' ? 'Revenue' : 'Overview'}
           </Text>
           <BarChart
             data={{
@@ -212,6 +304,12 @@ export const AnalyticsScreen = () => {
             height={220}
             chartConfig={{
               ...chartConfig,
+              color: (opacity = 1) => 
+                analyticsType === 'revenue' 
+                  ? `rgba(16, 185, 129, ${opacity})` 
+                  : analyticsType === 'expense'
+                  ? `rgba(239, 68, 68, ${opacity})`
+                  : themeColors.primary,
               propsForBackgroundLines: {
                 strokeWidth: 0,
               },
@@ -261,7 +359,7 @@ export const AnalyticsScreen = () => {
 
         <Card className="mb-6 p-4">
           <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
-            Expense Distribution
+            {analyticsType === 'expense' ? 'Expense' : analyticsType === 'revenue' ? 'Revenue' : 'Transaction'} Distribution
           </Text>
           {pieData.length > 0 ? (
             <View className="items-center">
@@ -285,7 +383,7 @@ export const AnalyticsScreen = () => {
                 >
                   <Text className="text-gray-500 dark:text-gray-400 text-xs">Total</Text>
                   <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                    ${expenseData.reduce((sum, item) => sum + item.amount, 0).toFixed(0)}
+                    ${chartData.reduce((sum, item) => sum + item.amount, 0).toFixed(0)}
                   </Text>
                 </View>
               </View>
@@ -299,14 +397,16 @@ export const AnalyticsScreen = () => {
                       style={{ backgroundColor: item.color }} 
                     />
                     <Text className="text-gray-600 dark:text-gray-300 text-xs">
-                      {item.name} ({Math.round((item.amount / expenseData.reduce((sum, i) => sum + i.amount, 0)) * 100)}%)
+                      {item.name} ({Math.round((item.amount / chartData.reduce((sum, i) => sum + i.amount, 0)) * 100)}%)
                     </Text>
                   </View>
                 ))}
               </View>
             </View>
           ) : (
-            <Text className="text-gray-500 text-center py-8">No expense data available</Text>
+            <Text className="text-gray-500 text-center py-8">
+              No {analyticsType === 'both' ? 'transaction' : analyticsType} data available
+            </Text>
           )}
         </Card>
       </View>
