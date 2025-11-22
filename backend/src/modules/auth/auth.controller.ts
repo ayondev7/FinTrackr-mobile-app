@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../../config/database';
 import { config } from '../../config';
 import { ApiError, asyncHandler, sendSuccess } from '../../utils/apiHelpers';
-import { signupSchema, loginSchema, socialAuthSchema } from './auth.validation';
+import { signupSchema, loginSchema, socialAuthSchema, refreshTokenSchema } from './auth.validation';
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
   console.log('Signup request received:', req.body.email);
@@ -136,4 +136,35 @@ export const socialAuth = asyncHandler(async (req: Request, res: Response) => {
     accessToken,
     refreshToken,
   }, 'Authentication successful');
+});
+
+export const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
+  console.log('Refresh token request received');
+
+  const validatedData = refreshTokenSchema.parse(req.body);
+
+  const decoded = jwt.verify(validatedData.refreshToken, config.jwt.secret) as { userId: string };
+
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.userId },
+  });
+
+  if (!user) {
+    throw new ApiError(401, 'Invalid refresh token');
+  }
+
+  const accessToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
+    expiresIn: config.jwt.accessTokenExpiresIn,
+  });
+
+  const refreshToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
+    expiresIn: config.jwt.refreshTokenExpiresIn,
+  });
+
+  console.log('Access token refreshed successfully');
+
+  sendSuccess(res, {
+    accessToken,
+    refreshToken,
+  }, 'Token refreshed successfully');
 });
