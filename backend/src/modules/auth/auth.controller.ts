@@ -1,141 +1,86 @@
-import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcryptjs';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import type { Secret, SignOptions } from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import prisma from '../../config/database';
 import { config } from '../../config';
 import { ApiError, asyncHandler, sendSuccess } from '../../utils/apiHelpers';
-import { signupSchema, loginSchema, socialAuthSchema, refreshTokenSchema } from './auth.validation';
+import { googleAuthSchema, refreshTokenSchema } from './auth.validation';
+import type { GoogleAuthInput } from './auth.validation';
 
-export const signup = asyncHandler(async (req: Request, res: Response) => {
-  console.log('Signup request received:', req.body.email);
-
-  const validatedData = signupSchema.parse(req.body);
-
-  const existingUser = await prisma.user.findUnique({
-    where: { email: validatedData.email },
-  });
-
-  if (existingUser) {
-    throw new ApiError(400, 'Email already registered');
+const resolveDisplayName = (payload: GoogleAuthInput) => {
+  if (payload.name && payload.name.trim()) {
+    return payload.name.trim();
   }
 
-  const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+  const combinedName = `${payload.given_name ?? ''} ${payload.family_name ?? ''}`.trim();
+  if (combinedName) {
+    return combinedName;
+  }
 
-  const user = await prisma.user.create({
-    data: {
-      name: validatedData.name,
-      email: validatedData.email,
-      password: hashedPassword,
-      currency: validatedData.currency,
-      initialBalance: validatedData.initialBalance,
-      currentBalance: validatedData.initialBalance,
-    },
-  });
+  return payload.email.split('@')[0];
+};
 
-  console.log('User created successfully:', user.id);
+const getJwtSecret = (): Secret => {
+  if (!config.jwt.secret) {
+    throw new ApiError(500, 'JWT secret is not configured');
+  }
 
-  const accessToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.accessTokenExpiresIn,
-  });
+  return config.jwt.secret;
+};
 
-  const refreshToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.refreshTokenExpiresIn,
-  });
+const createToken = (userId: string, expiresIn: string | number) => {
+  const normalizedExpiry = expiresIn as StringValue | number;
+  const options: SignOptions = { expiresIn: normalizedExpiry };
+  return jwt.sign({ userId }, getJwtSecret(), options);
+};
 
-  const { password, ...userWithoutPassword } = user;
-
-  sendSuccess(
-    res,
-    {
-      user: userWithoutPassword,
-      accessToken,
-      refreshToken,
-    },
-    'User registered successfully',
-    201
-  );
+const createTokenPair = (userId: string) => ({
+  accessToken: createToken(userId, config.jwt.accessTokenExpiresIn || '30m'),
+  refreshToken: createToken(userId, config.jwt.refreshTokenExpiresIn || '7d'),
 });
 
-export const login = asyncHandler(async (req: Request, res: Response) => {
-  console.log('Login request received:', req.body.email);
+export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
+  console.log('Google auth request received:', req.body.email);
 
-  const validatedData = loginSchema.parse(req.body);
-
-  const user = await prisma.user.findUnique({
-    where: { email: validatedData.email },
-  });
-
-  if (!user || !user.password) {
-    throw new ApiError(401, 'Invalid credentials');
-  }
-
-  const isPasswordValid = await bcrypt.compare(validatedData.password, user.password);
-
-  if (!isPasswordValid) {
-    throw new ApiError(401, 'Invalid credentials');
-  }
-
-  console.log('User logged in successfully:', user.id);
-
-  const accessToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.accessTokenExpiresIn,
-  });
-
-  const refreshToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.refreshTokenExpiresIn,
-  });
-
-  const { password, ...userWithoutPassword } = user;
-
-  sendSuccess(res, {
-    user: userWithoutPassword,
-    accessToken,
-    refreshToken,
-  }, 'Login successful');
-});
-
-export const socialAuth = asyncHandler(async (req: Request, res: Response) => {
-  console.log('Social auth request received:', req.body.email);
-
-  const validatedData = socialAuthSchema.parse(req.body);
+  const validatedData = googleAuthSchema.parse(req.body);
+  const normalizedName = resolveDisplayName(validatedData);
 
   let user = await prisma.user.findUnique({
-    where: { email: validatedData.email },
+    where: { providerId: validatedData.sub },
   });
 
   if (!user) {
     user = await prisma.user.create({
       data: {
-        name: validatedData.name,
+        name: normalizedName,
         email: validatedData.email,
-        providerId: validatedData.providerId,
-        image: validatedData.image,
-        currency: validatedData.currency,
+        providerId: validatedData.sub,
+        image: validatedData.picture,
         initialBalance: 0,
         currentBalance: 0,
       },
     });
 
-    console.log('New social user created:', user.id);
+    console.log('New Google auth user created:', user.id);
   } else {
-    console.log('Existing social user logged in:', user.id);
+    const shouldUpdate = user.name !== normalizedName || (!!validatedData.picture && user.image !== validatedData.picture);
+    if (shouldUpdate) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: normalizedName,
+          image: validatedData.picture ?? user.image,
+        },
+      });
+    }
+
+    console.log('Existing Google auth user logged in:', user.id);
   }
 
-  const accessToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.accessTokenExpiresIn,
-  });
+  const tokens = createTokenPair(user.id);
 
-  const refreshToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.refreshTokenExpiresIn,
-  });
-
-  const { password, ...userWithoutPassword } = user;
-
-  sendSuccess(res, {
-    user: userWithoutPassword,
-    accessToken,
-    refreshToken,
-  }, 'Authentication successful');
+  sendSuccess(res, tokens, 'Authentication successful');
 });
 
 export const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
@@ -143,7 +88,7 @@ export const refreshAccessToken = asyncHandler(async (req: Request, res: Respons
 
   const validatedData = refreshTokenSchema.parse(req.body);
 
-  const decoded = jwt.verify(validatedData.refreshToken, config.jwt.secret) as { userId: string };
+  const decoded = jwt.verify(validatedData.refreshToken, getJwtSecret()) as { userId: string };
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.userId },
@@ -153,18 +98,9 @@ export const refreshAccessToken = asyncHandler(async (req: Request, res: Respons
     throw new ApiError(401, 'Invalid refresh token');
   }
 
-  const accessToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.accessTokenExpiresIn,
-  });
-
-  const refreshToken = jwt.sign({ userId: user.id }, config.jwt.secret, {
-    expiresIn: config.jwt.refreshTokenExpiresIn,
-  });
+  const tokens = createTokenPair(user.id);
 
   console.log('Access token refreshed successfully');
 
-  sendSuccess(res, {
-    accessToken,
-    refreshToken,
-  }, 'Token refreshed successfully');
+  sendSuccess(res, tokens, 'Token refreshed successfully');
 });

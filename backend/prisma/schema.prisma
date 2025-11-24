@@ -12,7 +12,7 @@ model User {
   email           String        @unique
   password        String?
   image           String?
-  providerId      String?
+  providerId      String?       @unique
   currency        String        @default("USD")
   initialBalance  Float         @default(0)
   currentBalance  Float         @default(0)
