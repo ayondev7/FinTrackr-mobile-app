@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -13,18 +13,16 @@ export const LoginScreen: React.FC = () => {
   const { setIsAuthenticated } = useOnboardingStore();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const googleRequestConfig = useMemo<Partial<Google.GoogleAuthRequestConfig>>(() => ({
-    clientId: config.google.clientId || undefined,
+  const [request, , promptAsync] = Google.useAuthRequest({
+    expoClientId: config.google.expoClientId || undefined,
     iosClientId: config.google.iosClientId || undefined,
     androidClientId: config.google.androidClientId || undefined,
     webClientId: config.google.webClientId || undefined,
-  }), []);
-
-  const [request, , promptAsync] = Google.useAuthRequest(googleRequestConfig);
+  });
 
   const isGoogleConfigured = useMemo(() => {
     return Boolean(
-      config.google.clientId ||
+      config.google.expoClientId ||
       config.google.iosClientId ||
       config.google.androidClientId ||
       config.google.webClientId
@@ -48,7 +46,8 @@ export const LoginScreen: React.FC = () => {
 
     try {
       setIsAuthenticating(true);
-      const result = await promptAsync();
+      const proxyOptions = { useProxy: false };
+      const result = await promptAsync(proxyOptions);
 
       if (result.type !== 'success' || !result.authentication?.accessToken) {
         throw new Error('Google authentication was cancelled.');
