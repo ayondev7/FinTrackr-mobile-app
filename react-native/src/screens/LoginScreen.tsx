@@ -14,19 +14,11 @@ export const LoginScreen: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const [request, , promptAsync] = Google.useAuthRequest({
-    clientId: config.google.expoClientId || undefined,
-    iosClientId: config.google.iosClientId || undefined,
     androidClientId: config.google.androidClientId || undefined,
-    webClientId: config.google.webClientId || undefined,
   });
 
   const isGoogleConfigured = useMemo(() => {
-    return Boolean(
-      config.google.expoClientId ||
-      config.google.iosClientId ||
-      config.google.androidClientId ||
-      config.google.webClientId
-    );
+    return Boolean(config.google.androidClientId);
   }, []);
 
   const handleGoogleLogin = async () => {
@@ -107,7 +99,7 @@ export const LoginScreen: React.FC = () => {
         {/* Logo Section */}
         <View className="items-center mt-8">
           <Image
-            source={require('../../assets/auth-logo.webp')}
+            source={{ uri: 'https://ik.imagekit.io/swiftChat/fintrackr/auth-logo.webp' }}
             style={styles.logo}
             resizeMode="contain"
           />
