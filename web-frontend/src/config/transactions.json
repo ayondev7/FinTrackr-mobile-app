@@ -1,0 +1,52 @@
+[
+  {
+    "id": "txn-1",
+    "type": "expense",
+    "amount": 1250.00,
+    "category": "Groceries",
+    "categoryId": "cat-1",
+    "description": "Weekly grocery shopping",
+    "date": "2024-11-25T10:30:00.000Z",
+    "walletId": "wallet-1"
+  },
+  {
+    "id": "txn-2",
+    "type": "revenue",
+    "amount": 5000.00,
+    "category": "Salary",
+    "categoryId": "cat-5",
+    "description": "Monthly salary",
+    "date": "2024-11-24T09:00:00.000Z",
+    "walletId": "wallet-2"
+  },
+  {
+    "id": "txn-3",
+    "type": "expense",
+    "amount": 450.00,
+    "category": "Transportation",
+    "categoryId": "cat-2",
+    "description": "Fuel and maintenance",
+    "date": "2024-11-23T14:20:00.000Z",
+    "walletId": "wallet-1"
+  },
+  {
+    "id": "txn-4",
+    "type": "expense",
+    "amount": 890.00,
+    "category": "Dining",
+    "categoryId": "cat-3",
+    "description": "Restaurant dinner",
+    "date": "2024-11-22T19:30:00.000Z",
+    "walletId": "wallet-1"
+  },
+  {
+    "id": "txn-5",
+    "type": "revenue",
+    "amount": 1500.00,
+    "category": "Freelance",
+    "categoryId": "cat-6",
+    "description": "Web design project",
+    "date": "2024-11-21T16:00:00.000Z",
+    "walletId": "wallet-2"
+  }
+]

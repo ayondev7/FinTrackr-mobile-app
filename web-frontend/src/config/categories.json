@@ -1,0 +1,51 @@
+[
+  {
+    "id": "cat-1",
+    "name": "Groceries",
+    "type": "expense",
+    "color": "#FF6B9D",
+    "icon": "shopping-cart",
+    "budget": 5000,
+    "isPinned": true
+  },
+  {
+    "id": "cat-2",
+    "name": "Transportation",
+    "type": "expense",
+    "color": "#FFD93D",
+    "icon": "car",
+    "budget": 3000
+  },
+  {
+    "id": "cat-3",
+    "name": "Dining",
+    "type": "expense",
+    "color": "#FB923C",
+    "icon": "utensils",
+    "budget": 4000,
+    "isPinned": true
+  },
+  {
+    "id": "cat-4",
+    "name": "Entertainment",
+    "type": "expense",
+    "color": "#A78BFA",
+    "icon": "film",
+    "budget": 2000
+  },
+  {
+    "id": "cat-5",
+    "name": "Salary",
+    "type": "revenue",
+    "color": "#10B981",
+    "icon": "briefcase",
+    "isPinned": true
+  },
+  {
+    "id": "cat-6",
+    "name": "Freelance",
+    "type": "revenue",
+    "color": "#8B5CF6",
+    "icon": "laptop"
+  }
+]
