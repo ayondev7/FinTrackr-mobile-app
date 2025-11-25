@@ -14,7 +14,7 @@ export const LoginScreen: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const [request, , promptAsync] = Google.useAuthRequest({
-    expoClientId: config.google.expoClientId || undefined,
+    clientId: config.google.expoClientId || undefined,
     iosClientId: config.google.iosClientId || undefined,
     androidClientId: config.google.androidClientId || undefined,
     webClientId: config.google.webClientId || undefined,
@@ -46,8 +46,7 @@ export const LoginScreen: React.FC = () => {
 
     try {
       setIsAuthenticating(true);
-      const proxyOptions = { useProxy: false };
-      const result = await promptAsync(proxyOptions);
+      const result = await promptAsync();
 
       if (result.type !== 'success' || !result.authentication?.accessToken) {
         throw new Error('Google authentication was cancelled.');

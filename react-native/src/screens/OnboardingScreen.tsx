@@ -82,7 +82,6 @@ export const OnboardingScreen: React.FC = () => {
         description={item.description}
         image={item.image}
         bgColor={item.bgColor}
-        icon={item.icon}
       >
         <View className="px-8 mt-12">
           <Paginator data={slides} scrollX={scrollX} />

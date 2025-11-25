@@ -129,61 +129,58 @@ export const ICON_OPTIONS = [
 ];
 
 export const COLOR_OPTIONS = [
-  '#EF4444',
-  '#DC2626',
-  '#B91C1C',
-  '#F59E0B',
-  '#D97706',
-  '#B45309',
-  '#F97316',
-  '#EA580C',
-  '#C2410C',
-  '#FBBF24',
-  '#F59E0B',
-  '#D97706',
-  '#84CC16',
-  '#65A30D',
-  '#4D7C0F',
-  '#22C55E',
-  '#16A34A',
-  '#15803D',
-  '#10B981',
-  '#059669',
-  '#047857',
-  '#14B8A6',
-  '#0D9488',
-  '#0F766E',
-  '#06B6D4',
-  '#0891B2',
-  '#0E7490',
-  '#0EA5E9',
-  '#0284C7',
-  '#0369A1',
-  '#3B82F6',
-  '#2563EB',
-  '#1D4ED8',
-  '#6366F1',
-  '#4F46E5',
-  '#4338CA',
-  '#8B5CF6',
-  '#7C3AED',
-  '#6D28D9',
-  '#A855F7',
-  '#9333EA',
-  '#7E22CE',
-  '#D946EF',
-  '#C026D3',
-  '#A21CAF',
-  '#EC4899',
-  '#DB2777',
-  '#BE185D',
-  '#F43F5E',
-  '#E11D48',
-  '#BE123C',
-  '#64748B',
-  '#475569',
-  '#334155',
-  '#71717A',
-  '#52525B',
-  '#3F3F46',
+  '#EF4444', // Red
+  '#DC2626', // Red dark
+  '#B91C1C', // Red darker
+  '#F97316', // Orange
+  '#EA580C', // Orange dark
+  '#C2410C', // Orange darker
+  '#FBBF24', // Yellow
+  '#F59E0B', // Amber
+  '#D97706', // Amber dark
+  '#84CC16', // Lime
+  '#65A30D', // Lime dark
+  '#4D7C0F', // Lime darker
+  '#22C55E', // Green
+  '#16A34A', // Green dark
+  '#15803D', // Green darker
+  '#10B981', // Emerald
+  '#059669', // Emerald dark
+  '#047857', // Emerald darker
+  '#14B8A6', // Teal
+  '#0D9488', // Teal dark
+  '#0F766E', // Teal darker
+  '#06B6D4', // Cyan
+  '#0891B2', // Cyan dark
+  '#0E7490', // Cyan darker
+  '#0EA5E9', // Sky
+  '#0284C7', // Sky dark
+  '#0369A1', // Sky darker
+  '#3B82F6', // Blue
+  '#2563EB', // Blue dark
+  '#1D4ED8', // Blue darker
+  '#6366F1', // Indigo
+  '#4F46E5', // Indigo dark
+  '#4338CA', // Indigo darker
+  '#8B5CF6', // Violet
+  '#7C3AED', // Violet dark
+  '#6D28D9', // Violet darker
+  '#A855F7', // Purple
+  '#9333EA', // Purple dark
+  '#7E22CE', // Purple darker
+  '#D946EF', // Fuchsia
+  '#C026D3', // Fuchsia dark
+  '#A21CAF', // Fuchsia darker
+  '#EC4899', // Pink
+  '#DB2777', // Pink dark
+  '#BE185D', // Pink darker
+  '#F43F5E', // Rose
+  '#E11D48', // Rose dark
+  '#BE123C', // Rose darker
+  '#64748B', // Slate
+  '#475569', // Slate dark
+  '#334155', // Slate darker
+  '#71717A', // Zinc
+  '#52525B', // Zinc dark
+  '#3F3F46', // Zinc darker
 ];
