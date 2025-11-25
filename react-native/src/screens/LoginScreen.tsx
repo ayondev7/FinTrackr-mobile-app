@@ -1,24 +1,28 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
+import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
 import { useOnboardingStore } from '../store/onboardingStore';
 import { config } from '../config';
 import { saveTokens } from '../utils/authStorage';
 
-WebBrowser.maybeCompleteAuthSession();
-
 export const LoginScreen: React.FC = () => {
   const { setIsAuthenticated } = useOnboardingStore();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(false);
 
-  const [request, , promptAsync] = Google.useAuthRequest({
-    androidClientId: config.google.androidClientId || undefined,
-  });
-
-  const isGoogleConfigured = useMemo(() => {
-    return Boolean(config.google.androidClientId);
+  useEffect(() => {
+    // Configure GoogleSignin when component mounts
+    try {
+      GoogleSignin.configure({
+        webClientId: config.google.webClientId,
+        offlineAccess: false,
+      });
+      setIsConfigured(true);
+    } catch (error) {
+      console.error('Failed to configure Google Sign-In:', error);
+      Alert.alert('Configuration Error', 'Failed to initialize Google Sign-In. Please check your configuration.');
+    }
   }, []);
 
   const handleGoogleLogin = async () => {
@@ -26,48 +30,50 @@ export const LoginScreen: React.FC = () => {
       return;
     }
 
-    if (!isGoogleConfigured) {
-      Alert.alert('Google auth unavailable', 'Set your Google client IDs in the .env file.');
-      return;
-    }
-
-    if (!request) {
-      Alert.alert('Google auth unavailable', 'Still preparing Google Sign-In. Please try again.');
+    if (!isConfigured) {
+      Alert.alert('Google Sign-In not ready', 'Please wait for Google Sign-In to initialize.');
       return;
     }
 
     try {
       setIsAuthenticating(true);
-      const result = await promptAsync();
 
-      if (result.type !== 'success' || !result.authentication?.accessToken) {
-        throw new Error('Google authentication was cancelled.');
+      // Check if Play Services are available (Android only)
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+      // Attempt to sign in
+      const signInResponse = await GoogleSignin.signIn();
+
+      // Check if sign-in was successful
+      if (!isSuccessResponse(signInResponse)) {
+        throw new Error('Google Sign-In was cancelled or failed.');
       }
 
-      const googleProfileResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: {
-          Authorization: `Bearer ${result.authentication.accessToken}`,
-        },
-      });
+      const userData = signInResponse.data;
+      console.log('Google Sign-In successful:', userData);
 
-      if (!googleProfileResponse.ok) {
-        throw new Error('Unable to fetch Google profile.');
-      }
+      // Display user data on screen
+      Alert.alert(
+        'Sign-In Successful!',
+        `Welcome ${userData.user.name}!\n\nEmail: ${userData.user.email}\nID: ${userData.user.id}`,
+        [{ text: 'OK' }]
+      );
 
-      const profile = await googleProfileResponse.json();
-
+      // TODO: Uncomment this section when backend is ready
+      /*
+      // Send the user data to your backend
       const backendResponse = await fetch(`${config.apiBaseUrl}/api/auth/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sub: profile.sub,
-          email: profile.email,
-          name: profile.name,
-          given_name: profile.given_name,
-          family_name: profile.family_name,
-          picture: profile.picture,
+          sub: userData.user.id,
+          email: userData.user.email,
+          name: userData.user.name,
+          given_name: userData.user.givenName,
+          family_name: userData.user.familyName,
+          picture: userData.user.photo,
         }),
       });
 
@@ -84,10 +90,26 @@ export const LoginScreen: React.FC = () => {
       }
 
       await saveTokens(tokens.accessToken, tokens.refreshToken);
+      */
+      
+      // For now, just authenticate without backend
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Google login error:', error);
-      Alert.alert('Authentication failed', error instanceof Error ? error.message : 'Please try again.');
+      
+      if (isErrorWithCode(error)) {
+        if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          Alert.alert('Play Services Required', 'Google Play Services is not available or outdated. Please update it from the Play Store.');
+        } else if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+          Alert.alert('Sign-In Cancelled', 'You cancelled the sign-in process.');
+        } else if (error.code === statusCodes.IN_PROGRESS) {
+          Alert.alert('Sign-In In Progress', 'Sign-in is already in progress.');
+        } else {
+          Alert.alert('Authentication Failed', `Error: ${error.code}. Please try again.`);
+        }
+      } else {
+        Alert.alert('Authentication Failed', error instanceof Error ? error.message : 'Please try again.');
+      }
     } finally {
       setIsAuthenticating(false);
     }
@@ -146,9 +168,9 @@ export const LoginScreen: React.FC = () => {
           {/* Google Sign-in Button */}
           <TouchableOpacity
             onPress={handleGoogleLogin}
-            style={[styles.googleButton, (!request || isAuthenticating) && styles.googleButtonDisabled]}
+            style={[styles.googleButton, (!isConfigured || isAuthenticating) && styles.googleButtonDisabled]}
             activeOpacity={0.9}
-            disabled={!request || isAuthenticating}
+            disabled={!isConfigured || isAuthenticating}
           >
             <View className="flex-row items-center justify-center">
               {isAuthenticating ? (
