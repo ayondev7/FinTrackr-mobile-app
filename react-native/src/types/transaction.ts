@@ -17,14 +17,6 @@ export interface Transaction {
   description?: string;
   date: string;
   createdAt: string;
-  isRecurring?: boolean;
-  recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-}
-
-export interface RecurringTransaction extends Transaction {
-  isRecurring: true;
-  recurringFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  nextDueDate: string;
 }
 
 export interface TransactionListParams {
@@ -32,7 +24,6 @@ export interface TransactionListParams {
   categoryId?: string;
   startDate?: string;
   endDate?: string;
-  isRecurring?: boolean;
   timePeriod?: TimePeriod;
   sortBy?: SortBy;
   page?: number;
@@ -73,9 +64,6 @@ export interface CreateTransactionPayload {
   name?: string;
   description?: string;
   date: string;
-  isRecurring?: boolean;
-  recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  nextDueDate?: string;
 }
 
 export interface UpdateTransactionPayload extends Partial<CreateTransactionPayload> {}

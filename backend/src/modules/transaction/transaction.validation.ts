@@ -8,9 +8,6 @@ export const createTransactionSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   date: z.string().datetime().or(z.date()),
-  isRecurring: z.boolean().optional().default(false),
-  recurringFrequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
-  nextDueDate: z.string().datetime().or(z.date()).optional(),
 });
 
 export const updateTransactionSchema = z.object({
@@ -21,9 +18,6 @@ export const updateTransactionSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   date: z.string().datetime().or(z.date()).optional(),
-  isRecurring: z.boolean().optional(),
-  recurringFrequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional().nullable(),
-  nextDueDate: z.string().datetime().or(z.date()).optional().nullable(),
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;

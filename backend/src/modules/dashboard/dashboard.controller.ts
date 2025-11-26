@@ -120,12 +120,11 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
     categoryId: txn.categoryId,
     categoryIcon: txn.category?.icon,
     categoryColor: txn.category?.color,
+    accountType: txn.accountType,
     name: txn.name,
     description: txn.description,
     date: txn.date.toISOString(),
     createdAt: txn.createdAt.toISOString(),
-    isRecurring: txn.isRecurring,
-    recurringFrequency: txn.recurringFrequency,
   }));
 
   const dashboardData = {
@@ -183,12 +182,11 @@ export const getRecentTransactions = asyncHandler(async (req: AuthRequest, res: 
     categoryId: txn.categoryId,
     categoryIcon: txn.category?.icon,
     categoryColor: txn.category?.color,
+    accountType: txn.accountType,
     name: txn.name,
     description: txn.description,
     date: txn.date.toISOString(),
     createdAt: txn.createdAt.toISOString(),
-    isRecurring: txn.isRecurring,
-    recurringFrequency: txn.recurringFrequency,
   }));
 
   console.log('Recent transactions retrieved:', formattedTransactions.length);

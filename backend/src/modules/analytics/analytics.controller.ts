@@ -163,7 +163,7 @@ export const getBalanceTrend = asyncHandler(async (req: AuthRequest, res: Respon
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { initialBalance: true },
+    select: { cashBalance: true, bankBalance: true, digitalBalance: true },
   });
 
   const where: any = {
@@ -187,7 +187,8 @@ export const getBalanceTrend = asyncHandler(async (req: AuthRequest, res: Respon
     },
   });
 
-  let runningBalance = user?.initialBalance || 0;
+  const initialBalance = (user?.cashBalance || 0) + (user?.bankBalance || 0) + (user?.digitalBalance || 0);
+  let runningBalance = initialBalance;
   const balanceTrend = [];
 
   for (const transaction of transactions) {

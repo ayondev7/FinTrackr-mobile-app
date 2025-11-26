@@ -12,7 +12,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { currentBalance: true },
+    select: { cashBalance: true, bankBalance: true, digitalBalance: true },
   });
 
   const sixMonthsAgo = new Date();
@@ -45,7 +45,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
   const averageMonthlyRevenue = totalRevenue / 6;
   const averageMonthlyNet = averageMonthlyRevenue - averageMonthlyExpense;
 
-  const currentBalance = user?.currentBalance || 0;
+  const currentBalance = (user?.cashBalance || 0) + (user?.bankBalance || 0) + (user?.digitalBalance || 0);
 
   const projectedBalances = [];
   let runningBalance = currentBalance;

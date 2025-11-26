@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Input, Card } from '../components';
-import { ScreenHeader, TypeSelector, CategorySelector, RecurringToggle } from '../components/add-transaction';
+import { ScreenHeader, TypeSelector, CategorySelector } from '../components/add-transaction';
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { DollarSign } from 'lucide-react-native';
@@ -21,7 +21,6 @@ export const AddTransactionScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [isRecurring, setIsRecurring] = useState(false);
 
   const filteredCategories = categories.filter(
     (cat) => cat.type === type || cat.type === 'both'
@@ -34,8 +33,7 @@ export const AddTransactionScreen = () => {
       amount,
       selectedCategory,
       name,
-      description,
-      isRecurring
+      description
     });
     // TODO: Call API to create transaction
   };
@@ -132,10 +130,6 @@ export const AddTransactionScreen = () => {
             multiline={true}
             numberOfLines={3}
           />
-        </Card>
-
-        <Card className="mb-6">
-          <RecurringToggle isRecurring={isRecurring} onToggle={() => setIsRecurring(!isRecurring)} />
         </Card>
 
         <View className="h-6" />

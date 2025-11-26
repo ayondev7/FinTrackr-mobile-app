@@ -39,7 +39,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
   const { id: userId } = req.user!;
   console.log('Get transactions request for user:', userId);
 
-  const { type, categoryId, startDate, endDate, isRecurring, timePeriod, sortBy } = req.query;
+  const { type, categoryId, startDate, endDate, timePeriod, sortBy } = req.query;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 15;
   const skip = (page - 1) * limit;
@@ -54,7 +54,6 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
   }
   
   if (categoryId) where.categoryId = categoryId;
-  if (isRecurring !== undefined) where.isRecurring = isRecurring === 'true';
   
   // Handle time period filter (daily, weekly, monthly, yearly)
   if (timePeriod) {
@@ -111,8 +110,6 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
     description: txn.description,
     date: txn.date.toISOString(),
     createdAt: txn.createdAt.toISOString(),
-    isRecurring: txn.isRecurring,
-    recurringFrequency: txn.recurringFrequency,
   }));
 
   console.log('Transactions retrieved:', formattedTransactions.length);
@@ -180,7 +177,6 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     data: {
       ...validatedData,
       date: new Date(validatedData.date),
-      nextDueDate: validatedData.nextDueDate ? new Date(validatedData.nextDueDate) : null,
       userId,
     },
     include: {
@@ -255,7 +251,6 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     data: {
       ...validatedData,
       date: validatedData.date ? new Date(validatedData.date) : undefined,
-      nextDueDate: validatedData.nextDueDate ? new Date(validatedData.nextDueDate) : undefined,
     },
     include: {
       category: {
