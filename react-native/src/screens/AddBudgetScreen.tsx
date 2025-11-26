@@ -3,9 +3,11 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { X, Check, DollarSign, Calendar, AlertCircle } from 'lucide-react-native';
-import { useThemeStore, useCategoryStore, useBudgetStore, useUserStore } from '../store';
+import { useThemeStore, useUserStore } from '../store';
+import { useCategories, useBudgets, useCreateBudget } from '../hooks';
 import { colors } from '../constants/theme';
 import { Card } from '../components';
+import { CategoryIcon } from '../components/shared/CategoryIcon';
 import { PeriodSelector, CategorySelector } from '../components/budgets';
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly';
@@ -14,20 +16,24 @@ export const AddBudgetScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
-  const { categories, getExpenseCategories } = useCategoryStore();
-  const { budgets, addBudget } = useBudgetStore();
   const { user } = useUserStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
+
+  const { data: categoriesData } = useCategories();
+  const { data: budgetsData } = useBudgets();
+  const createBudget = useCreateBudget();
+
+  const categories = categoriesData?.data || [];
+  const budgets = budgetsData?.data || [];
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [limitAmount, setLimitAmount] = useState('');
   const [period, setPeriod] = useState<Period>('monthly');
   const [alertThreshold, setAlertThreshold] = useState('80');
 
-  const expenseCategories = getExpenseCategories();
+  const expenseCategories = categories.filter((cat) => cat.type === 'EXPENSE');
   
-  // Get category IDs that already have a budget for the selected period
   const categoriesWithBudget = useMemo(() => {
     return budgets
       .filter((b) => b.period === period)
@@ -38,7 +44,7 @@ export const AddBudgetScreen = () => {
     ? categories.find((c) => c.id === selectedCategoryId)
     : null;
 
-  const canSave = selectedCategoryId && parseFloat(limitAmount) > 0;
+  const canSave = selectedCategoryId && parseFloat(limitAmount) > 0 && !createBudget.isPending;
 
   const getDateRange = (selectedPeriod: Period): { startDate: string; endDate: string } => {
     const now = new Date();
@@ -68,30 +74,29 @@ export const AddBudgetScreen = () => {
     }
 
     return {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
     };
   };
 
-  const handleSave = () => {
-    if (!canSave || !selectedCategoryId || !selectedCategory) return;
+  const handleSave = async () => {
+    if (!canSave || !selectedCategoryId) return;
 
     const { startDate, endDate } = getDateRange(period);
 
-    const newBudget = {
-      id: `budget-${Date.now()}`,
-      categoryId: selectedCategoryId,
-      categoryName: selectedCategory.name,
-      limit: parseFloat(limitAmount),
-      spent: 0,
-      period,
-      startDate,
-      endDate,
-      alertThreshold: parseFloat(alertThreshold) || 80,
-    };
-
-    addBudget(newBudget);
-    navigation.goBack();
+    try {
+      await createBudget.mutateAsync({
+        categoryId: selectedCategoryId,
+        limit: parseFloat(limitAmount),
+        period,
+        startDate,
+        endDate,
+        alertThreshold: parseFloat(alertThreshold) || 80,
+      });
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create budget. Please try again.');
+    }
   };
 
   const handleClose = () => {
@@ -123,7 +128,6 @@ export const AddBudgetScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-900">
-      {/* Header */}
       <View
         className="bg-white dark:bg-slate-800 px-6 pb-4 border-b border-gray-200 dark:border-gray-700"
         style={{ paddingTop: insets.top + 16 }}
@@ -143,7 +147,6 @@ export const AddBudgetScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Preview Card */}
         {selectedCategory && (
           <View
             className="mt-4 p-4 rounded-2xl"
@@ -155,7 +158,11 @@ export const AddBudgetScreen = () => {
                   className="w-12 h-12 rounded-xl items-center justify-center"
                   style={{ backgroundColor: `${selectedCategory.color}30` }}
                 >
-                  <DollarSign size={24} color={selectedCategory.color} />
+                  <CategoryIcon 
+                    iconName={selectedCategory.icon} 
+                    size={24} 
+                    color={selectedCategory.color} 
+                  />
                 </View>
                 <View>
                   <Text
@@ -185,7 +192,6 @@ export const AddBudgetScreen = () => {
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
         <View className="p-6">
-          {/* Category Selector */}
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Select Category
@@ -209,7 +215,6 @@ export const AddBudgetScreen = () => {
             )}
           </Card>
 
-          {/* Budget Amount */}
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Budget Limit
@@ -232,7 +237,6 @@ export const AddBudgetScreen = () => {
             </Text>
           </Card>
 
-          {/* Period Selector */}
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Budget Period
@@ -241,7 +245,6 @@ export const AddBudgetScreen = () => {
               selectedPeriod={period}
               onSelect={(newPeriod) => {
                 setPeriod(newPeriod);
-                // Reset category if it already has a budget for new period
                 if (
                   selectedCategoryId &&
                   budgets.some(
@@ -261,7 +264,6 @@ export const AddBudgetScreen = () => {
             </View>
           </Card>
 
-          {/* Alert Threshold */}
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Alert Threshold
@@ -292,7 +294,6 @@ export const AddBudgetScreen = () => {
             </Text>
           </Card>
 
-          {/* Info Card */}
           <View className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-4">
             <View className="flex-row items-start gap-3">
               <AlertCircle size={20} color={themeColors.info} />

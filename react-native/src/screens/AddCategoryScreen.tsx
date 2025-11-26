@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Card } from '../components';
 import { ScreenHeader, TypeSelector } from '../components/add-transaction';
 import { CategoryPreview, CategoryNameInput, ColorPicker, IconPicker } from '../components/add-category';
 import { useThemeStore } from '../store';
+import { useCreateCategory } from '../hooks';
 import { colors } from '../constants/theme';
 import { ICON_OPTIONS, COLOR_OPTIONS } from '../constants';
 import { ShoppingCart } from 'lucide-react-native';
@@ -17,8 +18,10 @@ export const AddCategoryScreen = () => {
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
+  const createCategory = useCreateCategory();
+
   const [categoryName, setCategoryName] = useState('');
-  const [selectedType, setSelectedType] = useState<'expense' | 'revenue'>('expense');
+  const [selectedType, setSelectedType] = useState<'EXPENSE' | 'REVENUE'>('EXPENSE');
   const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
   const [selectedIcon, setSelectedIcon] = useState(ICON_OPTIONS[0].name);
 
@@ -29,9 +32,21 @@ export const AddCategoryScreen = () => {
 
   const IconComponent = getIconComponent(selectedIcon);
 
-  const handleSave = () => {
-    console.log('Saving category');
-    navigation.goBack();
+  const handleSave = async () => {
+    if (!categoryName.trim() || createCategory.isPending) return;
+
+    try {
+      await createCategory.mutateAsync({
+        name: categoryName.trim(),
+        type: selectedType,
+        color: selectedColor,
+        icon: selectedIcon,
+        isPinned: false,
+      });
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create category. Please try again.');
+    }
   };
 
   return (
@@ -44,7 +59,7 @@ export const AddCategoryScreen = () => {
           title="New Category"
           onClose={() => navigation.goBack()}
           onSave={handleSave}
-          canSave={!!categoryName.trim()}
+          canSave={!!categoryName.trim() && !createCategory.isPending}
           saveColor={selectedColor}
           isDark={isDark}
         />
@@ -70,7 +85,11 @@ export const AddCategoryScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Category Type
             </Text>
-            <TypeSelector type={selectedType} onTypeChange={setSelectedType} isDark={isDark} />
+            <TypeSelector 
+              type={selectedType === 'EXPENSE' ? 'expense' : 'revenue'} 
+              onTypeChange={(type) => setSelectedType(type === 'expense' ? 'EXPENSE' : 'REVENUE')} 
+              isDark={isDark} 
+            />
           </Card>
 
           <Card className="mb-6 p-5">

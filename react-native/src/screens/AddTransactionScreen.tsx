@@ -3,17 +3,20 @@ import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Input, Card } from '../components';
 import { ScreenHeader, TypeSelector, CategorySelector } from '../components/add-transaction';
-import { useCategoryStore, useThemeStore } from '../store';
+import { useThemeStore } from '../store';
+import { useCategories } from '../hooks';
 import { colors } from '../constants/theme';
 import { DollarSign } from 'lucide-react-native';
 import { Text, TouchableOpacity } from 'react-native';
 
 export const AddTransactionScreen = () => {
   const insets = useSafeAreaInsets();
-  const { categories } = useCategoryStore();
+  const { data: categoriesData } = useCategories();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
+
+  const categories = categoriesData?.data || [];
 
   const [type, setType] = useState<'expense' | 'revenue'>('expense');
   const [accountType, setAccountType] = useState<'CASH' | 'BANK' | 'DIGITAL'>('CASH');
@@ -23,7 +26,7 @@ export const AddTransactionScreen = () => {
   const [description, setDescription] = useState('');
 
   const filteredCategories = categories.filter(
-    (cat) => cat.type === type || cat.type === 'both'
+    (cat) => cat.type === (type === 'expense' ? 'EXPENSE' : 'REVENUE')
   );
 
   const handleSubmit = () => {

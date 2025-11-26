@@ -1,27 +1,31 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../shared/Card';
-import { Folder, Briefcase, Pin } from 'lucide-react-native';
-import { useCategoryStore } from '../../store';
-
-interface Category {
-  id: string;
-  name: string;
-  type: string;
-  color: string;
-  isPinned?: boolean;
-}
+import { CategoryIcon } from '../shared/CategoryIcon';
+import { Pin } from 'lucide-react-native';
+import { useUpdateCategory, CategoryWithCount } from '../../hooks';
 
 interface CategoryItemProps {
-  category: Category;
-  iconType?: 'folder' | 'briefcase';
+  category: CategoryWithCount;
   onPress?: () => void;
+  refetch: () => void;
 }
 
-export const CategoryItem = ({ category, iconType = 'folder', onPress }: CategoryItemProps) => {
-  const Icon = iconType === 'folder' ? Folder : Briefcase;
-  const { togglePin } = useCategoryStore();
+export const CategoryItem = ({ category, onPress, refetch }: CategoryItemProps) => {
+  const updateCategory = useUpdateCategory();
   
+  const handleTogglePin = async () => {
+    try {
+      await updateCategory.mutateAsync({
+        id: category.id,
+        data: { isPinned: !category.isPinned },
+      });
+      refetch();
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
+  };
+
   return (
     <Card className="mb-3 p-4">
       <TouchableOpacity 
@@ -34,18 +38,23 @@ export const CategoryItem = ({ category, iconType = 'folder', onPress }: Categor
             className="w-12 h-12 rounded-xl items-center justify-center"
             style={{ backgroundColor: `${category.color}20` }}
           >
-            <Icon size={24} color={category.color} />
+            <CategoryIcon iconName={category.icon} size={24} color={category.color} />
           </View>
           <View className="flex-1">
             <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
               {category.name}
             </Text>
-            <View
-              className="px-2 py-1 rounded-full self-start"
-              style={{ backgroundColor: `${category.color}20` }}
-            >
-              <Text className="text-xs font-medium" style={{ color: category.color }}>
-                {category.type.toUpperCase()}
+            <View className="flex-row items-center gap-2">
+              <View
+                className="px-2 py-1 rounded-full"
+                style={{ backgroundColor: `${category.color}20` }}
+              >
+                <Text className="text-xs font-medium" style={{ color: category.color }}>
+                  {category.type}
+                </Text>
+              </View>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                {category._count?.transactions || 0} transactions
               </Text>
             </View>
           </View>
@@ -53,10 +62,11 @@ export const CategoryItem = ({ category, iconType = 'folder', onPress }: Categor
         <TouchableOpacity
           onPress={(e) => {
             e.stopPropagation();
-            togglePin(category.id);
+            handleTogglePin();
           }}
           className="p-2"
           activeOpacity={0.7}
+          disabled={updateCategory.isPending}
         >
           <Pin 
             size={20} 

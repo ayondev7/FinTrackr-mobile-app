@@ -3,6 +3,6 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
-  type: 'expense' | 'revenue' | 'both';
+  type: 'EXPENSE' | 'REVENUE';
   isPinned?: boolean;
 }

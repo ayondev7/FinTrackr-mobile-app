@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useThemeStore, useUserStore, useTransactionStore, useCategoryStore, useOnboardingStore } from '../store';
+import { useThemeStore, useUserStore, useTransactionStore, useOnboardingStore } from '../store';
 import { colors } from '../constants/theme';
 import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
@@ -26,7 +26,6 @@ export const SettingsScreen = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { user, updateUser } = useUserStore();
   const { transactions, clearTransactions } = useTransactionStore();
-  const { categories } = useCategoryStore();
   const { reset: resetOnboarding } = useOnboardingStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';

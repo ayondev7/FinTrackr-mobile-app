@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { X, Save } from 'lucide-react-native';
 import { Card } from '../shared/Card';
-import { useCategoryStore } from '../../store';
+import { useCategories } from '../../hooks';
 
 interface BudgetModalProps {
   visible: boolean;
@@ -11,18 +11,22 @@ interface BudgetModalProps {
 }
 
 export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps) => {
-  const { categories, getExpenseCategories } = useCategoryStore();
-  const expenseCategories = getExpenseCategories();
+  const { data: categoriesData, isLoading } = useCategories();
+  const categories = categoriesData?.data || [];
   
-  const [budgets, setBudgets] = useState<{ [key: string]: string }>(
-    expenseCategories.reduce((acc, cat) => ({ ...acc, [cat.id]: '' }), {})
+  const expenseCategories = useMemo(() => 
+    categories.filter((cat) => cat.type === 'EXPENSE'),
+    [categories]
   );
+  
+  const [budgets, setBudgets] = useState<{ [key: string]: string }>({});
 
   const handleBudgetChange = (categoryId: string, value: string) => {
     setBudgets(prev => ({ ...prev, [categoryId]: value }));
   };
 
   const handleSave = () => {
+    // TODO: Save budgets via API
     onClose();
   };
 
@@ -51,38 +55,50 @@ export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps
               </Text>
             </View>
 
-            {expenseCategories.map((category) => (
-              <Card key={category.id} className="mb-3 p-4">
-                <View className="flex-row items-center gap-3 mb-3">
-                  <View
-                    className="w-10 h-10 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: `${category.color}20` }}
-                  >
+            {isLoading ? (
+              <View className="py-8 items-center">
+                <ActivityIndicator size="large" color="#6366F1" />
+              </View>
+            ) : expenseCategories.length === 0 ? (
+              <View className="py-8 items-center">
+                <Text className="text-gray-500 dark:text-gray-400">
+                  No expense categories found
+                </Text>
+              </View>
+            ) : (
+              expenseCategories.map((category) => (
+                <Card key={category.id} className="mb-3 p-4">
+                  <View className="flex-row items-center gap-3 mb-3">
                     <View
-                      className="w-6 h-6 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
+                      className="w-10 h-10 rounded-xl items-center justify-center"
+                      style={{ backgroundColor: `${category.color}20` }}
+                    >
+                      <View
+                        className="w-6 h-6 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      />
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-semibold flex-1">
+                      {category.name}
+                    </Text>
                   </View>
-                  <Text className="text-gray-900 dark:text-white font-semibold flex-1">
-                    {category.name}
-                  </Text>
-                </View>
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-gray-500 dark:text-gray-400">$</Text>
-                  <TextInput
-                    className="flex-1 bg-gray-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-gray-900 dark:text-white font-semibold"
-                    placeholder="0.00"
-                    placeholderTextColor="#9CA3AF"
-                    keyboardType="decimal-pad"
-                    value={budgets[category.id]}
-                    onChangeText={(value) => handleBudgetChange(category.id, value)}
-                  />
-                  <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                    / month
-                  </Text>
-                </View>
-              </Card>
-            ))}
+                  <View className="flex-row items-center gap-2">
+                    <Text className="text-gray-500 dark:text-gray-400">$</Text>
+                    <TextInput
+                      className="flex-1 bg-gray-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-gray-900 dark:text-white font-semibold"
+                      placeholder="0.00"
+                      placeholderTextColor="#9CA3AF"
+                      keyboardType="decimal-pad"
+                      value={budgets[category.id] || ''}
+                      onChangeText={(value) => handleBudgetChange(category.id, value)}
+                    />
+                    <Text className="text-gray-500 dark:text-gray-400 text-sm">
+                      / month
+                    </Text>
+                  </View>
+                </Card>
+              ))
+            )}
 
             <TouchableOpacity
               className="mt-4 p-4 rounded-2xl flex-row items-center justify-center gap-2"

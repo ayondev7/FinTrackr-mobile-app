@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../utils/apiClient';
-import { categoryRoutes } from '../routes';
+import { categoryRoutes, transactionRoutes } from '../routes';
 import { queryKeys } from './queryClient';
-import { ApiResponse, Category } from '../types';
+import { ApiResponse, Category, Transaction } from '../types';
 
 export interface CategoryWithCount extends Category {
   _count: {
@@ -39,6 +39,15 @@ export const useCategory = (id: string) => {
     queryFn: () =>
       apiRequest.get<ApiResponse<CategoryWithCount>>(categoryRoutes.getById(id)),
     enabled: !!id,
+  });
+};
+
+export const useCategoryTransactions = (categoryId: string) => {
+  return useQuery({
+    queryKey: queryKeys.transaction.list({ categoryId }),
+    queryFn: () =>
+      apiRequest.get<ApiResponse<Transaction[]>>(transactionRoutes.list, { categoryId }),
+    enabled: !!categoryId,
   });
 };
 

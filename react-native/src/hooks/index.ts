@@ -34,6 +34,7 @@ export {
   useCategories,
   usePinnedCategories,
   useCategory,
+  useCategoryTransactions,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,

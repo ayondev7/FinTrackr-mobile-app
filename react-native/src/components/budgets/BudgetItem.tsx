@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card } from '../shared/Card';
 import { BudgetProgressBar } from './BudgetProgressBar';
-import { AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react-native';
+import { AlertTriangle, CheckCircle, TrendingUp, Trash2 } from 'lucide-react-native';
 import { Budget } from '../../types';
 
 interface BudgetItemProps {
@@ -11,6 +11,7 @@ interface BudgetItemProps {
   categoryIcon?: React.ReactNode;
   currency: string;
   onPress?: () => void;
+  onDelete?: () => void;
 }
 
 export const BudgetItem = ({
@@ -19,6 +20,7 @@ export const BudgetItem = ({
   categoryIcon,
   currency,
   onPress,
+  onDelete,
 }: BudgetItemProps) => {
   const percentage = (budget.spent / budget.limit) * 100;
   const isOverBudget = budget.spent > budget.limit;
@@ -60,6 +62,21 @@ export const BudgetItem = ({
     return '#10B981';
   };
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Budget',
+      `Are you sure you want to delete the budget for ${budget.categoryName}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive', 
+          onPress: onDelete 
+        },
+      ]
+    );
+  };
+
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <Card className="mb-3 p-4">
@@ -80,13 +97,27 @@ export const BudgetItem = ({
               </Text>
             </View>
           </View>
-          <View className="items-end">
-            <Text className="text-gray-900 dark:text-white font-bold text-lg">
-              {formatCurrency(budget.spent)}
-            </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-sm">
-              of {formatCurrency(budget.limit)}
-            </Text>
+          <View className="flex-row items-center gap-3">
+            <View className="items-end">
+              <Text className="text-gray-900 dark:text-white font-bold text-lg">
+                {formatCurrency(budget.spent)}
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-sm">
+                of {formatCurrency(budget.limit)}
+              </Text>
+            </View>
+            {onDelete && (
+              <TouchableOpacity 
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+                className="p-2"
+                activeOpacity={0.7}
+              >
+                <Trash2 size={18} color="#EF4444" />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 

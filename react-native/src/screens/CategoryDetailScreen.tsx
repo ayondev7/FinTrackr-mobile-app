@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { useTransactionStore, useCategoryStore, useUserStore } from '../store';
+import { useUserStore } from '../store';
+import { useCategory, useCategoryTransactions } from '../hooks';
 import { ArrowLeft } from 'lucide-react-native';
 import { CategoryOverview, BreakdownByType, RecentTransactionsList } from '../components/category-detail';
 
@@ -16,12 +17,24 @@ export const CategoryDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<CategoryDetailRouteParams, 'CategoryDetail'>>();
   const insets = useSafeAreaInsets();
-  const { transactions } = useTransactionStore();
-  const { categories } = useCategoryStore();
   const { user } = useUserStore();
 
   const categoryId = route.params?.categoryId;
-  const category = categories.find((cat) => cat.id === categoryId);
+  const { data: categoryData, isLoading: categoryLoading } = useCategory(categoryId || '');
+  const { data: transactionsData, isLoading: transactionsLoading } = useCategoryTransactions(categoryId || '');
+
+  const category = categoryData?.data;
+  const categoryTransactions = transactionsData?.data || [];
+
+  const isLoading = categoryLoading || transactionsLoading;
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-gray-50 dark:bg-slate-900 items-center justify-center">
+        <ActivityIndicator size="large" color="#6366F1" />
+      </View>
+    );
+  }
 
   if (!category) {
     return (
@@ -32,10 +45,6 @@ export const CategoryDetailScreen = () => {
       </View>
     );
   }
-
-  const categoryTransactions = transactions.filter(
-    (txn) => txn.categoryId === category.id
-  );
 
   const totalSpent = categoryTransactions.reduce(
     (sum, txn) => sum + txn.amount,

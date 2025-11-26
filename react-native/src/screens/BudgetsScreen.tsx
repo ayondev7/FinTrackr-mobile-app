@@ -3,10 +3,11 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { PiggyBank, Filter } from 'lucide-react-native';
-import { useThemeStore, useBudgetStore, useCategoryStore, useUserStore } from '../store';
+import { useThemeStore, useUserStore } from '../store';
+import { useBudgets, useDeleteBudget, BudgetWithCategory } from '../hooks';
 import { colors } from '../constants/theme';
-import { Folder } from 'lucide-react-native';
-import { RefreshableScrollView } from '../components/shared';
+import { RefreshableScrollView, Loader } from '../components/shared';
+import { CategoryIcon } from '../components/shared/CategoryIcon';
 import {
   BudgetSummaryCard,
   BudgetItem,
@@ -21,22 +22,20 @@ export const BudgetsScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
-  const { budgets } = useBudgetStore();
-  const { categories } = useCategoryStore();
   const { user } = useUserStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
+  const { data: budgetsData, isLoading, refetch } = useBudgets();
+  const deleteBudget = useDeleteBudget();
+
+  const budgets = budgetsData?.data || [];
+
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
-  const getCategoryById = (categoryId: string) => {
-    return categories.find((cat) => cat.id === categoryId);
-  };
-
-  const getBudgetStatus = (budget: typeof budgets[0]) => {
-    const percentage = (budget.spent / budget.limit) * 100;
-    if (budget.spent > budget.limit) return 'over-budget';
-    if (percentage >= budget.alertThreshold) return 'near-limit';
+  const getBudgetStatus = (budget: BudgetWithCategory): FilterType => {
+    if (budget.isOverBudget) return 'over-budget';
+    if (budget.needsAlert) return 'near-limit';
     return 'on-track';
   };
 
@@ -49,6 +48,15 @@ export const BudgetsScreen = () => {
     navigation.navigate('AddBudget' as never);
   };
 
+  const handleDeleteBudget = async (budgetId: string) => {
+    try {
+      await deleteBudget.mutateAsync(budgetId);
+      refetch();
+    } catch (error) {
+      console.error('Failed to delete budget:', error);
+    }
+  };
+
   const FILTERS: { value: FilterType; label: string }[] = [
     { value: 'all', label: 'All' },
     { value: 'on-track', label: 'On Track' },
@@ -56,19 +64,24 @@ export const BudgetsScreen = () => {
     { value: 'over-budget', label: 'Over Budget' },
   ];
 
-  const handleRefresh = async () => {
-    // Simulate refresh or fetch data if/when API is connected
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  };
+  if (isLoading) {
+    return (
+      <View 
+        className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center"
+        style={{ paddingTop: insets.top }}
+      >
+        <Loader size={64} />
+      </View>
+    );
+  }
 
   return (
     <RefreshableScrollView
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
-      onRefresh={handleRefresh}
+      onRefresh={async () => { await refetch(); }}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
-        {/* Header */}
         <View className="flex-row items-center justify-between mb-6">
           <View className="flex-row items-center gap-3">
             <Text className="text-gray-900 dark:text-white text-3xl font-bold">
@@ -85,26 +98,28 @@ export const BudgetsScreen = () => {
           />
         ) : (
           <>
-            {/* Alert Banner */}
             <BudgetAlertBanner
-              budgets={budgets}
+              budgets={budgets.map(b => ({
+                ...b,
+                categoryName: b.category?.name || 'Unknown',
+              }))}
               onPress={() => setActiveFilter('over-budget')}
             />
 
-            {/* Summary Card */}
             <BudgetSummaryCard
-              budgets={budgets}
+              budgets={budgets.map(b => ({
+                ...b,
+                categoryName: b.category?.name || 'Unknown',
+              }))}
               currency={user.currency}
               primaryColor={themeColors.primary}
             />
 
-            {/* Add Budget Button */}
             <AddBudgetButton
               onPress={handleNavigateToAddBudget}
               primaryColor={themeColors.primary}
             />
 
-            {/* Filters */}
             <View className="mb-4">
               <View className="flex-row items-center gap-2 mb-3">
                 <Filter size={18} color={isDark ? '#9CA3AF' : '#6B7280'} />
@@ -142,7 +157,6 @@ export const BudgetsScreen = () => {
               </ScrollView>
             </View>
 
-            {/* Budget List */}
             <View className="mt-2">
               <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
                 {activeFilter === 'all'
@@ -162,20 +176,33 @@ export const BudgetsScreen = () => {
                 </View>
               ) : (
                 filteredBudgets.map((budget) => {
-                  const category = getCategoryById(budget.categoryId);
+                  const category = budget.category;
                   return (
                     <BudgetItem
                       key={budget.id}
-                      budget={budget}
+                      budget={{
+                        ...budget,
+                        categoryName: category?.name || 'Unknown',
+                      }}
                       categoryColor={category?.color || themeColors.primary}
                       categoryIcon={
-                        <Folder size={24} color={category?.color || themeColors.primary} />
+                        category?.icon ? (
+                          <CategoryIcon 
+                            iconName={category.icon} 
+                            size={24} 
+                            color={category.color || themeColors.primary} 
+                          />
+                        ) : (
+                          <PiggyBank size={24} color={category?.color || themeColors.primary} />
+                        )
                       }
                       currency={user.currency}
                       onPress={() => {
-                        // TODO: Navigate to budget detail or edit
-                        console.log('Budget pressed:', budget.id);
+                        (navigation as any).navigate('BudgetDetail', {
+                          budgetId: budget.id,
+                        });
                       }}
+                      onDelete={() => handleDeleteBudget(budget.id)}
                     />
                   );
                 })
