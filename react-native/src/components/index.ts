@@ -5,6 +5,7 @@ export * from './auth';
 export * from './add-transaction';
 export * from './add-category';
 export * from './analytics';
+export * from './budgets';
 export * from './categories';
 export * from './category-detail';
 export * from './dashboard';

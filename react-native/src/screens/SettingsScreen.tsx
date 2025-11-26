@@ -13,7 +13,6 @@ import {
   DataPrivacySection,
   CurrencyModal,
   NotificationModal,
-  BudgetModal,
   ExportModal,
   ClearDataModal
 } from '../components/settings';
@@ -31,7 +30,6 @@ export const SettingsScreen = () => {
 
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
-  const [budgetModalVisible, setBudgetModalVisible] = useState(false);
   const [exportModalVisible, setExportModalVisible] = useState(false);
   const [clearDataModalVisible, setClearDataModalVisible] = useState(false);
 
@@ -119,7 +117,7 @@ export const SettingsScreen = () => {
           warningColor={themeColors.warning}
           onCurrencyPress={() => setCurrencyModalVisible(true)}
           onNotificationPress={() => setNotificationModalVisible(true)}
-          onBudgetPress={() => setBudgetModalVisible(true)}
+          onBudgetPress={() => navigation.navigate('Budgets' as never)}
         />
 
         <DataPrivacySection
@@ -185,12 +183,6 @@ export const SettingsScreen = () => {
         settings={notificationSettings}
         onUpdate={handleNotificationUpdate}
         primaryColor={themeColors.primary}
-      />
-
-      <BudgetModal
-        visible={budgetModalVisible}
-        onClose={() => setBudgetModalVisible(false)}
-        warningColor={themeColors.warning}
       />
 
       <ExportModal

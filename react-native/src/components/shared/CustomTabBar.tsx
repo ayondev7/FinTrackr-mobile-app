@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { LayoutDashboard, CreditCard, TrendingUp, PieChart, Settings } from 'lucide-react-native';
+import { LayoutDashboard, CreditCard, PiggyBank, PieChart, Settings } from 'lucide-react-native';
 import { useThemeStore } from '../../store';
 import { colors } from '../../constants/theme';
 
@@ -58,9 +58,9 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
                 IconComponent = CreditCard; 
                 label = 'Txns';
                 break;
-            case 'Predictions': 
-                IconComponent = TrendingUp; 
-                label = 'Predict';
+            case 'Budgets': 
+                IconComponent = PiggyBank; 
+                label = 'Budget';
                 break;
             case 'Analytics': 
                 IconComponent = PieChart; 

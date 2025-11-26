@@ -6,7 +6,8 @@ import {
   RevenueExpenseCards, 
   CashFlowCard, 
   QuickActions, 
-  RecentTransactions 
+  RecentTransactions,
+  BudgetOverview
 } from '../components/dashboard';
 import { Loader } from '../components/shared';
 import { useDashboardSummary } from '../hooks';
@@ -74,6 +75,11 @@ export const DashboardScreen = () => {
         />
 
         <QuickActions />
+
+        <BudgetOverview
+          currency={currency}
+          primaryColor={themeColors.primary}
+        />
 
         <RecentTransactions
           transactions={recentTransactions}

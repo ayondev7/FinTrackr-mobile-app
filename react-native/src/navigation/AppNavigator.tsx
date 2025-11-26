@@ -14,6 +14,8 @@ import {
   CategoriesScreen,
   AddCategoryScreen,
   CategoryDetailScreen,
+  BudgetsScreen,
+  AddBudgetScreen,
   PredictionsScreen,
   SettingsScreen,
   ToastTestScreen,
@@ -71,6 +73,8 @@ export const AppNavigator = () => {
         <Stack.Screen name="Categories" component={CategoriesScreen} />
         <Stack.Screen name="AddCategory" component={AddCategoryScreen} />
         <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
+        <Stack.Screen name="Budgets" component={BudgetsScreen} />
+        <Stack.Screen name="AddBudget" component={AddBudgetScreen} />
         <Stack.Screen name="ToastTest" component={ToastTestScreen} />
       </Stack.Navigator>
     </NavigationContainer>
