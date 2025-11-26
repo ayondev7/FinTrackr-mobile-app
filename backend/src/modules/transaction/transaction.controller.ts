@@ -106,6 +106,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
     categoryId: txn.categoryId,
     categoryIcon: txn.category?.icon,
     categoryColor: txn.category?.color,
+    accountType: txn.accountType,
     name: txn.name,
     description: txn.description,
     date: txn.date.toISOString(),
@@ -195,11 +196,14 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   });
 
   const amountChange = validatedData.type === 'expense' ? -validatedData.amount : validatedData.amount;
+  const balanceField = validatedData.accountType === 'CASH' ? 'cashBalance' :
+                       validatedData.accountType === 'BANK' ? 'bankBalance' :
+                       'digitalBalance';
 
   await prisma.user.update({
     where: { id: userId },
     data: {
-      currentBalance: {
+      [balanceField]: {
         increment: amountChange,
       },
     },
@@ -240,6 +244,10 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     }
   }
 
+  // Calculate old balance impact
+  const oldBalanceField = existingTransaction.accountType === 'CASH' ? 'cashBalance' :
+                          existingTransaction.accountType === 'BANK' ? 'bankBalance' :
+                          'digitalBalance';
   const oldAmountChange = existingTransaction.type === 'expense' ? -existingTransaction.amount : existingTransaction.amount;
 
   const transaction = await prisma.transaction.update({
@@ -261,15 +269,34 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     },
   });
 
+  // Calculate new balance impact
+  const newBalanceField = transaction.accountType === 'CASH' ? 'cashBalance' :
+                          transaction.accountType === 'BANK' ? 'bankBalance' :
+                          'digitalBalance';
   const newAmountChange = transaction.type === 'expense' ? -transaction.amount : transaction.amount;
-  const balanceDiff = newAmountChange - oldAmountChange;
 
-  if (balanceDiff !== 0) {
+  if (oldBalanceField === newBalanceField) {
+    const diff = newAmountChange - oldAmountChange;
+    if (diff !== 0) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          [newBalanceField]: {
+            increment: diff,
+          },
+        },
+      });
+    }
+  } else {
+    // Account type changed, revert old and apply new
     await prisma.user.update({
       where: { id: userId },
       data: {
-        currentBalance: {
-          increment: balanceDiff,
+        [oldBalanceField]: {
+          decrement: oldAmountChange,
+        },
+        [newBalanceField]: {
+          increment: newAmountChange,
         },
       },
     });
@@ -296,6 +323,9 @@ export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   }
 
   const amountChange = transaction.type === 'expense' ? transaction.amount : -transaction.amount;
+  const balanceField = transaction.accountType === 'CASH' ? 'cashBalance' :
+                       transaction.accountType === 'BANK' ? 'bankBalance' :
+                       'digitalBalance';
 
   await prisma.transaction.delete({
     where: { id: req.params.id },
@@ -304,7 +334,7 @@ export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   await prisma.user.update({
     where: { id: userId },
     data: {
-      currentBalance: {
+      [balanceField]: {
         increment: amountChange,
       },
     },

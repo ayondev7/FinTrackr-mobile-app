@@ -14,8 +14,9 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
       id: true,
       name: true,
       currency: true,
-      initialBalance: true,
-      currentBalance: true,
+      cashBalance: true,
+      bankBalance: true,
+      digitalBalance: true,
     },
   });
 
@@ -132,8 +133,9 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
       id: user.id,
       name: user.name,
       currency: user.currency,
-      currentBalance: user.currentBalance,
-      initialBalance: user.initialBalance,
+      cashBalance: user.cashBalance,
+      bankBalance: user.bankBalance,
+      digitalBalance: user.digitalBalance,
     },
     monthlyStats: {
       totalExpense,

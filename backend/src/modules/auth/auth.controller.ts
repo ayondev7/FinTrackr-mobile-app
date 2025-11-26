@@ -59,8 +59,9 @@ export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
         email: validatedData.email,
         providerId: validatedData.sub,
         image: validatedData.picture,
-        initialBalance: 0,
-        currentBalance: 0,
+        cashBalance: 0,
+        bankBalance: 0,
+        digitalBalance: 0,
       },
     });
 

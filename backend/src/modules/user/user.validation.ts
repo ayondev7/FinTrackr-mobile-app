@@ -8,8 +8,9 @@ export const updateProfileSchema = z.object({
 });
 
 export const updateBalanceSchema = z.object({
-  initialBalance: z.number(),
-  currentBalance: z.number(),
+  cashBalance: z.number().default(0),
+  bankBalance: z.number().default(0),
+  digitalBalance: z.number().default(0),
   currency: z.string().min(3).max(3).optional(),
 });
 

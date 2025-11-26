@@ -4,8 +4,9 @@ export interface User {
   email?: string;
   image?: string;
   currency: string;
-  initialBalance: number;
-  currentBalance: number;
+  cashBalance: number;
+  bankBalance: number;
+  digitalBalance: number;
   theme: 'light' | 'dark';
   createdAt?: string;
   updatedAt?: string;
@@ -19,8 +20,9 @@ export interface ApiResponse<T> {
 }
 
 export interface UpdateBalancePayload {
-  initialBalance: number;
-  currentBalance: number;
+  cashBalance: number;
+  bankBalance: number;
+  digitalBalance: number;
   currency?: string;
 }
 

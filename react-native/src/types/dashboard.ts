@@ -4,8 +4,9 @@ export interface DashboardUser {
   id: string;
   name: string;
   currency: string;
-  currentBalance: number;
-  initialBalance: number;
+  cashBalance: number;
+  bankBalance: number;
+  digitalBalance: number;
 }
 
 export interface MonthlyStats {

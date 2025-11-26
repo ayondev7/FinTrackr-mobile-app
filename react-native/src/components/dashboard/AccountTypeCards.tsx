@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import { Banknote, Building2, Smartphone, CreditCard, Wallet, TrendingUp, TrendingDown } from 'lucide-react-native';
+import { Banknote, Building2, Smartphone, TrendingUp, TrendingDown } from 'lucide-react-native';
 import { formatCurrency } from '../../utils/helpers';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -16,49 +16,8 @@ interface AccountType {
   percentage: number;
 }
 
-// Static data for now - will be made dynamic later
-const ACCOUNT_TYPES: AccountType[] = [
-  {
-    id: 'cash',
-    name: 'Cash',
-    balance: 2450.00,
-    icon: Banknote,
-    color: '#10B981',
-    percentage: 18,
-  },
-  {
-    id: 'bank',
-    name: 'Bank Account',
-    balance: 8750.50,
-    icon: Building2,
-    color: '#3B82F6',
-    percentage: 65,
-  },
-  {
-    id: 'digital',
-    name: 'Digital Banking',
-    balance: 1280.75,
-    icon: Smartphone,
-    color: '#8B5CF6',
-    percentage: 9,
-  },
-  {
-    id: 'credit',
-    name: 'Credit Card',
-    balance: -450.00,
-    icon: CreditCard,
-    color: '#F59E0B',
-    percentage: 0,
-  },
-  {
-    id: 'wallet',
-    name: 'E-Wallet',
-    balance: 1050.25,
-    icon: Wallet,
-    color: '#EC4899',
-    percentage: 8,
-  },
-];
+// Static data removed
+
 
 // Total Balance Card (first card in the scroll)
 interface TotalBalanceCardProps {
@@ -269,18 +228,51 @@ interface AccountTypeCardsProps {
   currency: string;
   totalBalance: number;
   balanceChangePercent: number;
+  cashBalance: number;
+  bankBalance: number;
+  digitalBalance: number;
 }
 
 export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({ 
   currency,
   totalBalance,
   balanceChangePercent,
+  cashBalance,
+  bankBalance,
+  digitalBalance,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
   
-  const totalCards = ACCOUNT_TYPES.length + 1; // +1 for total balance card
-  const allCardColors = ['#6366F1', ...ACCOUNT_TYPES.map(a => a.color)];
+  const accountTypes: AccountType[] = [
+    {
+      id: 'cash',
+      name: 'Cash',
+      balance: cashBalance,
+      icon: Banknote,
+      color: '#10B981',
+      percentage: totalBalance > 0 ? Math.round((cashBalance / totalBalance) * 100) : 0,
+    },
+    {
+      id: 'bank',
+      name: 'Bank Account',
+      balance: bankBalance,
+      icon: Building2,
+      color: '#3B82F6',
+      percentage: totalBalance > 0 ? Math.round((bankBalance / totalBalance) * 100) : 0,
+    },
+    {
+      id: 'digital',
+      name: 'Digital Banking',
+      balance: digitalBalance,
+      icon: Smartphone,
+      color: '#8B5CF6',
+      percentage: totalBalance > 0 ? Math.round((digitalBalance / totalBalance) * 100) : 0,
+    },
+  ];
+
+  const totalCards = accountTypes.length + 1; // +1 for total balance card
+  const allCardColors = ['#6366F1', ...accountTypes.map(a => a.color)];
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = event.nativeEvent.contentOffset.x;
@@ -312,7 +304,7 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
         </View>
         
         {/* Account Type Cards */}
-        {ACCOUNT_TYPES.map((account, index) => (
+        {accountTypes.map((account, index) => (
           <View key={account.id} style={{ width: SCREEN_WIDTH, paddingHorizontal: HORIZONTAL_PADDING }}>
             <AccountTypeCard
               account={account}

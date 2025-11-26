@@ -1,4 +1,5 @@
 export type TransactionType = 'expense' | 'revenue';
+export type AccountType = 'CASH' | 'BANK' | 'DIGITAL';
 export type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'yearly';
 export type SortBy = 'date' | 'amount';
 export type FilterType = 'all' | 'expense' | 'revenue';
@@ -11,6 +12,7 @@ export interface Transaction {
   categoryId: string;
   categoryIcon?: string;
   categoryColor?: string;
+  accountType: AccountType;
   name?: string;
   description?: string;
   date: string;
@@ -67,6 +69,7 @@ export interface CreateTransactionPayload {
   type: TransactionType;
   amount: number;
   categoryId: string;
+  accountType: AccountType;
   name?: string;
   description?: string;
   date: string;

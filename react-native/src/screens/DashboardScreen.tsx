@@ -38,7 +38,7 @@ export const DashboardScreen = () => {
   const monthlyStats = summary?.monthlyStats;
   const recentTransactions = summary?.recentTransactions || [];
 
-  const balance = user?.currentBalance ?? 0;
+  const balance = (user?.cashBalance || 0) + (user?.bankBalance || 0) + (user?.digitalBalance || 0);
   const currency = user?.currency ?? 'USD';
   const totalExpense = monthlyStats?.totalExpense ?? 0;
   const totalRevenue = monthlyStats?.totalRevenue ?? 0;
@@ -55,6 +55,9 @@ export const DashboardScreen = () => {
           currency={currency}
           totalBalance={balance}
           balanceChangePercent={balanceChangePercent}
+          cashBalance={user?.cashBalance || 0}
+          bankBalance={user?.bankBalance || 0}
+          digitalBalance={user?.digitalBalance || 0}
         />
       </View>
 

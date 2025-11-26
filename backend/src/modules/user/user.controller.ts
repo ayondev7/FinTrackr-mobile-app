@@ -70,8 +70,9 @@ export const updateBalance = asyncHandler(async (req: AuthRequest, res: Response
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
-      initialBalance: validatedData.initialBalance,
-      currentBalance: validatedData.currentBalance,
+      cashBalance: validatedData.cashBalance,
+      bankBalance: validatedData.bankBalance,
+      digitalBalance: validatedData.digitalBalance,
       ...(validatedData.currency && { currency: validatedData.currency }),
     },
     select: {
@@ -79,8 +80,9 @@ export const updateBalance = asyncHandler(async (req: AuthRequest, res: Response
       name: true,
       email: true,
       currency: true,
-      initialBalance: true,
-      currentBalance: true,
+      cashBalance: true,
+      bankBalance: true,
+      digitalBalance: true,
       theme: true,
     },
   });

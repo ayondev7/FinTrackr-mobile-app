@@ -23,8 +23,13 @@ import { CURRENCIES } from "../constants";
 const { width } = Dimensions.get("window");
 
 export const BalanceSetupScreen: React.FC = () => {
+  const [step, setStep] = useState<'total' | 'distribution'>('total');
   const [balance, setBalance] = useState("");
+  const [cashBalance, setCashBalance] = useState("");
+  const [bankBalance, setBankBalance] = useState("");
+  const [digitalBalance, setDigitalBalance] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const { setHasSetupBalance } = useOnboardingStore();
@@ -43,18 +48,51 @@ export const BalanceSetupScreen: React.FC = () => {
     setBalance(cleaned);
   };
 
+  const handleDistributionChange = (text: string, type: 'cash' | 'bank' | 'digital') => {
+    const cleaned = text.replace(/[^0-9.]/g, "");
+    const parts = cleaned.split(".");
+    if (parts.length > 2) return;
+    if (parts[1] && parts[1].length > 2) return;
+
+    if (type === 'cash') setCashBalance(cleaned);
+    else if (type === 'bank') setBankBalance(cleaned);
+    else setDigitalBalance(cleaned);
+  };
+
   const handleContinue = async () => {
-    const numericBalance = parseFloat(balance);
+    if (step === 'total') {
+      const numericBalance = parseFloat(balance);
+      if (isNaN(numericBalance) || numericBalance < 0) {
+        showError("Invalid Amount", "Please enter a valid balance amount");
+        return;
+      }
+      if (numericBalance === 0) {
+        // Skip distribution if 0
+        await submitBalances(0, 0, 0);
+      } else {
+        setStep('distribution');
+      }
+    } else {
+      // Validate distribution sums up to total
+      const cash = parseFloat(cashBalance) || 0;
+      const bank = parseFloat(bankBalance) || 0;
+      const digital = parseFloat(digitalBalance) || 0;
+      const total = parseFloat(balance);
 
-    if (isNaN(numericBalance) || numericBalance < 0) {
-      showError("Invalid Amount", "Please enter a valid balance amount");
-      return;
+      if (Math.abs(cash + bank + digital - total) > 0.01) {
+        showError("Mismatch", `Total distribution (${cash + bank + digital}) must match total balance (${total})`);
+        return;
+      }
+      await submitBalances(cash, bank, digital);
     }
+  };
 
+  const submitBalances = async (cash: number, bank: number, digital: number) => {
     try {
       await updateBalance.mutateAsync({
-        initialBalance: numericBalance,
-        currentBalance: numericBalance,
+        cashBalance: cash,
+        bankBalance: bank,
+        digitalBalance: digital,
         currency: selectedCurrency.code,
       });
 
@@ -69,6 +107,118 @@ export const BalanceSetupScreen: React.FC = () => {
     balance.length > 0 &&
     !isNaN(parseFloat(balance)) &&
     parseFloat(balance) >= 0;
+
+  if (step === 'distribution') {
+    const total = parseFloat(balance);
+    const currentSum = (parseFloat(cashBalance) || 0) + (parseFloat(bankBalance) || 0) + (parseFloat(digitalBalance) || 0);
+    const remaining = total - currentSum;
+
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1 bg-white"
+      >
+        <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
+          <View className="flex-1 px-8 pt-16">
+            <View className="items-center mb-6">
+              <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
+                Distribute Your Balance
+              </Text>
+              <Text className="text-base text-gray-500 text-center">
+                Total: {selectedCurrency.symbol}{balance}
+              </Text>
+              <Text className={`text-sm font-semibold mt-2 ${remaining < 0 ? 'text-red-500' : 'text-indigo-600'}`}>
+                Remaining: {selectedCurrency.symbol}{remaining.toFixed(2)}
+              </Text>
+            </View>
+
+            {/* Cash Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">Cash</Text>
+              <View style={[styles.inputContainer, focusedInput === 'cash' && styles.inputContainerFocused]}>
+                <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="0.00"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="decimal-pad"
+                  value={cashBalance}
+                  onChangeText={(t) => handleDistributionChange(t, 'cash')}
+                  onFocus={() => setFocusedInput('cash')}
+                  onBlur={() => setFocusedInput(null)}
+                />
+              </View>
+            </View>
+
+            {/* Bank Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">Bank Account</Text>
+              <View style={[styles.inputContainer, focusedInput === 'bank' && styles.inputContainerFocused]}>
+                <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="0.00"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="decimal-pad"
+                  value={bankBalance}
+                  onChangeText={(t) => handleDistributionChange(t, 'bank')}
+                  onFocus={() => setFocusedInput('bank')}
+                  onBlur={() => setFocusedInput(null)}
+                />
+              </View>
+            </View>
+
+            {/* Digital Input */}
+            <View className="mb-6">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">Digital Banking (Bkash, Nagad, etc.)</Text>
+              <View style={[styles.inputContainer, focusedInput === 'digital' && styles.inputContainerFocused]}>
+                <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="0.00"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="decimal-pad"
+                  value={digitalBalance}
+                  onChangeText={(t) => handleDistributionChange(t, 'digital')}
+                  onFocus={() => setFocusedInput('digital')}
+                  onBlur={() => setFocusedInput(null)}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              onPress={handleContinue}
+              disabled={Math.abs(remaining) > 0.01 || updateBalance.isPending}
+              className={`flex-row items-center justify-center rounded-2xl py-4 px-6 ${
+                Math.abs(remaining) > 0.01 || updateBalance.isPending
+                  ? "bg-gray-400"
+                  : "bg-indigo-600"
+              }`}
+              activeOpacity={0.8}
+            >
+              {updateBalance.isPending ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text className="text-lg font-bold text-white mr-2">
+                    Complete Setup
+                  </Text>
+                  <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                </>
+              )}
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={() => setStep('total')}
+              className="items-center justify-center mt-4"
+            >
+              <Text className="text-indigo-600 font-semibold">Back to Total</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -190,7 +340,7 @@ export const BalanceSetupScreen: React.FC = () => {
             ) : (
               <>
                 <Text className="text-lg font-bold text-white mr-2">
-                  Save & Continue
+                  Continue
                 </Text>
                 <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
               </>
@@ -200,7 +350,7 @@ export const BalanceSetupScreen: React.FC = () => {
           <TouchableOpacity
             onPress={() => {
               setBalance("0");
-              handleContinue();
+              submitBalances(0, 0, 0);
             }}
             disabled={updateBalance.isPending}
             className="items-center justify-center mt-5"

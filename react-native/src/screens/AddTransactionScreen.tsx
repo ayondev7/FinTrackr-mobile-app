@@ -6,6 +6,7 @@ import { ScreenHeader, TypeSelector, CategorySelector, RecurringToggle } from '.
 import { useCategoryStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { DollarSign } from 'lucide-react-native';
+import { Text, TouchableOpacity } from 'react-native';
 
 export const AddTransactionScreen = () => {
   const insets = useSafeAreaInsets();
@@ -15,6 +16,7 @@ export const AddTransactionScreen = () => {
   const isDark = theme === 'dark';
 
   const [type, setType] = useState<'expense' | 'revenue'>('expense');
+  const [accountType, setAccountType] = useState<'CASH' | 'BANK' | 'DIGITAL'>('CASH');
   const [amount, setAmount] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [name, setName] = useState('');
@@ -26,7 +28,16 @@ export const AddTransactionScreen = () => {
   );
 
   const handleSubmit = () => {
-    console.log('Transaction submitted');
+    console.log('Transaction submitted', {
+      type,
+      accountType,
+      amount,
+      selectedCategory,
+      name,
+      description,
+      isRecurring
+    });
+    // TODO: Call API to create transaction
   };
 
   return (
@@ -46,6 +57,41 @@ export const AddTransactionScreen = () => {
 
         <Card className="mb-6">
           <TypeSelector type={type} onTypeChange={setType} isDark={isDark} />
+        </Card>
+
+        <Card className="mb-6">
+          <View className="flex-row justify-between mb-2">
+            <Text className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Account Type
+            </Text>
+          </View>
+          <View className="flex-row gap-2">
+            {(['CASH', 'BANK', 'DIGITAL'] as const).map((acc) => (
+              <TouchableOpacity
+                key={acc}
+                onPress={() => setAccountType(acc)}
+                className={`flex-1 py-3 rounded-xl items-center justify-center border ${
+                  accountType === acc
+                    ? 'bg-indigo-600 border-indigo-600'
+                    : isDark
+                    ? 'bg-slate-800 border-slate-700'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <Text
+                  className={`font-semibold ${
+                    accountType === acc
+                      ? 'text-white'
+                      : isDark
+                      ? 'text-gray-300'
+                      : 'text-gray-700'
+                  }`}
+                >
+                  {acc === 'CASH' ? 'Cash' : acc === 'BANK' ? 'Bank' : 'Digital'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </Card>
 
         <Card className="mb-6">
