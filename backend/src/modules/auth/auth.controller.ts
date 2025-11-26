@@ -41,7 +41,9 @@ const createTokenPair = (userId: string) => ({
 });
 
 export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
-  console.log('Google auth request received:', req.body.email);
+  console.log('Google auth request received:', req.body?.email ?? '(no email)');
+  console.log('Google auth headers:', JSON.stringify(req.headers));
+  console.log('Google auth full body:', JSON.stringify(req.body));
 
   const validatedData = googleAuthSchema.parse(req.body);
   const normalizedName = resolveDisplayName(validatedData);

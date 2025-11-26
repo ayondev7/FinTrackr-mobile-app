@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import axios from 'axios';
 import { useOnboardingStore } from '../store/onboardingStore';
 import { useToastStore } from '../store/toastStore';
 import { config } from '../config';
+import { authRoutes } from '../routes';
 import { saveTokens } from '../utils/authStorage';
+import api from '../utils/api';
 
 export const LoginScreen: React.FC = () => {
   const { setIsAuthenticated } = useOnboardingStore();
@@ -14,7 +17,6 @@ export const LoginScreen: React.FC = () => {
   const [isConfigured, setIsConfigured] = useState(false);
 
   useEffect(() => {
-    // Configure GoogleSignin when component mounts
     try {
       GoogleSignin.configure({
         webClientId: config.google.webClientId,
@@ -23,7 +25,7 @@ export const LoginScreen: React.FC = () => {
       setIsConfigured(true);
     } catch (error) {
       console.error('Failed to configure Google Sign-In:', error);
-      Alert.alert('Configuration Error', 'Failed to initialize Google Sign-In. Please check your configuration.');
+      showError('Configuration Error', 'Failed to initialize Google Sign-In');
     }
   }, []);
 
@@ -33,63 +35,49 @@ export const LoginScreen: React.FC = () => {
     }
 
     if (!isConfigured) {
-      Alert.alert('Google Sign-In not ready', 'Please wait for Google Sign-In to initialize.');
+      showInfo('Please Wait', 'Google Sign-In is initializing');
       return;
     }
 
     try {
       setIsAuthenticating(true);
 
-      // Check if Play Services are available (Android only)
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-      // Attempt to sign in
       const signInResponse = await GoogleSignin.signIn();
 
-      // Check if sign-in was successful
       if (!isSuccessResponse(signInResponse)) {
-        throw new Error('Google Sign-In was cancelled or failed.');
+        throw new Error('Google Sign-In was cancelled or failed');
       }
 
       const userData = signInResponse.data;
       console.log('Google Sign-In successful:', userData);
 
-      showSuccess('Welcome!', `Signed in as ${userData.user.name}`);
-
-      // TODO: Uncomment this section when backend is ready
-      /*
-      // Send the user data to your backend
-      const backendResponse = await fetch(`${config.apiBaseUrl}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sub: userData.user.id,
-          email: userData.user.email,
-          name: userData.user.name,
-          given_name: userData.user.givenName,
-          family_name: userData.user.familyName,
-          picture: userData.user.photo,
-        }),
+      const backendResponse = await api.post(authRoutes.googleLogin, {
+        sub: userData.user.id,
+        email: userData.user.email,
+        name: userData.user.name,
+        given_name: userData.user.givenName,
+        family_name: userData.user.familyName,
+        picture: userData.user.photo,
       });
 
-      const backendPayload = await backendResponse.json();
+      const backendPayload = backendResponse.data;
 
-      if (!backendResponse.ok || !backendPayload.success) {
-        throw new Error(backendPayload.error || backendPayload.message || 'Unable to authenticate with FinTrackr.');
+      if (!backendPayload.success) {
+        throw new Error(backendPayload.error || backendPayload.message || 'Authentication failed');
       }
 
       const tokens = backendPayload.data;
 
       if (!tokens?.accessToken || !tokens?.refreshToken) {
-        throw new Error('Missing tokens from FinTrackr response.');
+        throw new Error('Missing authentication tokens');
       }
 
       await saveTokens(tokens.accessToken, tokens.refreshToken);
-      */
+
+      showSuccess('Welcome!', `Signed in as ${userData.user.name}`);
       
-      // For now, just authenticate without backend
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Google login error:', error);
@@ -102,8 +90,11 @@ export const LoginScreen: React.FC = () => {
         } else if (error.code === statusCodes.IN_PROGRESS) {
           showInfo('Sign-In In Progress', 'Sign-in is already in progress');
         } else {
-          showError('Authentication Failed', `Error: ${error.code}. Please try again`);
+          showError('Authentication Failed', `Error: ${error.code}`);
         }
+      } else if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Unable to connect to server';
+        showError('Authentication Failed', errorMessage);
       } else {
         showError('Authentication Failed', error instanceof Error ? error.message : 'Please try again');
       }
