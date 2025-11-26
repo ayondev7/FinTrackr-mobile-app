@@ -10,7 +10,7 @@ import {
   BudgetOverview
 } from '../components/dashboard';
 import { Loader, RefreshableScrollView } from '../components/shared';
-import { useDashboardSummary } from '../hooks';
+import { useDashboardSummary, useBudgets, useCategories } from '../hooks';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 
@@ -20,7 +20,17 @@ export const DashboardScreen = () => {
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
-  const { data: dashboardData, isLoading, error, refetch } = useDashboardSummary();
+  const { data: dashboardData, isLoading, error, refetch: refetchDashboard } = useDashboardSummary();
+  const { refetch: refetchBudgets } = useBudgets();
+  const { refetch: refetchCategories } = useCategories();
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      refetchDashboard(),
+      refetchBudgets(),
+      refetchCategories(),
+    ]);
+  };
 
   if (isLoading) {
     return (
@@ -48,7 +58,7 @@ export const DashboardScreen = () => {
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
-      onRefresh={async () => { await refetch(); }}
+      onRefresh={handleRefresh}
     >
       <View style={{ paddingTop: insets.top + 16 }}>
         {/* Balance Cards - Horizontal Scroll with Total + Account Types */}

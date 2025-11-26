@@ -3,8 +3,10 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronRight, PiggyBank, AlertTriangle, TrendingUp } from 'lucide-react-native';
 import { Card } from '../shared/Card';
+import { CategoryIcon } from '../shared/CategoryIcon';
 import { BudgetProgressBar } from '../budgets/BudgetProgressBar';
-import { useBudgetStore, useCategoryStore } from '../../store';
+import { useBudgets } from '../../hooks';
+import { Loader } from '../shared/Loader';
 
 interface BudgetOverviewProps {
   currency: string;
@@ -13,8 +15,9 @@ interface BudgetOverviewProps {
 
 export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) => {
   const navigation = useNavigation();
-  const { budgets, getExceededBudgets } = useBudgetStore();
-  const { categories } = useCategoryStore();
+  const { data: budgetsData, isLoading } = useBudgets();
+
+  const budgets = budgetsData?.data || [];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -25,25 +28,29 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
     }).format(amount);
   };
 
-  const getCategoryById = (categoryId: string) => {
-    return categories.find((cat) => cat.id === categoryId);
-  };
-
   // Get budgets that need attention (near limit or over)
-  const alertBudgets = budgets.filter((budget) => {
-    const percentage = (budget.spent / budget.limit) * 100;
-    return percentage >= budget.alertThreshold || budget.spent > budget.limit;
-  });
+  const alertBudgets = budgets.filter((budget) => budget.needsAlert || budget.isOverBudget);
 
   // Sort by percentage (highest first)
-  const sortedBudgets = [...budgets].sort((a, b) => {
-    const pctA = (a.spent / a.limit) * 100;
-    const pctB = (b.spent / b.limit) * 100;
-    return pctB - pctA;
-  });
+  const sortedBudgets = [...budgets].sort((a, b) => b.percentage - a.percentage);
 
   // Take top 3 for preview
   const previewBudgets = sortedBudgets.slice(0, 3);
+
+  if (isLoading) {
+    return (
+      <>
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-lg font-bold text-gray-900 dark:text-white">
+            Budgets
+          </Text>
+        </View>
+        <Card className="mb-6 p-5 items-center">
+          <Loader size={32} />
+        </Card>
+      </>
+    );
+  }
 
   if (budgets.length === 0) {
     return (
@@ -119,10 +126,8 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
 
       <Card className="mb-6 p-4">
         {previewBudgets.map((budget, index) => {
-          const category = getCategoryById(budget.categoryId);
-          const percentage = (budget.spent / budget.limit) * 100;
-          const isOverBudget = budget.spent > budget.limit;
-          const isNearLimit = percentage >= budget.alertThreshold && !isOverBudget;
+          const category = budget.category;
+          const categoryColor = category?.color || primaryColor;
 
           return (
             <View
@@ -133,21 +138,27 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
                 <View className="flex-row items-center gap-2 flex-1">
                   <View
                     className="w-8 h-8 rounded-lg items-center justify-center"
-                    style={{ backgroundColor: `${category?.color || primaryColor}20` }}
+                    style={{ backgroundColor: `${categoryColor}20` }}
                   >
-                    {isOverBudget ? (
+                    {budget.isOverBudget ? (
                       <AlertTriangle size={14} color="#EF4444" />
-                    ) : isNearLimit ? (
+                    ) : budget.needsAlert ? (
                       <TrendingUp size={14} color="#F59E0B" />
+                    ) : category?.icon ? (
+                      <CategoryIcon 
+                        iconName={category.icon} 
+                        size={14} 
+                        color={categoryColor} 
+                      />
                     ) : (
-                      <PiggyBank size={14} color={category?.color || primaryColor} />
+                      <PiggyBank size={14} color={categoryColor} />
                     )}
                   </View>
                   <Text
                     className="font-medium text-gray-900 dark:text-white flex-1"
                     numberOfLines={1}
                   >
-                    {budget.categoryName}
+                    {category?.name || 'Unknown Category'}
                   </Text>
                 </View>
                 <Text className="text-gray-500 dark:text-gray-400 text-sm">
@@ -157,7 +168,7 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
               <BudgetProgressBar
                 spent={budget.spent}
                 limit={budget.limit}
-                color={category?.color || primaryColor}
+                color={categoryColor}
                 showLabels={false}
                 height={6}
               />
