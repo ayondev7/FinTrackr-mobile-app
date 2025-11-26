@@ -16,6 +16,7 @@ import {
   CategoryDetailScreen,
   PredictionsScreen,
   SettingsScreen,
+  ToastTestScreen,
 } from '../screens';
 
 const Tab = createBottomTabNavigator();
@@ -70,6 +71,7 @@ export const AppNavigator = () => {
         <Stack.Screen name="Categories" component={CategoriesScreen} />
         <Stack.Screen name="AddCategory" component={AddCategoryScreen} />
         <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
+        <Stack.Screen name="ToastTest" component={ToastTestScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

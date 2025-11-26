@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { SplashScreen, OnboardingScreen, LoginScreen } from './src/screens';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 import * as ExpoSplashScreen from 'expo-splash-screen';
+import { ToastContainer } from './src/components/shared';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
@@ -56,6 +57,7 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <OnboardingScreen />
+        <ToastContainer />
         <StatusBar style="dark" />
       </SafeAreaProvider>
     );
@@ -66,6 +68,7 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <LoginScreen />
+        <ToastContainer />
         <StatusBar style="dark" />
       </SafeAreaProvider>
     );
@@ -75,6 +78,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppNavigator />
+      <ToastContainer />
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
     </SafeAreaProvider>
   );

@@ -3,11 +3,13 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicat
 import { Ionicons } from '@expo/vector-icons';
 import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
 import { useOnboardingStore } from '../store/onboardingStore';
+import { useToastStore } from '../store/toastStore';
 import { config } from '../config';
 import { saveTokens } from '../utils/authStorage';
 
 export const LoginScreen: React.FC = () => {
   const { setIsAuthenticated } = useOnboardingStore();
+  const { showSuccess, showError, showInfo } = useToastStore();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
 
@@ -52,12 +54,7 @@ export const LoginScreen: React.FC = () => {
       const userData = signInResponse.data;
       console.log('Google Sign-In successful:', userData);
 
-      // Display user data on screen
-      Alert.alert(
-        'Sign-In Successful!',
-        `Welcome ${userData.user.name}!\n\nEmail: ${userData.user.email}\nID: ${userData.user.id}`,
-        [{ text: 'OK' }]
-      );
+      showSuccess('Welcome!', `Signed in as ${userData.user.name}`);
 
       // TODO: Uncomment this section when backend is ready
       /*
@@ -99,16 +96,16 @@ export const LoginScreen: React.FC = () => {
       
       if (isErrorWithCode(error)) {
         if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-          Alert.alert('Play Services Required', 'Google Play Services is not available or outdated. Please update it from the Play Store.');
+          showError('Play Services Required', 'Google Play Services is not available or outdated');
         } else if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-          Alert.alert('Sign-In Cancelled', 'You cancelled the sign-in process.');
+          showInfo('Sign-In Cancelled', 'You cancelled the sign-in process');
         } else if (error.code === statusCodes.IN_PROGRESS) {
-          Alert.alert('Sign-In In Progress', 'Sign-in is already in progress.');
+          showInfo('Sign-In In Progress', 'Sign-in is already in progress');
         } else {
-          Alert.alert('Authentication Failed', `Error: ${error.code}. Please try again.`);
+          showError('Authentication Failed', `Error: ${error.code}. Please try again`);
         }
       } else {
-        Alert.alert('Authentication Failed', error instanceof Error ? error.message : 'Please try again.');
+        showError('Authentication Failed', error instanceof Error ? error.message : 'Please try again');
       }
     } finally {
       setIsAuthenticating(false);
