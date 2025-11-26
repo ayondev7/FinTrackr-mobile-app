@@ -10,6 +10,7 @@ export const updateProfileSchema = z.object({
 export const updateBalanceSchema = z.object({
   initialBalance: z.number(),
   currentBalance: z.number(),
+  currency: z.string().min(3).max(3).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

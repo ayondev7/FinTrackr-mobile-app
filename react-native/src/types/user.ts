@@ -144,6 +144,7 @@ export interface ApiResponse<T> {
 export interface UpdateBalancePayload {
   initialBalance: number;
   currentBalance: number;
+  currency?: string;
 }
 
 export interface UpdateProfilePayload {

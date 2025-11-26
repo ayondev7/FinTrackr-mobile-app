@@ -69,6 +69,7 @@ export const updateBalance = asyncHandler(async (req: AuthRequest, res: Response
     data: {
       initialBalance: validatedData.initialBalance,
       currentBalance: validatedData.currentBalance,
+      ...(validatedData.currency && { currency: validatedData.currency }),
     },
     select: {
       id: true,

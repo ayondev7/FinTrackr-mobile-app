@@ -73,6 +73,24 @@ export const SettingsScreen = () => {
     );
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await clearTokens();
+            resetOnboarding();
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
@@ -130,6 +148,21 @@ export const SettingsScreen = () => {
           >
             <Text className="text-white text-center font-semibold">
               Reset Onboarding
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-6">
+          <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">
+            Account
+          </Text>
+          <TouchableOpacity
+            onPress={handleLogout}
+            className="bg-red-500 p-4 rounded-xl flex-row items-center justify-center gap-2"
+          >
+            <LogOut size={20} color="#FFF" />
+            <Text className="text-white text-center font-semibold">
+              Logout
             </Text>
           </TouchableOpacity>
         </View>
