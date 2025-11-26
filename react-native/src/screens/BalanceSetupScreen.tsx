@@ -203,7 +203,7 @@ export const BalanceSetupScreen: React.FC = () => {
               handleContinue();
             }}
             disabled={updateBalance.isPending}
-            className="items-center justify-center py-4 mt-3 border-2 border-gray-200 rounded-2xl"
+            className="items-center justify-center mt-5"
           >
             <Text className="text-base font-semibold text-gray-600">
               Start with {selectedCurrency.symbol}0
