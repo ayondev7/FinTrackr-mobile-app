@@ -4,7 +4,6 @@ export const API_BASE_URL = `${config.apiBaseUrl}/api`;
 
 export { authRoutes } from './authRoutes';
 export { userRoutes } from './userRoutes';
-export { walletRoutes } from './walletRoutes';
 export { transactionRoutes } from './transactionRoutes';
 export { categoryRoutes } from './categoryRoutes';
 export { budgetRoutes } from './budgetRoutes';

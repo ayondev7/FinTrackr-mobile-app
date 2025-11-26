@@ -90,14 +90,6 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
             <Text className="text-gray-400 dark:text-gray-500 text-xs">
               {formatDate(transaction.date)}
             </Text>
-            {transaction.wallet && (
-              <>
-                <View className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
-                <Text className="text-gray-400 dark:text-gray-500 text-xs">
-                  {transaction.wallet}
-                </Text>
-              </>
-            )}
           </View>
         </View>
         

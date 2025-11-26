@@ -105,13 +105,6 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
           color: true,
         },
       },
-      wallet: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-        },
-      },
     },
     orderBy: { date: 'desc' },
     take: 5,
@@ -132,8 +125,6 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
     createdAt: txn.createdAt.toISOString(),
     isRecurring: txn.isRecurring,
     recurringFrequency: txn.recurringFrequency,
-    wallet: txn.wallet?.name,
-    walletId: txn.walletId,
   }));
 
   const dashboardData = {
@@ -177,13 +168,6 @@ export const getRecentTransactions = asyncHandler(async (req: AuthRequest, res: 
           color: true,
         },
       },
-      wallet: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-        },
-      },
     },
     orderBy: { date: 'desc' },
     take: limit,
@@ -203,8 +187,6 @@ export const getRecentTransactions = asyncHandler(async (req: AuthRequest, res: 
     createdAt: txn.createdAt.toISOString(),
     isRecurring: txn.isRecurring,
     recurringFrequency: txn.recurringFrequency,
-    wallet: txn.wallet?.name,
-    walletId: txn.walletId,
   }));
 
   console.log('Recent transactions retrieved:', formattedTransactions.length);

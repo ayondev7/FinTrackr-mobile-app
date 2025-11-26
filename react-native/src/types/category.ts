@@ -5,11 +5,4 @@ export interface Category {
   color: string;
   type: 'expense' | 'revenue' | 'both';
   isPinned?: boolean;
-  subCategories?: SubCategory[];
-}
-
-export interface SubCategory {
-  id: string;
-  name: string;
-  parentId: string;
 }

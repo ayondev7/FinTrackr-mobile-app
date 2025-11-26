@@ -20,7 +20,6 @@ export interface MonthlyStats {
 export interface DashboardTransaction extends Transaction {
   categoryIcon?: string;
   categoryColor?: string;
-  walletId?: string | null;
 }
 
 export interface DashboardSummary {

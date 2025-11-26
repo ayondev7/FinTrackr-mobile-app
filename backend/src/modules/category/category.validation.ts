@@ -16,11 +16,5 @@ export const updateCategorySchema = z.object({
   isPinned: z.boolean().optional(),
 });
 
-export const createSubCategorySchema = z.object({
-  categoryId: z.string().uuid('Invalid category ID'),
-  name: z.string().min(1, 'Subcategory name is required'),
-});
-
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
-export type CreateSubCategoryInput = z.infer<typeof createSubCategorySchema>;

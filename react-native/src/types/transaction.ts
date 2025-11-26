@@ -17,8 +17,6 @@ export interface Transaction {
   createdAt: string;
   isRecurring?: boolean;
   recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  wallet?: string;
-  walletId?: string | null;
 }
 
 export interface RecurringTransaction extends Transaction {
@@ -30,7 +28,6 @@ export interface RecurringTransaction extends Transaction {
 export interface TransactionListParams {
   type?: FilterType;
   categoryId?: string;
-  walletId?: string;
   startDate?: string;
   endDate?: string;
   isRecurring?: boolean;
@@ -73,7 +70,6 @@ export interface CreateTransactionPayload {
   name?: string;
   description?: string;
   date: string;
-  walletId?: string;
   isRecurring?: boolean;
   recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   nextDueDate?: string;

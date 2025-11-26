@@ -39,7 +39,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
   const { id: userId } = req.user!;
   console.log('Get transactions request for user:', userId);
 
-  const { type, categoryId, walletId, startDate, endDate, isRecurring, timePeriod, sortBy } = req.query;
+  const { type, categoryId, startDate, endDate, isRecurring, timePeriod, sortBy } = req.query;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 15;
   const skip = (page - 1) * limit;
@@ -54,7 +54,6 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
   }
   
   if (categoryId) where.categoryId = categoryId;
-  if (walletId) where.walletId = walletId;
   if (isRecurring !== undefined) where.isRecurring = isRecurring === 'true';
   
   // Handle time period filter (daily, weekly, monthly, yearly)
@@ -90,13 +89,6 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
             color: true,
           },
         },
-        wallet: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-          },
-        },
       },
       orderBy,
       skip,
@@ -120,8 +112,6 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
     createdAt: txn.createdAt.toISOString(),
     isRecurring: txn.isRecurring,
     recurringFrequency: txn.recurringFrequency,
-    wallet: txn.wallet?.name,
-    walletId: txn.walletId,
   }));
 
   console.log('Transactions retrieved:', formattedTransactions.length);
@@ -156,13 +146,6 @@ export const getTransactionById = asyncHandler(async (req: AuthRequest, res: Res
           color: true,
         },
       },
-      wallet: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-        },
-      },
     },
   });
 
@@ -192,19 +175,6 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     throw new ApiError(404, 'Category not found');
   }
 
-  if (validatedData.walletId) {
-    const wallet = await prisma.wallet.findFirst({
-      where: {
-        id: validatedData.walletId,
-        userId,
-      },
-    });
-
-    if (!wallet) {
-      throw new ApiError(404, 'Wallet not found');
-    }
-  }
-
   const transaction = await prisma.transaction.create({
     data: {
       ...validatedData,
@@ -221,13 +191,6 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
           color: true,
         },
       },
-      wallet: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-        },
-      },
     },
   });
 
@@ -241,17 +204,6 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       },
     },
   });
-
-  if (validatedData.walletId) {
-    await prisma.wallet.update({
-      where: { id: validatedData.walletId },
-      data: {
-        balance: {
-          increment: amountChange,
-        },
-      },
-    });
-  }
 
   console.log('Transaction created successfully:', transaction.id);
 
@@ -288,19 +240,6 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     }
   }
 
-  if (validatedData.walletId) {
-    const wallet = await prisma.wallet.findFirst({
-      where: {
-        id: validatedData.walletId,
-        userId,
-      },
-    });
-
-    if (!wallet) {
-      throw new ApiError(404, 'Wallet not found');
-    }
-  }
-
   const oldAmountChange = existingTransaction.type === 'expense' ? -existingTransaction.amount : existingTransaction.amount;
 
   const transaction = await prisma.transaction.update({
@@ -319,13 +258,6 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
           color: true,
         },
       },
-      wallet: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-        },
-      },
     },
   });
 
@@ -341,17 +273,6 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
         },
       },
     });
-
-    if (transaction.walletId) {
-      await prisma.wallet.update({
-        where: { id: transaction.walletId },
-        data: {
-          balance: {
-            increment: balanceDiff,
-          },
-        },
-      });
-    }
   }
 
   console.log('Transaction updated successfully');
@@ -388,17 +309,6 @@ export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       },
     },
   });
-
-  if (transaction.walletId) {
-    await prisma.wallet.update({
-      where: { id: transaction.walletId },
-      data: {
-        balance: {
-          increment: amountChange,
-        },
-      },
-    });
-  }
 
   console.log('Transaction deleted successfully');
 

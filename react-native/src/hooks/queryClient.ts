@@ -18,10 +18,6 @@ export const queryKeys = {
   user: {
     profile: ['user', 'profile'] as const,
   },
-  wallet: {
-    list: ['wallet', 'list'] as const,
-    detail: (id: string) => ['wallet', 'detail', id] as const,
-  },
   transaction: {
     list: (params?: TransactionListParams) => ['transaction', 'list', params] as const,
     infinite: (params?: Omit<TransactionListParams, 'page'>) => ['transaction', 'infinite', params] as const,

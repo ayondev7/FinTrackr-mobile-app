@@ -29,12 +29,6 @@ export const RECURRING_FREQUENCIES = {
   YEARLY: 'yearly' as const,
 };
 
-export const WALLET_TYPES = {
-  CASH: 'cash' as const,
-  BANK: 'bank' as const,
-  DIGITAL: 'digital' as const,
-};
-
 export const BUDGET_PERIODS = {
   DAILY: 'daily' as const,
   WEEKLY: 'weekly' as const,

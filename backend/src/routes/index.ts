@@ -6,7 +6,6 @@ import transactionRoutes from '../modules/transaction/transaction.routes';
 import budgetRoutes from '../modules/budget/budget.routes';
 import analyticsRoutes from '../modules/analytics/analytics.routes';
 import predictionsRoutes from '../modules/predictions/predictions.routes';
-import walletRoutes from '../modules/wallet/wallet.routes';
 import dashboardRoutes from '../modules/dashboard/dashboard.routes';
 
 const router = Router();
@@ -18,7 +17,6 @@ router.use('/transactions', transactionRoutes);
 router.use('/budgets', budgetRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/predictions', predictionsRoutes);
-router.use('/wallets', walletRoutes);
 router.use('/dashboard', dashboardRoutes);
 
 export default router;
