@@ -5,10 +5,11 @@ import { AuthRequest } from '../../middleware/auth';
 import { createWalletSchema, updateWalletSchema } from './wallet.validation';
 
 export const getWallets = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get wallets request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get wallets request for user:', userId);
 
   const wallets = await prisma.wallet.findMany({
-    where: { userId: req.userId },
+    where: { userId },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -18,12 +19,13 @@ export const getWallets = asyncHandler(async (req: AuthRequest, res: Response) =
 });
 
 export const getWalletById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Get wallet by ID:', req.params.id);
 
   const wallet = await prisma.wallet.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -37,14 +39,15 @@ export const getWalletById = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const createWallet = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Create wallet request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Create wallet request for user:', userId);
 
   const validatedData = createWalletSchema.parse(req.body);
 
   const wallet = await prisma.wallet.create({
     data: {
       ...validatedData,
-      userId: req.userId!,
+      userId,
     },
   });
 
@@ -54,6 +57,7 @@ export const createWallet = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const updateWallet = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Update wallet request:', req.params.id);
 
   const validatedData = updateWalletSchema.parse(req.body);
@@ -61,7 +65,7 @@ export const updateWallet = asyncHandler(async (req: AuthRequest, res: Response)
   const existingWallet = await prisma.wallet.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -80,12 +84,13 @@ export const updateWallet = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const deleteWallet = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Delete wallet request:', req.params.id);
 
   const wallet = await prisma.wallet.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 

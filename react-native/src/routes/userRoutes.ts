@@ -1,4 +1,4 @@
-const BASE = '/user';
+const BASE = '/users';
 
 export const userRoutes = {
   profile: `${BASE}/profile`,

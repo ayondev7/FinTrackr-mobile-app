@@ -4,12 +4,13 @@ import { asyncHandler, sendSuccess } from '../../utils/apiHelpers';
 import { AuthRequest } from '../../middleware/auth';
 
 export const getAnalytics = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get analytics request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get analytics request for user:', userId);
 
   const { startDate, endDate, type } = req.query;
 
   const where: any = {
-    userId: req.userId,
+    userId,
   };
 
   if (startDate || endDate) {
@@ -99,7 +100,8 @@ export const getAnalytics = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const getMonthlyOverview = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get monthly overview for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get monthly overview for user:', userId);
 
   const { year } = req.query;
   const targetYear = year ? parseInt(year as string) : new Date().getFullYear();
@@ -113,7 +115,7 @@ export const getMonthlyOverview = asyncHandler(async (req: AuthRequest, res: Res
     const [expenseTotal, revenueTotal] = await Promise.all([
       prisma.transaction.aggregate({
         where: {
-          userId: req.userId,
+          userId,
           type: 'expense',
           date: {
             gte: startDate,
@@ -124,7 +126,7 @@ export const getMonthlyOverview = asyncHandler(async (req: AuthRequest, res: Res
       }),
       prisma.transaction.aggregate({
         where: {
-          userId: req.userId,
+          userId,
           type: 'revenue',
           date: {
             gte: startDate,
@@ -154,17 +156,18 @@ export const getMonthlyOverview = asyncHandler(async (req: AuthRequest, res: Res
 });
 
 export const getBalanceTrend = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get balance trend for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get balance trend for user:', userId);
 
   const { startDate, endDate, interval } = req.query;
 
   const user = await prisma.user.findUnique({
-    where: { id: req.userId },
+    where: { id: userId },
     select: { initialBalance: true },
   });
 
   const where: any = {
-    userId: req.userId,
+    userId,
   };
 
   if (startDate || endDate) {
@@ -205,12 +208,13 @@ export const getBalanceTrend = asyncHandler(async (req: AuthRequest, res: Respon
 });
 
 export const getCategoryStats = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get category stats for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get category stats for user:', userId);
 
   const { startDate, endDate } = req.query;
 
   const where: any = {
-    userId: req.userId,
+    userId,
   };
 
   if (startDate || endDate) {
@@ -220,7 +224,7 @@ export const getCategoryStats = asyncHandler(async (req: AuthRequest, res: Respo
   }
 
   const categories = await prisma.category.findMany({
-    where: { userId: req.userId },
+    where: { userId },
     select: {
       id: true,
       name: true,

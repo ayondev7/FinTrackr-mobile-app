@@ -3,8 +3,12 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { ApiError } from '../utils/apiHelpers';
 
+export interface AuthUser {
+  id: string;
+}
+
 export interface AuthRequest extends Request {
-  userId?: string;
+  user?: AuthUser;
 }
 
 export const authMiddleware = (
@@ -20,10 +24,14 @@ export const authMiddleware = (
     }
 
     const decoded = jwt.verify(token, config.jwt.secret) as { userId: string };
-    req.userId = decoded.userId;
+    req.user = { id: decoded.userId };
 
     next();
   } catch (error) {
-    next(error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      next(new ApiError(401, 'Invalid or expired token'));
+    } else {
+      next(error);
+    }
   }
 };

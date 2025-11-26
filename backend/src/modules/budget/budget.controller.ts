@@ -5,12 +5,13 @@ import { AuthRequest } from '../../middleware/auth';
 import { createBudgetSchema, updateBudgetSchema } from './budget.validation';
 
 export const getBudgets = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get budgets request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get budgets request for user:', userId);
 
   const { period, categoryId } = req.query;
 
   const where: any = {
-    userId: req.userId,
+    userId,
   };
 
   if (period) where.period = period;
@@ -50,12 +51,13 @@ export const getBudgets = asyncHandler(async (req: AuthRequest, res: Response) =
 });
 
 export const getBudgetById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Get budget by ID:', req.params.id);
 
   const budget = await prisma.budget.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
     include: {
       category: {
@@ -90,14 +92,15 @@ export const getBudgetById = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const createBudget = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Create budget request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Create budget request for user:', userId);
 
   const validatedData = createBudgetSchema.parse(req.body);
 
   const category = await prisma.category.findFirst({
     where: {
       id: validatedData.categoryId,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -107,7 +110,7 @@ export const createBudget = asyncHandler(async (req: AuthRequest, res: Response)
 
   const existingBudget = await prisma.budget.findFirst({
     where: {
-      userId: req.userId,
+      userId,
       categoryId: validatedData.categoryId,
       period: validatedData.period,
       startDate: {
@@ -125,7 +128,7 @@ export const createBudget = asyncHandler(async (req: AuthRequest, res: Response)
 
   const spent = await prisma.transaction.aggregate({
     where: {
-      userId: req.userId,
+      userId,
       categoryId: validatedData.categoryId,
       type: 'expense',
       date: {
@@ -144,7 +147,7 @@ export const createBudget = asyncHandler(async (req: AuthRequest, res: Response)
       startDate: new Date(validatedData.startDate),
       endDate: new Date(validatedData.endDate),
       spent: spent._sum.amount || 0,
-      userId: req.userId!,
+      userId,
     },
     include: {
       category: {
@@ -164,6 +167,7 @@ export const createBudget = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const updateBudget = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Update budget request:', req.params.id);
 
   const validatedData = updateBudgetSchema.parse(req.body);
@@ -171,7 +175,7 @@ export const updateBudget = asyncHandler(async (req: AuthRequest, res: Response)
   const existingBudget = await prisma.budget.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -183,7 +187,7 @@ export const updateBudget = asyncHandler(async (req: AuthRequest, res: Response)
     const category = await prisma.category.findFirst({
       where: {
         id: validatedData.categoryId,
-        userId: req.userId,
+        userId,
       },
     });
 
@@ -217,12 +221,13 @@ export const updateBudget = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const deleteBudget = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Delete budget request:', req.params.id);
 
   const budget = await prisma.budget.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -240,12 +245,13 @@ export const deleteBudget = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const refreshBudgetSpent = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Refresh budget spent:', req.params.id);
 
   const budget = await prisma.budget.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -255,7 +261,7 @@ export const refreshBudgetSpent = asyncHandler(async (req: AuthRequest, res: Res
 
   const spent = await prisma.transaction.aggregate({
     where: {
-      userId: req.userId,
+      userId,
       categoryId: budget.categoryId,
       type: 'expense',
       date: {

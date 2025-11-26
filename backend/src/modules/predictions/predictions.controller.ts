@@ -4,13 +4,14 @@ import { asyncHandler, sendSuccess } from '../../utils/apiHelpers';
 import { AuthRequest } from '../../middleware/auth';
 
 export const getPredictions = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get predictions for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get predictions for user:', userId);
 
   const { months } = req.query;
   const projectionMonths = months ? parseInt(months as string) : 6;
 
   const user = await prisma.user.findUnique({
-    where: { id: req.userId },
+    where: { id: userId },
     select: { currentBalance: true },
   });
 
@@ -20,7 +21,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
   const [expenseData, revenueData] = await Promise.all([
     prisma.transaction.aggregate({
       where: {
-        userId: req.userId,
+        userId,
         type: 'expense',
         date: { gte: sixMonthsAgo },
       },
@@ -29,7 +30,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
     }),
     prisma.transaction.aggregate({
       where: {
-        userId: req.userId,
+        userId,
         type: 'revenue',
         date: { gte: sixMonthsAgo },
       },
@@ -95,7 +96,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
   const topExpenseCategories = await prisma.transaction.groupBy({
     by: ['categoryId'],
     where: {
-      userId: req.userId,
+      userId,
       type: 'expense',
       date: { gte: sixMonthsAgo },
     },
@@ -136,7 +137,8 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const getSpendingInsights = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get spending insights for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get spending insights for user:', userId);
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -147,7 +149,7 @@ export const getSpendingInsights = asyncHandler(async (req: AuthRequest, res: Re
   const [currentPeriod, previousPeriod] = await Promise.all([
     prisma.transaction.aggregate({
       where: {
-        userId: req.userId,
+        userId,
         type: 'expense',
         date: { gte: thirtyDaysAgo },
       },
@@ -156,7 +158,7 @@ export const getSpendingInsights = asyncHandler(async (req: AuthRequest, res: Re
     }),
     prisma.transaction.aggregate({
       where: {
-        userId: req.userId,
+        userId,
         type: 'expense',
         date: {
           gte: sixtyDaysAgo,

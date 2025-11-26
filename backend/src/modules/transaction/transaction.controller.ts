@@ -5,7 +5,8 @@ import { AuthRequest } from '../../middleware/auth';
 import { createTransactionSchema, updateTransactionSchema } from './transaction.validation';
 
 export const getTransactions = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get transactions request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get transactions request for user:', userId);
 
   const { type, categoryId, walletId, startDate, endDate, isRecurring } = req.query;
   const page = parseInt(req.query.page as string) || 1;
@@ -13,7 +14,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
   const skip = (page - 1) * limit;
 
   const where: any = {
-    userId: req.userId,
+    userId,
   };
 
   if (type) where.type = type;
@@ -68,12 +69,13 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
 });
 
 export const getTransactionById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Get transaction by ID:', req.params.id);
 
   const transaction = await prisma.transaction.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
     include: {
       category: {
@@ -104,14 +106,15 @@ export const getTransactionById = asyncHandler(async (req: AuthRequest, res: Res
 });
 
 export const createTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Create transaction request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Create transaction request for user:', userId);
 
   const validatedData = createTransactionSchema.parse(req.body);
 
   const category = await prisma.category.findFirst({
     where: {
       id: validatedData.categoryId,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -123,7 +126,7 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     const wallet = await prisma.wallet.findFirst({
       where: {
         id: validatedData.walletId,
-        userId: req.userId,
+        userId,
       },
     });
 
@@ -137,7 +140,7 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       ...validatedData,
       date: new Date(validatedData.date),
       nextDueDate: validatedData.nextDueDate ? new Date(validatedData.nextDueDate) : null,
-      userId: req.userId!,
+      userId,
     },
     include: {
       category: {
@@ -161,7 +164,7 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   const amountChange = validatedData.type === 'expense' ? -validatedData.amount : validatedData.amount;
 
   await prisma.user.update({
-    where: { id: req.userId },
+    where: { id: userId },
     data: {
       currentBalance: {
         increment: amountChange,
@@ -186,6 +189,7 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Update transaction request:', req.params.id);
 
   const validatedData = updateTransactionSchema.parse(req.body);
@@ -193,7 +197,7 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   const existingTransaction = await prisma.transaction.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -205,7 +209,7 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     const category = await prisma.category.findFirst({
       where: {
         id: validatedData.categoryId,
-        userId: req.userId,
+        userId,
       },
     });
 
@@ -218,7 +222,7 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     const wallet = await prisma.wallet.findFirst({
       where: {
         id: validatedData.walletId,
-        userId: req.userId,
+        userId,
       },
     });
 
@@ -260,7 +264,7 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
 
   if (balanceDiff !== 0) {
     await prisma.user.update({
-      where: { id: req.userId },
+      where: { id: userId },
       data: {
         currentBalance: {
           increment: balanceDiff,
@@ -286,12 +290,13 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Delete transaction request:', req.params.id);
 
   const transaction = await prisma.transaction.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -306,7 +311,7 @@ export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   });
 
   await prisma.user.update({
-    where: { id: req.userId },
+    where: { id: userId },
     data: {
       currentBalance: {
         increment: amountChange,
@@ -331,12 +336,13 @@ export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 export const getTransactionStats = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get transaction stats for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get transaction stats for user:', userId);
 
   const { startDate, endDate } = req.query;
 
   const where: any = {
-    userId: req.userId,
+    userId,
   };
 
   if (startDate || endDate) {

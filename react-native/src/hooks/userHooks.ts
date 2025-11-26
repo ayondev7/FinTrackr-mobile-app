@@ -1,46 +1,13 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../utils/apiClient';
-import { userRoutes } from '../routes';
-import { queryKeys } from './queryClient';
-import { User, ApiResponse, UpdateBalancePayload, UpdateProfilePayload } from '../types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "../utils/apiClient";
+import { userRoutes } from "../routes";
+import { queryKeys } from "./queryClient";
+import {
+  User,
+  ApiResponse,
+  UpdateBalancePayload,
+  UpdateProfilePayload,
+} from "../types";
 
 export const useUserProfile = () => {
   return useQuery({
@@ -75,6 +42,7 @@ export const useUpdateProfile = () => {
 
 export const useDeleteAccount = () => {
   return useMutation({
-    mutationFn: () => apiRequest.delete<ApiResponse<null>>(userRoutes.deleteAccount),
+    mutationFn: () =>
+      apiRequest.delete<ApiResponse<null>>(userRoutes.deleteAccount),
   });
 };

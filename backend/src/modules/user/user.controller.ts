@@ -5,10 +5,11 @@ import { AuthRequest } from '../../middleware/auth';
 import { updateProfileSchema, updateBalanceSchema } from './user.validation';
 
 export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get profile request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get profile request for user:', userId);
 
   const user = await prisma.user.findUnique({
-    where: { id: req.userId },
+    where: { id: userId },
     select: {
       id: true,
       name: true,
@@ -33,12 +34,13 @@ export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) =
 });
 
 export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Update profile request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Update profile request for user:', userId);
 
   const validatedData = updateProfileSchema.parse(req.body);
 
   const user = await prisma.user.update({
-    where: { id: req.userId },
+    where: { id: userId },
     data: validatedData,
     select: {
       id: true,
@@ -60,12 +62,13 @@ export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const updateBalance = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Update balance request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Update balance request for user:', userId);
 
   const validatedData = updateBalanceSchema.parse(req.body);
 
   const user = await prisma.user.update({
-    where: { id: req.userId },
+    where: { id: userId },
     data: {
       initialBalance: validatedData.initialBalance,
       currentBalance: validatedData.currentBalance,
@@ -88,10 +91,11 @@ export const updateBalance = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const deleteAccount = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Delete account request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Delete account request for user:', userId);
 
   await prisma.user.delete({
-    where: { id: req.userId },
+    where: { id: userId },
   });
 
   console.log('Account deleted successfully');

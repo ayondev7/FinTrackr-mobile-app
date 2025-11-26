@@ -5,13 +5,14 @@ import { AuthRequest } from '../../middleware/auth';
 import { createCategorySchema, updateCategorySchema, createSubCategorySchema } from './category.validation';
 
 export const getCategories = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Get categories request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Get categories request for user:', userId);
 
   const { type } = req.query;
 
   const categories = await prisma.category.findMany({
     where: {
-      userId: req.userId,
+      userId,
       ...(type && { type: type as string }),
     },
     include: {
@@ -32,12 +33,13 @@ export const getCategories = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const getCategoryById = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Get category by ID:', req.params.id);
 
   const category = await prisma.category.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
     include: {
       subCategories: true,
@@ -57,14 +59,15 @@ export const getCategoryById = asyncHandler(async (req: AuthRequest, res: Respon
 });
 
 export const createCategory = asyncHandler(async (req: AuthRequest, res: Response) => {
-  console.log('Create category request for user:', req.userId);
+  const { id: userId } = req.user!;
+  console.log('Create category request for user:', userId);
 
   const validatedData = createCategorySchema.parse(req.body);
 
   const category = await prisma.category.create({
     data: {
       ...validatedData,
-      userId: req.userId!,
+      userId,
     },
     include: {
       subCategories: true,
@@ -77,6 +80,7 @@ export const createCategory = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const updateCategory = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Update category request:', req.params.id);
 
   const validatedData = updateCategorySchema.parse(req.body);
@@ -84,7 +88,7 @@ export const updateCategory = asyncHandler(async (req: AuthRequest, res: Respons
   const existingCategory = await prisma.category.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -106,12 +110,13 @@ export const updateCategory = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const deleteCategory = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Delete category request:', req.params.id);
 
   const category = await prisma.category.findFirst({
     where: {
       id: req.params.id,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -129,6 +134,7 @@ export const deleteCategory = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const createSubCategory = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Create subcategory request');
 
   const validatedData = createSubCategorySchema.parse(req.body);
@@ -136,7 +142,7 @@ export const createSubCategory = asyncHandler(async (req: AuthRequest, res: Resp
   const category = await prisma.category.findFirst({
     where: {
       id: validatedData.categoryId,
-      userId: req.userId,
+      userId,
     },
   });
 
@@ -157,6 +163,7 @@ export const createSubCategory = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 export const deleteSubCategory = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
   console.log('Delete subcategory request:', req.params.id);
 
   const subCategory = await prisma.subCategory.findUnique({
@@ -164,7 +171,7 @@ export const deleteSubCategory = asyncHandler(async (req: AuthRequest, res: Resp
     include: { category: true },
   });
 
-  if (!subCategory || subCategory.category.userId !== req.userId) {
+  if (!subCategory || subCategory.category.userId !== userId) {
     throw new ApiError(404, 'Subcategory not found');
   }
 

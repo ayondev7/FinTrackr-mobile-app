@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { AuthUser } from './auth';
 
 export interface OptionalAuthRequest extends Request {
-  userId?: string;
+  user?: AuthUser;
 }
 
 export const optionalAuthMiddleware = (
@@ -16,7 +17,7 @@ export const optionalAuthMiddleware = (
 
     if (token) {
       const decoded = jwt.verify(token, config.jwt.secret) as { userId: string };
-      req.userId = decoded.userId;
+      req.user = { id: decoded.userId };
     }
 
     next();
