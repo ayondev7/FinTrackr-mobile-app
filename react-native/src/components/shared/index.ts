@@ -7,3 +7,4 @@ export { CategoryBadge } from './CategoryBadge';
 export { TransactionItem } from './TransactionItem';
 export { Toast } from './Toast';
 export { ToastContainer } from './ToastContainer';
+export { Loader } from './Loader';
