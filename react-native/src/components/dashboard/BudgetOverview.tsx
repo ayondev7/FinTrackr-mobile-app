@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronRight, PiggyBank, AlertTriangle, TrendingUp } from 'lucide-react-native';
+import { ChevronRight, PiggyBank, AlertTriangle } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { BudgetProgressBar } from '../budgets/BudgetProgressBar';
@@ -140,19 +140,11 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
                     className="w-8 h-8 rounded-lg items-center justify-center"
                     style={{ backgroundColor: `${categoryColor}20` }}
                   >
-                    {budget.isOverBudget ? (
-                      <AlertTriangle size={14} color="#EF4444" />
-                    ) : budget.needsAlert ? (
-                      <TrendingUp size={14} color="#F59E0B" />
-                    ) : category?.icon ? (
-                      <CategoryIcon 
-                        iconName={category.icon} 
-                        size={14} 
-                        color={categoryColor} 
-                      />
-                    ) : (
-                      <PiggyBank size={14} color={categoryColor} />
-                    )}
+                    <CategoryIcon 
+                      iconName={category?.icon || 'piggy-bank'} 
+                      size={14} 
+                      color={categoryColor} 
+                    />
                   </View>
                   <Text
                     className="font-medium text-gray-900 dark:text-white flex-1"

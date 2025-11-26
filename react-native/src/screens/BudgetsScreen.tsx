@@ -186,15 +186,11 @@ export const BudgetsScreen = () => {
                       }}
                       categoryColor={category?.color || themeColors.primary}
                       categoryIcon={
-                        category?.icon ? (
-                          <CategoryIcon 
-                            iconName={category.icon} 
-                            size={24} 
-                            color={category.color || themeColors.primary} 
-                          />
-                        ) : (
-                          <PiggyBank size={24} color={category?.color || themeColors.primary} />
-                        )
+                        <CategoryIcon 
+                          iconName={category?.icon || 'folder'} 
+                          size={24} 
+                          color={category?.color || themeColors.primary} 
+                        />
                       }
                       currency={user.currency}
                       onPress={() => {

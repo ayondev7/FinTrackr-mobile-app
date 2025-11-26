@@ -1,4 +1,4 @@
-const BASE = '/category';
+const BASE = '/categories';
 
 export const categoryRoutes = {
   list: BASE,

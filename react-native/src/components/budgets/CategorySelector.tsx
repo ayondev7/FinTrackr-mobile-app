@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Check, Folder } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import { Category } from '../../types';
+import { CategoryIcon } from '../shared/CategoryIcon';
 
 interface CategorySelectorProps {
   categories: Category[];
@@ -45,7 +46,7 @@ export const CategorySelector = ({
                 className="w-12 h-12 rounded-xl items-center justify-center mb-2 relative"
                 style={{ backgroundColor: `${category.color}20` }}
               >
-                <Folder size={24} color={category.color} />
+                <CategoryIcon iconName={category.icon} size={24} color={category.color} />
                 {isSelected && (
                   <View
                     className="absolute -top-1 -right-1 w-5 h-5 rounded-full items-center justify-center"

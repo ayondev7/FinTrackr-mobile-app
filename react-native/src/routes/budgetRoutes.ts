@@ -1,4 +1,4 @@
-const BASE = '/budget';
+const BASE = '/budgets';
 
 export const budgetRoutes = {
   list: BASE,
