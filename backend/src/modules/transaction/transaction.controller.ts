@@ -4,29 +4,79 @@ import { ApiError, asyncHandler, sendSuccess } from '../../utils/apiHelpers';
 import { AuthRequest } from '../../middleware/auth';
 import { createTransactionSchema, updateTransactionSchema } from './transaction.validation';
 
+// Helper function to get date range for time period
+const getDateRangeForTimePeriod = (timePeriod: string) => {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  switch (timePeriod) {
+    case 'daily':
+      return {
+        start: startOfDay,
+        end: new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000 - 1),
+      };
+    case 'weekly':
+      const startOfWeek = new Date(startOfDay);
+      startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay());
+      return {
+        start: startOfWeek,
+        end: new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000 - 1),
+      };
+    case 'monthly':
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      return { start: startOfMonth, end: endOfMonth };
+    case 'yearly':
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+      return { start: startOfYear, end: endOfYear };
+    default:
+      return null;
+  }
+};
+
 export const getTransactions = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id: userId } = req.user!;
   console.log('Get transactions request for user:', userId);
 
-  const { type, categoryId, walletId, startDate, endDate, isRecurring } = req.query;
+  const { type, categoryId, walletId, startDate, endDate, isRecurring, timePeriod, sortBy } = req.query;
   const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 50;
+  const limit = parseInt(req.query.limit as string) || 15;
   const skip = (page - 1) * limit;
 
   const where: any = {
     userId,
   };
 
-  if (type) where.type = type;
+  // Filter by type (all, expense, revenue)
+  if (type && type !== 'all') {
+    where.type = type;
+  }
+  
   if (categoryId) where.categoryId = categoryId;
   if (walletId) where.walletId = walletId;
   if (isRecurring !== undefined) where.isRecurring = isRecurring === 'true';
   
-  if (startDate || endDate) {
+  // Handle time period filter (daily, weekly, monthly, yearly)
+  if (timePeriod) {
+    const dateRange = getDateRangeForTimePeriod(timePeriod as string);
+    if (dateRange) {
+      where.date = {
+        gte: dateRange.start,
+        lte: dateRange.end,
+      };
+    }
+  } else if (startDate || endDate) {
+    // Fallback to explicit startDate/endDate if no timePeriod
     where.date = {};
     if (startDate) where.date.gte = new Date(startDate as string);
     if (endDate) where.date.lte = new Date(endDate as string);
   }
+
+  // Handle sorting (date or amount)
+  const orderBy: any = sortBy === 'amount' 
+    ? { amount: 'desc' } 
+    : { date: 'desc' };
 
   const [transactions, total] = await Promise.all([
     prisma.transaction.findMany({
@@ -48,22 +98,42 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
           },
         },
       },
-      orderBy: { date: 'desc' },
+      orderBy,
       skip,
       take: limit,
     }),
     prisma.transaction.count({ where }),
   ]);
 
-  console.log('Transactions retrieved:', transactions.length);
+  // Format transactions for frontend
+  const formattedTransactions = transactions.map((txn) => ({
+    id: txn.id,
+    type: txn.type,
+    amount: txn.amount,
+    category: txn.category?.name || 'Uncategorized',
+    categoryId: txn.categoryId,
+    categoryIcon: txn.category?.icon,
+    categoryColor: txn.category?.color,
+    name: txn.name,
+    description: txn.description,
+    date: txn.date.toISOString(),
+    createdAt: txn.createdAt.toISOString(),
+    isRecurring: txn.isRecurring,
+    recurringFrequency: txn.recurringFrequency,
+    wallet: txn.wallet?.name,
+    walletId: txn.walletId,
+  }));
+
+  console.log('Transactions retrieved:', formattedTransactions.length);
 
   sendSuccess(res, {
-    transactions,
+    transactions: formattedTransactions,
     pagination: {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
+      hasMore: page < Math.ceil(total / limit),
     },
   }, 'Transactions retrieved successfully');
 });
@@ -339,13 +409,22 @@ export const getTransactionStats = asyncHandler(async (req: AuthRequest, res: Re
   const { id: userId } = req.user!;
   console.log('Get transaction stats for user:', userId);
 
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, timePeriod } = req.query;
 
   const where: any = {
     userId,
   };
 
-  if (startDate || endDate) {
+  // Handle time period filter (daily, weekly, monthly, yearly)
+  if (timePeriod) {
+    const dateRange = getDateRangeForTimePeriod(timePeriod as string);
+    if (dateRange) {
+      where.date = {
+        gte: dateRange.start,
+        lte: dateRange.end,
+      };
+    }
+  } else if (startDate || endDate) {
     where.date = {};
     if (startDate) where.date.gte = new Date(startDate as string);
     if (endDate) where.date.lte = new Date(endDate as string);

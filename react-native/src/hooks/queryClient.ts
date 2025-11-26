@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import { TransactionListParams, TransactionStatsParams } from '../types';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,8 +23,10 @@ export const queryKeys = {
     detail: (id: string) => ['wallet', 'detail', id] as const,
   },
   transaction: {
-    list: ['transaction', 'list'] as const,
+    list: (params?: TransactionListParams) => ['transaction', 'list', params] as const,
+    infinite: (params?: Omit<TransactionListParams, 'page'>) => ['transaction', 'infinite', params] as const,
     detail: (id: string) => ['transaction', 'detail', id] as const,
+    stats: (params?: TransactionStatsParams) => ['transaction', 'stats', params] as const,
   },
   category: {
     list: ['category', 'list'] as const,

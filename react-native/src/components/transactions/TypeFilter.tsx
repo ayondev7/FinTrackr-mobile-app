@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { FilterType } from '../../types';
 
 interface TypeFilterProps {
-  filterType: 'all' | 'expense' | 'revenue';
-  onSelect: (type: 'all' | 'expense' | 'revenue') => void;
+  filterType: FilterType;
+  onSelect: (type: FilterType) => void;
 }
 
 export const TypeFilter: React.FC<TypeFilterProps> = ({ filterType, onSelect }) => {

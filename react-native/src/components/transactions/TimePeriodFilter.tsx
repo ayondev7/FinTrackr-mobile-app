@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { TimePeriod } from '../../types';
 
 interface TimePeriodFilterProps {
-  timePeriod: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  onSelect: (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => void;
+  timePeriod: TimePeriod;
+  onSelect: (period: TimePeriod) => void;
 }
 
 export const TimePeriodFilter: React.FC<TimePeriodFilterProps> = ({ timePeriod, onSelect }) => {
-  const periods: Array<'daily' | 'weekly' | 'monthly' | 'yearly'> = ['daily', 'weekly', 'monthly', 'yearly'];
+  const periods: TimePeriod[] = ['daily', 'weekly', 'monthly', 'yearly'];
   const labels = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' };
 
   return (
