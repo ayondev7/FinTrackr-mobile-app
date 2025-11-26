@@ -15,6 +15,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Banknote, Building2, Smartphone, PieChart, ArrowRight, CheckCircle2 } from "lucide-react-native";
 import { useOnboardingStore } from "../store/onboardingStore";
 import { useToastStore } from "../store/toastStore";
 import { useUpdateBalance } from "../hooks";
@@ -112,6 +113,13 @@ export const BalanceSetupScreen: React.FC = () => {
     const total = parseFloat(balance);
     const currentSum = (parseFloat(cashBalance) || 0) + (parseFloat(bankBalance) || 0) + (parseFloat(digitalBalance) || 0);
     const remaining = total - currentSum;
+    
+    // Calculate percentages for the visual bar
+    const cashPercent = total > 0 ? ((parseFloat(cashBalance) || 0) / total) * 100 : 0;
+    const bankPercent = total > 0 ? ((parseFloat(bankBalance) || 0) / total) * 100 : 0;
+    const digitalPercent = total > 0 ? ((parseFloat(digitalBalance) || 0) / total) * 100 : 0;
+    const remainingPercent = total > 0 ? (remaining / total) * 100 : 100;
+    const isComplete = Math.abs(remaining) <= 0.01;
 
     return (
       <KeyboardAvoidingView
@@ -119,26 +127,71 @@ export const BalanceSetupScreen: React.FC = () => {
         className="flex-1 bg-white"
       >
         <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
-          <View className="flex-1 px-8 pt-16">
+          <View className="flex-1 px-6 pt-12">
+            {/* Header with Icon */}
             <View className="items-center mb-6">
-              <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
-                Distribute Your Balance
+              <View style={styles.distributionIconContainer}>
+                <PieChart size={40} color="#4F46E5" />
+              </View>
+              <Text className="text-2xl font-bold text-gray-900 text-center mb-2 mt-4">
+                Balance Breakdown
               </Text>
-              <Text className="text-base text-gray-500 text-center">
-                Total: {selectedCurrency.symbol}{balance}
+              <Text className="text-base text-gray-500 text-center px-4 leading-6">
+                Tell us how your {selectedCurrency.symbol}{balance} is distributed across your accounts for accurate tracking
               </Text>
-              <Text className={`text-sm font-semibold mt-2 ${remaining < 0 ? 'text-red-500' : 'text-indigo-600'}`}>
-                Remaining: {selectedCurrency.symbol}{remaining.toFixed(2)}
-              </Text>
+            </View>
+
+            {/* Distribution Progress Bar */}
+            <View className="mb-6 px-2">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-sm font-semibold text-gray-700">Distribution Progress</Text>
+                <Text className={`text-sm font-bold ${isComplete ? 'text-green-600' : remaining < 0 ? 'text-red-500' : 'text-indigo-600'}`}>
+                  {isComplete ? '✓ Complete!' : `${selectedCurrency.symbol}${Math.abs(remaining).toFixed(2)} ${remaining < 0 ? 'over' : 'remaining'}`}
+                </Text>
+              </View>
+              <View style={styles.progressBarContainer}>
+                {cashPercent > 0 && (
+                  <View style={[styles.progressSegment, { width: `${cashPercent}%`, backgroundColor: '#10B981' }]} />
+                )}
+                {bankPercent > 0 && (
+                  <View style={[styles.progressSegment, { width: `${bankPercent}%`, backgroundColor: '#3B82F6' }]} />
+                )}
+                {digitalPercent > 0 && (
+                  <View style={[styles.progressSegment, { width: `${digitalPercent}%`, backgroundColor: '#8B5CF6' }]} />
+                )}
+                {remainingPercent > 0 && remaining >= 0 && (
+                  <View style={[styles.progressSegment, { width: `${remainingPercent}%`, backgroundColor: '#E5E7EB' }]} />
+                )}
+              </View>
+              {/* Legend */}
+              <View className="flex-row flex-wrap justify-center mt-3 gap-4">
+                <View className="flex-row items-center">
+                  <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
+                  <Text className="text-xs text-gray-600">Cash</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
+                  <Text className="text-xs text-gray-600">Bank</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <View style={[styles.legendDot, { backgroundColor: '#8B5CF6' }]} />
+                  <Text className="text-xs text-gray-600">Digital</Text>
+                </View>
+              </View>
             </View>
 
             {/* Cash Input */}
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Cash</Text>
-              <View style={[styles.inputContainer, focusedInput === 'cash' && styles.inputContainerFocused]}>
-                <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+              <View className="flex-row items-center mb-2">
+                <View style={[styles.inputIcon, { backgroundColor: '#D1FAE5' }]}>
+                  <Banknote size={18} color="#10B981" />
+                </View>
+                <Text className="text-sm font-semibold text-gray-700 ml-2">Cash in Hand</Text>
+              </View>
+              <View style={[styles.distributionInputContainer, focusedInput === 'cash' && styles.distributionInputFocused]}>
+                <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
                 <TextInput
-                  style={styles.input}
+                  style={styles.distributionInput}
                   placeholder="0.00"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="decimal-pad"
@@ -147,16 +200,27 @@ export const BalanceSetupScreen: React.FC = () => {
                   onFocus={() => setFocusedInput('cash')}
                   onBlur={() => setFocusedInput(null)}
                 />
+                {parseFloat(cashBalance) > 0 && (
+                  <View style={[styles.percentBadge, { backgroundColor: '#D1FAE5' }]}>
+                    <Text style={[styles.percentText, { color: '#10B981' }]}>{cashPercent.toFixed(0)}%</Text>
+                  </View>
+                )}
               </View>
+              <Text className="text-xs text-gray-400 mt-1 ml-1">Physical money in your wallet or at home</Text>
             </View>
 
             {/* Bank Input */}
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Bank Account</Text>
-              <View style={[styles.inputContainer, focusedInput === 'bank' && styles.inputContainerFocused]}>
-                <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+              <View className="flex-row items-center mb-2">
+                <View style={[styles.inputIcon, { backgroundColor: '#DBEAFE' }]}>
+                  <Building2 size={18} color="#3B82F6" />
+                </View>
+                <Text className="text-sm font-semibold text-gray-700 ml-2">Bank Account</Text>
+              </View>
+              <View style={[styles.distributionInputContainer, focusedInput === 'bank' && styles.distributionInputFocused]}>
+                <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
                 <TextInput
-                  style={styles.input}
+                  style={styles.distributionInput}
                   placeholder="0.00"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="decimal-pad"
@@ -165,16 +229,27 @@ export const BalanceSetupScreen: React.FC = () => {
                   onFocus={() => setFocusedInput('bank')}
                   onBlur={() => setFocusedInput(null)}
                 />
+                {parseFloat(bankBalance) > 0 && (
+                  <View style={[styles.percentBadge, { backgroundColor: '#DBEAFE' }]}>
+                    <Text style={[styles.percentText, { color: '#3B82F6' }]}>{bankPercent.toFixed(0)}%</Text>
+                  </View>
+                )}
               </View>
+              <Text className="text-xs text-gray-400 mt-1 ml-1">Savings, checking, or any bank account balance</Text>
             </View>
 
             {/* Digital Input */}
             <View className="mb-6">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Digital Banking (Bkash, Nagad, etc.)</Text>
-              <View style={[styles.inputContainer, focusedInput === 'digital' && styles.inputContainerFocused]}>
-                <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+              <View className="flex-row items-center mb-2">
+                <View style={[styles.inputIcon, { backgroundColor: '#EDE9FE' }]}>
+                  <Smartphone size={18} color="#8B5CF6" />
+                </View>
+                <Text className="text-sm font-semibold text-gray-700 ml-2">Digital Wallets</Text>
+              </View>
+              <View style={[styles.distributionInputContainer, focusedInput === 'digital' && styles.distributionInputFocused]}>
+                <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
                 <TextInput
-                  style={styles.input}
+                  style={styles.distributionInput}
                   placeholder="0.00"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="decimal-pad"
@@ -183,14 +258,28 @@ export const BalanceSetupScreen: React.FC = () => {
                   onFocus={() => setFocusedInput('digital')}
                   onBlur={() => setFocusedInput(null)}
                 />
+                {parseFloat(digitalBalance) > 0 && (
+                  <View style={[styles.percentBadge, { backgroundColor: '#EDE9FE' }]}>
+                    <Text style={[styles.percentText, { color: '#8B5CF6' }]}>{digitalPercent.toFixed(0)}%</Text>
+                  </View>
+                )}
               </View>
+              <Text className="text-xs text-gray-400 mt-1 ml-1">Bkash, Nagad, PayPal, or any mobile wallet</Text>
+            </View>
+
+            {/* Info Box */}
+            <View style={styles.infoBox}>
+              <Ionicons name="information-circle" size={20} color="#6366F1" />
+              <Text className="text-xs text-indigo-700 ml-2 flex-1 leading-5">
+                Tip: If you're unsure, estimate! You can always adjust your balances later in Settings.
+              </Text>
             </View>
 
             <TouchableOpacity
               onPress={handleContinue}
-              disabled={Math.abs(remaining) > 0.01 || updateBalance.isPending}
-              className={`flex-row items-center justify-center rounded-2xl py-4 px-6 ${
-                Math.abs(remaining) > 0.01 || updateBalance.isPending
+              disabled={!isComplete || updateBalance.isPending}
+              className={`flex-row items-center justify-center rounded-2xl py-4 px-6 mt-4 ${
+                !isComplete || updateBalance.isPending
                   ? "bg-gray-400"
                   : "bg-indigo-600"
               }`}
@@ -200,19 +289,20 @@ export const BalanceSetupScreen: React.FC = () => {
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
                 <>
-                  <Text className="text-lg font-bold text-white mr-2">
+                  <CheckCircle2 size={20} color="#FFFFFF" />
+                  <Text className="text-lg font-bold text-white ml-2">
                     Complete Setup
                   </Text>
-                  <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
                 </>
               )}
             </TouchableOpacity>
             
             <TouchableOpacity
               onPress={() => setStep('total')}
-              className="items-center justify-center mt-4"
+              className="flex-row items-center justify-center mt-4 mb-6"
             >
-              <Text className="text-indigo-600 font-semibold">Back to Total</Text>
+              <Ionicons name="arrow-back" size={18} color="#6366F1" />
+              <Text className="text-indigo-600 font-semibold ml-1">Back to Total Balance</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -528,5 +618,82 @@ const styles = StyleSheet.create({
   currencyItemName: {
     fontSize: 12,
     color: "#6B7280",
+  },
+  // Distribution screen styles
+  distributionIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#EEF2FF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  progressBarContainer: {
+    flexDirection: "row",
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#E5E7EB",
+    overflow: "hidden",
+  },
+  progressSegment: {
+    height: "100%",
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
+  inputIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  distributionInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  distributionInputFocused: {
+    borderColor: "#4F46E5",
+    backgroundColor: "#FFFFFF",
+  },
+  distributionCurrencySymbol: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#4F46E5",
+    marginRight: 8,
+  },
+  distributionInput: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1F2937",
+  },
+  percentBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  percentText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  infoBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#EEF2FF",
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#C7D2FE",
   },
 });
