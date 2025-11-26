@@ -2,7 +2,7 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { 
-  BalanceCard, 
+  AccountTypeCards,
   RevenueExpenseCards, 
   CashFlowCard, 
   QuickActions, 
@@ -49,14 +49,16 @@ export const DashboardScreen = () => {
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
     >
-      <View className="px-4" style={{ paddingTop: insets.top + 16 }}>
-        <BalanceCard 
-          balance={balance}
+      <View style={{ paddingTop: insets.top + 16 }}>
+        {/* Balance Cards - Horizontal Scroll with Total + Account Types */}
+        <AccountTypeCards 
           currency={currency}
-          isDark={isDark}
+          totalBalance={balance}
           balanceChangePercent={balanceChangePercent}
         />
+      </View>
 
+      <View className="px-4">
         <RevenueExpenseCards
           totalRevenue={totalRevenue}
           totalExpense={totalExpense}
