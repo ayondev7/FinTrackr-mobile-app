@@ -130,7 +130,7 @@ export const createBudget = asyncHandler(async (req: AuthRequest, res: Response)
     where: {
       userId,
       categoryId: validatedData.categoryId,
-      type: 'expense',
+      category: { type: 'EXPENSE' },
       date: {
         gte: new Date(validatedData.startDate),
         lte: new Date(validatedData.endDate),
@@ -263,7 +263,7 @@ export const refreshBudgetSpent = asyncHandler(async (req: AuthRequest, res: Res
     where: {
       userId,
       categoryId: budget.categoryId,
-      type: 'expense',
+      category: { type: 'EXPENSE' },
       date: {
         gte: budget.startDate,
         lte: budget.endDate,

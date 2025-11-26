@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export const createTransactionSchema = z.object({
-  type: z.enum(['expense', 'revenue']),
+  // Type is optional - it's determined by the category's type
+  type: z.enum(['expense', 'revenue']).optional(),
   amount: z.number().positive('Amount must be positive'),
   categoryId: z.string().uuid('Invalid category ID'),
   accountType: z.enum(['CASH', 'BANK', 'DIGITAL']),

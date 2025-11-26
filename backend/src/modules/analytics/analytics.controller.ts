@@ -20,7 +20,7 @@ export const getAnalytics = asyncHandler(async (req: AuthRequest, res: Response)
   }
 
   if (type && type !== 'both') {
-    where.type = type;
+    where.category = { type: (type as string).toUpperCase() };
   }
 
   const [transactions, expenseTotal, revenueTotal] = await Promise.all([
@@ -40,12 +40,12 @@ export const getAnalytics = asyncHandler(async (req: AuthRequest, res: Response)
       orderBy: { date: 'desc' },
     }),
     prisma.transaction.aggregate({
-      where: { ...where, type: 'expense' },
+      where: { ...where, category: { type: 'EXPENSE' } },
       _sum: { amount: true },
       _count: true,
     }),
     prisma.transaction.aggregate({
-      where: { ...where, type: 'revenue' },
+      where: { ...where, category: { type: 'REVENUE' } },
       _sum: { amount: true },
       _count: true,
     }),
@@ -116,7 +116,7 @@ export const getMonthlyOverview = asyncHandler(async (req: AuthRequest, res: Res
       prisma.transaction.aggregate({
         where: {
           userId,
-          type: 'expense',
+          category: { type: 'EXPENSE' },
           date: {
             gte: startDate,
             lte: endDate,
@@ -127,7 +127,7 @@ export const getMonthlyOverview = asyncHandler(async (req: AuthRequest, res: Res
       prisma.transaction.aggregate({
         where: {
           userId,
-          type: 'revenue',
+          category: { type: 'REVENUE' },
           date: {
             gte: startDate,
             lte: endDate,
@@ -181,9 +181,13 @@ export const getBalanceTrend = asyncHandler(async (req: AuthRequest, res: Respon
     orderBy: { date: 'asc' },
     select: {
       id: true,
-      type: true,
       amount: true,
       date: true,
+      category: {
+        select: {
+          type: true,
+        },
+      },
     },
   });
 
@@ -192,14 +196,15 @@ export const getBalanceTrend = asyncHandler(async (req: AuthRequest, res: Respon
   const balanceTrend = [];
 
   for (const transaction of transactions) {
-    const change = transaction.type === 'expense' ? -transaction.amount : transaction.amount;
+    const transactionType = transaction.category?.type?.toLowerCase() || 'expense';
+    const change = transactionType === 'expense' ? -transaction.amount : transaction.amount;
     runningBalance += change;
 
     balanceTrend.push({
       date: transaction.date,
       balance: runningBalance,
       change,
-      type: transaction.type,
+      type: transactionType,
     });
   }
 

@@ -50,7 +50,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
 
   // Filter by type (all, expense, revenue)
   if (type && type !== 'all') {
-    where.type = type;
+    where.category = { type: (type as string).toUpperCase() };
   }
   
   if (categoryId) where.categoryId = categoryId;
@@ -86,6 +86,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
             name: true,
             icon: true,
             color: true,
+            type: true,
           },
         },
       },
@@ -99,7 +100,7 @@ export const getTransactions = asyncHandler(async (req: AuthRequest, res: Respon
   // Format transactions for frontend
   const formattedTransactions = transactions.map((txn) => ({
     id: txn.id,
-    type: txn.type,
+    type: txn.category?.type?.toLowerCase() || 'expense',
     amount: txn.amount,
     category: txn.category?.name || 'Uncategorized',
     categoryId: txn.categoryId,
@@ -142,6 +143,7 @@ export const getTransactionById = asyncHandler(async (req: AuthRequest, res: Res
           name: true,
           icon: true,
           color: true,
+          type: true,
         },
       },
     },
@@ -173,9 +175,12 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     throw new ApiError(404, 'Category not found');
   }
 
+  // Remove type from validated data since it's determined by category
+  const { type: _type, ...transactionData } = validatedData;
+
   const transaction = await prisma.transaction.create({
     data: {
-      ...validatedData,
+      ...transactionData,
       date: new Date(validatedData.date),
       userId,
     },
@@ -186,12 +191,13 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
           name: true,
           icon: true,
           color: true,
+          type: true,
         },
       },
     },
   });
 
-  const amountChange = validatedData.type === 'expense' ? -validatedData.amount : validatedData.amount;
+  const amountChange = category.type === 'EXPENSE' ? -validatedData.amount : validatedData.amount;
   const balanceField = validatedData.accountType === 'CASH' ? 'cashBalance' :
                        validatedData.accountType === 'BANK' ? 'bankBalance' :
                        'digitalBalance';
@@ -221,12 +227,20 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       id: req.params.id,
       userId,
     },
+    include: {
+      category: {
+        select: {
+          type: true,
+        },
+      },
+    },
   });
 
   if (!existingTransaction) {
     throw new ApiError(404, 'Transaction not found');
   }
 
+  let newCategoryType = existingTransaction.category.type;
   if (validatedData.categoryId) {
     const category = await prisma.category.findFirst({
       where: {
@@ -238,18 +252,22 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     if (!category) {
       throw new ApiError(404, 'Category not found');
     }
+    newCategoryType = category.type;
   }
+
+  // Remove type from validated data since it's determined by category
+  const { type: _type, ...updateData } = validatedData;
 
   // Calculate old balance impact
   const oldBalanceField = existingTransaction.accountType === 'CASH' ? 'cashBalance' :
                           existingTransaction.accountType === 'BANK' ? 'bankBalance' :
                           'digitalBalance';
-  const oldAmountChange = existingTransaction.type === 'expense' ? -existingTransaction.amount : existingTransaction.amount;
+  const oldAmountChange = existingTransaction.category.type === 'EXPENSE' ? -existingTransaction.amount : existingTransaction.amount;
 
   const transaction = await prisma.transaction.update({
     where: { id: req.params.id },
     data: {
-      ...validatedData,
+      ...updateData,
       date: validatedData.date ? new Date(validatedData.date) : undefined,
     },
     include: {
@@ -259,6 +277,7 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
           name: true,
           icon: true,
           color: true,
+          type: true,
         },
       },
     },
@@ -268,7 +287,7 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   const newBalanceField = transaction.accountType === 'CASH' ? 'cashBalance' :
                           transaction.accountType === 'BANK' ? 'bankBalance' :
                           'digitalBalance';
-  const newAmountChange = transaction.type === 'expense' ? -transaction.amount : transaction.amount;
+  const newAmountChange = newCategoryType === 'EXPENSE' ? -transaction.amount : transaction.amount;
 
   if (oldBalanceField === newBalanceField) {
     const diff = newAmountChange - oldAmountChange;
@@ -311,13 +330,20 @@ export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       id: req.params.id,
       userId,
     },
+    include: {
+      category: {
+        select: {
+          type: true,
+        },
+      },
+    },
   });
 
   if (!transaction) {
     throw new ApiError(404, 'Transaction not found');
   }
 
-  const amountChange = transaction.type === 'expense' ? transaction.amount : -transaction.amount;
+  const amountChange = transaction.category.type === 'EXPENSE' ? transaction.amount : -transaction.amount;
   const balanceField = transaction.accountType === 'CASH' ? 'cashBalance' :
                        transaction.accountType === 'BANK' ? 'bankBalance' :
                        'digitalBalance';
@@ -367,11 +393,11 @@ export const getTransactionStats = asyncHandler(async (req: AuthRequest, res: Re
 
   const [totalExpense, totalRevenue, transactionCount] = await Promise.all([
     prisma.transaction.aggregate({
-      where: { ...where, type: 'expense' },
+      where: { ...where, category: { type: 'EXPENSE' } },
       _sum: { amount: true },
     }),
     prisma.transaction.aggregate({
-      where: { ...where, type: 'revenue' },
+      where: { ...where, category: { type: 'REVENUE' } },
       _sum: { amount: true },
     }),
     prisma.transaction.count({ where }),

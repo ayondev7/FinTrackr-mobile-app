@@ -22,7 +22,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'expense',
+        category: { type: 'EXPENSE' },
         date: { gte: sixMonthsAgo },
       },
       _sum: { amount: true },
@@ -31,7 +31,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'revenue',
+        category: { type: 'REVENUE' },
         date: { gte: sixMonthsAgo },
       },
       _sum: { amount: true },
@@ -97,7 +97,7 @@ export const getPredictions = asyncHandler(async (req: AuthRequest, res: Respons
     by: ['categoryId'],
     where: {
       userId,
-      type: 'expense',
+      category: { type: 'EXPENSE' },
       date: { gte: sixMonthsAgo },
     },
     _sum: { amount: true },
@@ -150,7 +150,7 @@ export const getSpendingInsights = asyncHandler(async (req: AuthRequest, res: Re
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'expense',
+        category: { type: 'EXPENSE' },
         date: { gte: thirtyDaysAgo },
       },
       _sum: { amount: true },
@@ -159,7 +159,7 @@ export const getSpendingInsights = asyncHandler(async (req: AuthRequest, res: Re
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'expense',
+        category: { type: 'EXPENSE' },
         date: {
           gte: sixtyDaysAgo,
           lt: thirtyDaysAgo,

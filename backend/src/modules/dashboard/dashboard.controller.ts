@@ -38,7 +38,7 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'expense',
+        category: { type: 'EXPENSE' },
         date: {
           gte: startOfMonth,
           lte: endOfMonth,
@@ -49,7 +49,7 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'revenue',
+        category: { type: 'REVENUE' },
         date: {
           gte: startOfMonth,
           lte: endOfMonth,
@@ -60,7 +60,7 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'expense',
+        category: { type: 'EXPENSE' },
         date: {
           gte: startOfPrevMonth,
           lte: endOfPrevMonth,
@@ -71,7 +71,7 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'revenue',
+        category: { type: 'REVENUE' },
         date: {
           gte: startOfPrevMonth,
           lte: endOfPrevMonth,
@@ -104,6 +104,7 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
           name: true,
           icon: true,
           color: true,
+          type: true,
         },
       },
     },
@@ -114,7 +115,7 @@ export const getDashboardSummary = asyncHandler(async (req: AuthRequest, res: Re
   // Format transactions for frontend
   const formattedTransactions = recentTransactions.map((txn) => ({
     id: txn.id,
-    type: txn.type,
+    type: txn.category?.type?.toLowerCase() || 'expense',
     amount: txn.amount,
     category: txn.category?.name || 'Uncategorized',
     categoryId: txn.categoryId,
@@ -167,6 +168,7 @@ export const getRecentTransactions = asyncHandler(async (req: AuthRequest, res: 
           name: true,
           icon: true,
           color: true,
+          type: true,
         },
       },
     },
@@ -176,7 +178,7 @@ export const getRecentTransactions = asyncHandler(async (req: AuthRequest, res: 
 
   const formattedTransactions = recentTransactions.map((txn) => ({
     id: txn.id,
-    type: txn.type,
+    type: txn.category?.type?.toLowerCase() || 'expense',
     amount: txn.amount,
     category: txn.category?.name || 'Uncategorized',
     categoryId: txn.categoryId,
@@ -210,7 +212,7 @@ export const getMonthlyStats = asyncHandler(async (req: AuthRequest, res: Respon
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'expense',
+        category: { type: 'EXPENSE' },
         date: {
           gte: startOfMonth,
           lte: endOfMonth,
@@ -222,7 +224,7 @@ export const getMonthlyStats = asyncHandler(async (req: AuthRequest, res: Respon
     prisma.transaction.aggregate({
       where: {
         userId,
-        type: 'revenue',
+        category: { type: 'REVENUE' },
         date: {
           gte: startOfMonth,
           lte: endOfMonth,
