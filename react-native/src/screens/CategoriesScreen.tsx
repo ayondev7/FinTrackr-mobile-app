@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useCategoryStore } from '../store';
 import { AddCategoryButton, CategoryList } from '../components/categories';
+import { RefreshableScrollView } from '../components/shared';
 
 export const CategoriesScreen = () => {
   const navigation = useNavigation();
@@ -17,8 +18,16 @@ export const CategoriesScreen = () => {
     (cat) => cat.type === 'revenue' || cat.type === 'both'
   );
 
+  const handleRefresh = async () => {
+    // Simulate refresh
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
+
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
+    <RefreshableScrollView 
+      className="flex-1 bg-gray-50 dark:bg-slate-900"
+      onRefresh={handleRefresh}
+    >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-6">
           Categories
@@ -38,6 +47,6 @@ export const CategoriesScreen = () => {
           iconType="briefcase" 
         />
       </View>
-    </ScrollView>
+    </RefreshableScrollView>
   );
 };

@@ -9,7 +9,7 @@ import {
   RecentTransactions,
   BudgetOverview
 } from '../components/dashboard';
-import { Loader } from '../components/shared';
+import { Loader, RefreshableScrollView } from '../components/shared';
 import { useDashboardSummary } from '../hooks';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
@@ -20,7 +20,7 @@ export const DashboardScreen = () => {
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
-  const { data: dashboardData, isLoading, error } = useDashboardSummary();
+  const { data: dashboardData, isLoading, error, refetch } = useDashboardSummary();
 
   if (isLoading) {
     return (
@@ -45,9 +45,10 @@ export const DashboardScreen = () => {
   const balanceChangePercent = monthlyStats?.balanceChangePercent ?? 0;
 
   return (
-    <ScrollView 
+    <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
+      onRefresh={async () => { await refetch(); }}
     >
       <View style={{ paddingTop: insets.top + 16 }}>
         {/* Balance Cards - Horizontal Scroll with Total + Account Types */}
@@ -91,6 +92,6 @@ export const DashboardScreen = () => {
           primaryColor={themeColors.primary}
         />
       </View>
-    </ScrollView>
+    </RefreshableScrollView>
   );
 };

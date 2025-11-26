@@ -18,6 +18,7 @@ import {
   ExportModal,
   ClearDataModal
 } from '../components/settings';
+import { RefreshableScrollView } from '../components/shared';
 
 export const SettingsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -41,6 +42,11 @@ export const SettingsScreen = () => {
     monthlyReports: false,
     reminderAlerts: true,
   });
+
+  const handleRefresh = async () => {
+    // Simulate refresh
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
   const handleCurrencySelect = (currency: string) => {
     updateUser({ currency });
@@ -100,9 +106,10 @@ export const SettingsScreen = () => {
   };
 
   return (
-    <ScrollView 
+    <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
+      onRefresh={handleRefresh}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <View className="flex-row items-center gap-3 mb-6">
@@ -208,6 +215,6 @@ export const SettingsScreen = () => {
         dangerColor={themeColors.danger}
         onClearData={handleClearData}
       />
-    </ScrollView>
+    </RefreshableScrollView>
   );
 };

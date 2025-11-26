@@ -6,6 +6,7 @@ import { PiggyBank, Filter } from 'lucide-react-native';
 import { useThemeStore, useBudgetStore, useCategoryStore, useUserStore } from '../store';
 import { colors } from '../constants/theme';
 import { Folder } from 'lucide-react-native';
+import { RefreshableScrollView } from '../components/shared';
 import {
   BudgetSummaryCard,
   BudgetItem,
@@ -55,10 +56,16 @@ export const BudgetsScreen = () => {
     { value: 'over-budget', label: 'Over Budget' },
   ];
 
+  const handleRefresh = async () => {
+    // Simulate refresh or fetch data if/when API is connected
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
+
   return (
-    <ScrollView
+    <RefreshableScrollView
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
+      onRefresh={handleRefresh}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         {/* Header */}
@@ -177,6 +184,6 @@ export const BudgetsScreen = () => {
           </>
         )}
       </View>
-    </ScrollView>
+    </RefreshableScrollView>
   );
 };

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTransactionStore, useUserStore, useThemeStore } from '../store';
 import { colors } from '../constants/theme';
+import { RefreshableScrollView } from '../components/shared';
 import { 
   BalanceTrendCard, 
   ProjectionChart, 
@@ -71,8 +72,16 @@ export const PredictionsScreen = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    // Simulate refresh
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
+
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
+    <RefreshableScrollView 
+      className="flex-1 bg-gray-50 dark:bg-slate-900"
+      onRefresh={handleRefresh}
+    >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
           Financial Forecast
@@ -118,6 +127,6 @@ export const PredictionsScreen = () => {
           currency={user.currency}
         />
       </View>
-    </ScrollView>
+    </RefreshableScrollView>
   );
 };

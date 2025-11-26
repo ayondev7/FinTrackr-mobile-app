@@ -10,6 +10,7 @@ import {
 } from '../components/analytics';
 import { useTransactionStore, useThemeStore, useUserStore } from '../store';
 import { colors } from '../constants/theme';
+import { RefreshableScrollView } from '../components/shared';
 
 export const AnalyticsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -21,6 +22,11 @@ export const AnalyticsScreen = () => {
   const isDark = theme === 'dark';
   
   const [analyticsType, setAnalyticsType] = useState<'expense' | 'revenue' | 'both'>('expense');
+
+  const handleRefresh = async () => {
+    // Simulate refresh
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
   const chartConfig = {
     backgroundColor: themeColors.card,
@@ -90,9 +96,10 @@ export const AnalyticsScreen = () => {
   }));
 
   return (
-    <ScrollView 
+    <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       contentContainerStyle={{ paddingBottom: 100 }}
+      onRefresh={handleRefresh}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-4">
@@ -128,6 +135,6 @@ export const AnalyticsScreen = () => {
           isDark={isDark}
         />
       </View>
-    </ScrollView>
+    </RefreshableScrollView>
   );
 };

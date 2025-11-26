@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { 
   TimePeriodFilter, 
@@ -39,10 +39,23 @@ export const TransactionsScreen = () => {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    refetch,
+    isRefetching
   } = useInfiniteTransactions(queryParams);
 
   // Fetch stats for the current time period (for totals summary)
-  const { data: statsData } = useTransactionStats({ timePeriod });
+  const { data: statsData, refetch: refetchStats } = useTransactionStats({ timePeriod });
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetch(), refetchStats()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Flatten all pages of transactions
   const transactions = useMemo(() => {
@@ -145,6 +158,15 @@ export const TransactionsScreen = () => {
           ListEmptyComponent={renderEmpty}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[themeColors.primary]}
+              tintColor={themeColors.primary}
+              progressBackgroundColor={theme === 'dark' ? themeColors.card : themeColors.background}
+            />
+          }
         />
       </View>
     </View>
