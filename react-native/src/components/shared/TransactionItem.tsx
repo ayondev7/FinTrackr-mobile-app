@@ -50,7 +50,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
   const isExpense = transaction.type === 'expense';
   const Icon = isExpense ? ArrowUpRight : ArrowDownLeft;
-  const iconColor = isExpense ? '#EF4444' : '#22C55E'; // red-500 : green-500
+  const iconColor = isExpense ? '#EF4444' : '#22C55E';
 
   return (
     <TouchableOpacity
