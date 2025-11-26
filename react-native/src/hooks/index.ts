@@ -12,3 +12,8 @@ export {
   useUpdateWallet,
   useDeleteWallet,
 } from "./walletHooks";
+export {
+  useDashboardSummary,
+  useRecentTransactions,
+  useMonthlyStats,
+} from "./dashboardHooks";

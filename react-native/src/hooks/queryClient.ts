@@ -39,4 +39,10 @@ export const queryKeys = {
     income: ['analytics', 'income'] as const,
     trends: ['analytics', 'trends'] as const,
   },
+  dashboard: {
+    summary: ['dashboard', 'summary'] as const,
+    recentTransactions: (limit?: number) => ['dashboard', 'recentTransactions', limit] as const,
+    monthlyStats: (month?: number, year?: number) => ['dashboard', 'monthlyStats', month, year] as const,
+  },
 };
+

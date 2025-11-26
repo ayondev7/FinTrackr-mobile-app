@@ -1,15 +1,27 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { TrendingUp } from 'lucide-react-native';
+import { TrendingUp, TrendingDown } from 'lucide-react-native';
 import { formatCurrency } from '../../utils/helpers';
 
 interface BalanceCardProps {
   balance: number;
   currency: string;
   isDark: boolean;
+  balanceChangePercent?: number;
 }
 
-export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, currency, isDark }) => {
+export const BalanceCard: React.FC<BalanceCardProps> = ({ 
+  balance, 
+  currency, 
+  isDark,
+  balanceChangePercent = 0 
+}) => {
+  const isPositiveChange = balanceChangePercent >= 0;
+  const TrendIcon = isPositiveChange ? TrendingUp : TrendingDown;
+  const trendColor = isPositiveChange ? '#10B981' : '#EF4444';
+  const trendBgColor = isPositiveChange ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+  const trendTextClass = isPositiveChange ? 'text-green-300' : 'text-red-300';
+
   return (
     <View 
       className="mb-6 p-6 rounded-3xl overflow-hidden"
@@ -64,11 +76,11 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ balance, currency, isD
       <View className="flex-row items-center gap-2">
         <View 
           className="flex-row items-center px-3 py-1.5 rounded-full"
-          style={{ backgroundColor: 'rgba(16, 185, 129, 0.25)' }}
+          style={{ backgroundColor: trendBgColor }}
         >
-          <TrendingUp size={14} color="#10B981" />
-          <Text className="text-green-300 text-xs font-bold ml-1">
-            +12.5%
+          <TrendIcon size={14} color={trendColor} />
+          <Text className={`${trendTextClass} text-xs font-bold ml-1`}>
+            {isPositiveChange ? '+' : ''}{balanceChangePercent}%
           </Text>
         </View>
         <Text className="text-indigo-100 text-xs font-medium">
