@@ -5,8 +5,180 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface OnboardingState {
   hasSeenOnboarding: boolean;
   isAuthenticated: boolean;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  hasSetupBalance: boolean;
   setHasSeenOnboarding: (value: boolean) => void;
   setIsAuthenticated: (value: boolean) => void;
+  setHasSetupBalance: (value: boolean) => void;
   reset: () => void;
 }
 
@@ -15,9 +187,11 @@ export const useOnboardingStore = create<OnboardingState>()(
     (set) => ({
       hasSeenOnboarding: false,
       isAuthenticated: false,
+      hasSetupBalance: false,
       setHasSeenOnboarding: (value: boolean) => set({ hasSeenOnboarding: value }),
       setIsAuthenticated: (value: boolean) => set({ isAuthenticated: value }),
-      reset: () => set({ hasSeenOnboarding: false, isAuthenticated: false }),
+      setHasSetupBalance: (value: boolean) => set({ hasSetupBalance: value }),
+      reset: () => set({ hasSeenOnboarding: false, isAuthenticated: false, hasSetupBalance: false }),
     }),
     {
       name: 'onboarding-storage',

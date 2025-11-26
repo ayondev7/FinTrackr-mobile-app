@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeStore, useUserStore, useTransactionStore, useCategoryStore, useOnboardingStore } from '../store';
 import { colors } from '../constants/theme';
-import { Settings, MessageSquare } from 'lucide-react-native';
+import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
+import { clearTokens } from '../utils/authStorage';
 import { 
   ProfileCard, 
   ThemeSection, 

@@ -1,4 +1,6 @@
-import { API_BASE_URL } from './index';
+import { config } from '../config';
+
+const API_BASE_URL = `${config.apiBaseUrl}/api`;
 
 export const authRoutes = {
   googleLogin: `${API_BASE_URL}/auth/google`,
