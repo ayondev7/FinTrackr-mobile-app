@@ -6,6 +6,8 @@ import { useThemeStore, useUserStore, useTransactionStore, useCategoryStore, use
 import { colors } from '../constants/theme';
 import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { config } from '../config';
 import { 
   ProfileCard, 
   ThemeSection, 
@@ -81,6 +83,14 @@ export const SettingsScreen = () => {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
+            try {
+              GoogleSignin.configure({
+                webClientId: config.google.webClientId,
+              });
+              await GoogleSignin.signOut();
+            } catch (error) {
+              console.error('Error signing out of Google:', error);
+            }
             await clearTokens();
             resetOnboarding();
           },
