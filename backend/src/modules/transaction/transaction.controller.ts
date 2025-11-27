@@ -158,91 +158,26 @@ export const getTransactionById = asyncHandler(async (req: AuthRequest, res: Res
   sendSuccess(res, transaction, 'Transaction retrieved successfully');
 });
 
+// Helper to get balance field from account type
+const getBalanceField = (accountType: string): 'cashBalance' | 'bankBalance' | 'digitalBalance' => {
+  switch (accountType) {
+    case 'CASH': return 'cashBalance';
+    case 'BANK': return 'bankBalance';
+    case 'DIGITAL': return 'digitalBalance';
+    default: return 'cashBalance';
+  }
+};
+
 export const createTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id: userId } = req.user!;
   console.log('Create transaction request for user:', userId);
 
   const validatedData = createTransactionSchema.parse(req.body);
 
-  const category = await prisma.category.findFirst({
-    where: {
-      id: validatedData.categoryId,
-      userId,
-    },
-  });
-
-  if (!category) {
-    throw new ApiError(404, 'Category not found');
-  }
-
-  // Remove type from validated data since it's determined by category
-  const { type: _type, ...transactionData } = validatedData;
-
-  const transaction = await prisma.transaction.create({
-    data: {
-      ...transactionData,
-      date: new Date(validatedData.date),
-      userId,
-    },
-    include: {
-      category: {
-        select: {
-          id: true,
-          name: true,
-          icon: true,
-          color: true,
-          type: true,
-        },
-      },
-    },
-  });
-
-  const amountChange = category.type === 'EXPENSE' ? -validatedData.amount : validatedData.amount;
-  const balanceField = validatedData.accountType === 'CASH' ? 'cashBalance' :
-                       validatedData.accountType === 'BANK' ? 'bankBalance' :
-                       'digitalBalance';
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      [balanceField]: {
-        increment: amountChange,
-      },
-    },
-  });
-
-  console.log('Transaction created successfully:', transaction.id);
-
-  sendSuccess(res, transaction, 'Transaction created successfully', 201);
-});
-
-export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id: userId } = req.user!;
-  console.log('Update transaction request:', req.params.id);
-
-  const validatedData = updateTransactionSchema.parse(req.body);
-
-  const existingTransaction = await prisma.transaction.findFirst({
-    where: {
-      id: req.params.id,
-      userId,
-    },
-    include: {
-      category: {
-        select: {
-          type: true,
-        },
-      },
-    },
-  });
-
-  if (!existingTransaction) {
-    throw new ApiError(404, 'Transaction not found');
-  }
-
-  let newCategoryType = existingTransaction.category.type;
-  if (validatedData.categoryId) {
-    const category = await prisma.category.findFirst({
+  // Use Prisma transaction to ensure atomicity
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Verify category exists and belongs to user
+    const category = await tx.category.findFirst({
       where: {
         id: validatedData.categoryId,
         userId,
@@ -252,113 +187,309 @@ export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     if (!category) {
       throw new ApiError(404, 'Category not found');
     }
-    newCategoryType = category.type;
-  }
 
-  // Remove type from validated data since it's determined by category
-  const { type: _type, ...updateData } = validatedData;
+    // Remove type from validated data since it's determined by category
+    const { type: _type, ...transactionData } = validatedData;
 
-  // Calculate old balance impact
-  const oldBalanceField = existingTransaction.accountType === 'CASH' ? 'cashBalance' :
-                          existingTransaction.accountType === 'BANK' ? 'bankBalance' :
-                          'digitalBalance';
-  const oldAmountChange = existingTransaction.category.type === 'EXPENSE' ? -existingTransaction.amount : existingTransaction.amount;
-
-  const transaction = await prisma.transaction.update({
-    where: { id: req.params.id },
-    data: {
-      ...updateData,
-      date: validatedData.date ? new Date(validatedData.date) : undefined,
-    },
-    include: {
-      category: {
-        select: {
-          id: true,
-          name: true,
-          icon: true,
-          color: true,
-          type: true,
+    // 2. Create the transaction
+    const transaction = await tx.transaction.create({
+      data: {
+        ...transactionData,
+        date: new Date(validatedData.date),
+        userId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            color: true,
+            type: true,
+          },
         },
       },
-    },
+    });
+
+    // 3. Update user balance based on transaction type and account
+    const isExpense = category.type === 'EXPENSE';
+    const amountChange = isExpense ? -validatedData.amount : validatedData.amount;
+    const balanceField = getBalanceField(validatedData.accountType);
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        [balanceField]: {
+          increment: amountChange,
+        },
+      },
+    });
+
+    // 4. If expense, update budget spent amount for the current period
+    if (isExpense) {
+      const now = new Date();
+      const activeBudget = await tx.budget.findFirst({
+        where: {
+          userId,
+          categoryId: validatedData.categoryId,
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      });
+
+      if (activeBudget) {
+        await tx.budget.update({
+          where: { id: activeBudget.id },
+          data: {
+            spent: {
+              increment: validatedData.amount,
+            },
+          },
+        });
+      }
+    }
+
+    return transaction;
   });
 
-  // Calculate new balance impact
-  const newBalanceField = transaction.accountType === 'CASH' ? 'cashBalance' :
-                          transaction.accountType === 'BANK' ? 'bankBalance' :
-                          'digitalBalance';
-  const newAmountChange = newCategoryType === 'EXPENSE' ? -transaction.amount : transaction.amount;
+  console.log('Transaction created successfully:', result.id);
 
-  if (oldBalanceField === newBalanceField) {
-    const diff = newAmountChange - oldAmountChange;
-    if (diff !== 0) {
-      await prisma.user.update({
+  sendSuccess(res, result, 'Transaction created successfully', 201);
+});
+
+export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
+  const transactionId = req.params.id;
+  console.log('Update transaction request:', transactionId);
+
+  const validatedData = updateTransactionSchema.parse(req.body);
+
+  // Use Prisma transaction to ensure atomicity
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Get existing transaction with category
+    const existingTransaction = await tx.transaction.findFirst({
+      where: {
+        id: transactionId,
+        userId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            type: true,
+          },
+        },
+      },
+    });
+
+    if (!existingTransaction) {
+      throw new ApiError(404, 'Transaction not found');
+    }
+
+    // 2. Verify new category if changing
+    let newCategory = existingTransaction.category;
+    if (validatedData.categoryId && validatedData.categoryId !== existingTransaction.categoryId) {
+      const category = await tx.category.findFirst({
+        where: {
+          id: validatedData.categoryId,
+          userId,
+        },
+      });
+
+      if (!category) {
+        throw new ApiError(404, 'Category not found');
+      }
+      newCategory = category;
+    }
+
+    // Remove type from validated data since it's determined by category
+    const { type: _type, ...updateData } = validatedData;
+
+    // Calculate old balance impact
+    const oldIsExpense = existingTransaction.category.type === 'EXPENSE';
+    const oldBalanceField = getBalanceField(existingTransaction.accountType);
+    const oldAmountChange = oldIsExpense ? -existingTransaction.amount : existingTransaction.amount;
+
+    // 3. Update the transaction
+    const transaction = await tx.transaction.update({
+      where: { id: transactionId },
+      data: {
+        ...updateData,
+        date: validatedData.date ? new Date(validatedData.date) : undefined,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            color: true,
+            type: true,
+          },
+        },
+      },
+    });
+
+    // Calculate new balance impact
+    const newIsExpense = newCategory.type === 'EXPENSE';
+    const newBalanceField = getBalanceField(transaction.accountType);
+    const newAmountChange = newIsExpense ? -transaction.amount : transaction.amount;
+
+    // 4. Update user balances
+    if (oldBalanceField === newBalanceField) {
+      const diff = newAmountChange - oldAmountChange;
+      if (diff !== 0) {
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            [newBalanceField]: {
+              increment: diff,
+            },
+          },
+        });
+      }
+    } else {
+      // Account type changed - revert old and apply new
+      await tx.user.update({
         where: { id: userId },
         data: {
+          [oldBalanceField]: {
+            decrement: oldAmountChange,
+          },
           [newBalanceField]: {
-            increment: diff,
+            increment: newAmountChange,
           },
         },
       });
     }
-  } else {
-    // Account type changed, revert old and apply new
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        [oldBalanceField]: {
-          decrement: oldAmountChange,
+
+    // 5. Update budget spent amounts
+    const now = new Date();
+
+    // If old transaction was expense, decrement old budget
+    if (oldIsExpense) {
+      const oldBudget = await tx.budget.findFirst({
+        where: {
+          userId,
+          categoryId: existingTransaction.categoryId,
+          startDate: { lte: now },
+          endDate: { gte: now },
         },
-        [newBalanceField]: {
-          increment: newAmountChange,
+      });
+
+      if (oldBudget) {
+        await tx.budget.update({
+          where: { id: oldBudget.id },
+          data: {
+            spent: {
+              decrement: existingTransaction.amount,
+            },
+          },
+        });
+      }
+    }
+
+    // If new transaction is expense, increment new budget
+    if (newIsExpense) {
+      const newBudget = await tx.budget.findFirst({
+        where: {
+          userId,
+          categoryId: transaction.categoryId,
+          startDate: { lte: now },
+          endDate: { gte: now },
         },
-      },
-    });
-  }
+      });
+
+      if (newBudget) {
+        await tx.budget.update({
+          where: { id: newBudget.id },
+          data: {
+            spent: {
+              increment: transaction.amount,
+            },
+          },
+        });
+      }
+    }
+
+    return transaction;
+  });
 
   console.log('Transaction updated successfully');
 
-  sendSuccess(res, transaction, 'Transaction updated successfully');
+  sendSuccess(res, result, 'Transaction updated successfully');
 });
 
 export const deleteTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id: userId } = req.user!;
-  console.log('Delete transaction request:', req.params.id);
+  const transactionId = req.params.id;
+  console.log('Delete transaction request:', transactionId);
 
-  const transaction = await prisma.transaction.findFirst({
-    where: {
-      id: req.params.id,
-      userId,
-    },
-    include: {
-      category: {
-        select: {
-          type: true,
+  // Use Prisma transaction to ensure atomicity
+  await prisma.$transaction(async (tx) => {
+    // 1. Get transaction with category
+    const transaction = await tx.transaction.findFirst({
+      where: {
+        id: transactionId,
+        userId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            type: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!transaction) {
-    throw new ApiError(404, 'Transaction not found');
-  }
+    if (!transaction) {
+      throw new ApiError(404, 'Transaction not found');
+    }
 
-  const amountChange = transaction.category.type === 'EXPENSE' ? transaction.amount : -transaction.amount;
-  const balanceField = transaction.accountType === 'CASH' ? 'cashBalance' :
-                       transaction.accountType === 'BANK' ? 'bankBalance' :
-                       'digitalBalance';
+    const isExpense = transaction.category.type === 'EXPENSE';
+    const balanceField = getBalanceField(transaction.accountType);
+    // Revert the balance: add back for expense, subtract for revenue
+    const amountChange = isExpense ? transaction.amount : -transaction.amount;
 
-  await prisma.transaction.delete({
-    where: { id: req.params.id },
-  });
+    // 2. Delete the transaction
+    await tx.transaction.delete({
+      where: { id: transactionId },
+    });
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      [balanceField]: {
-        increment: amountChange,
+    // 3. Revert user balance
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        [balanceField]: {
+          increment: amountChange,
+        },
       },
-    },
+    });
+
+    // 4. If was expense, decrement budget spent
+    if (isExpense) {
+      const now = new Date();
+      const activeBudget = await tx.budget.findFirst({
+        where: {
+          userId,
+          categoryId: transaction.categoryId,
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      });
+
+      if (activeBudget) {
+        await tx.budget.update({
+          where: { id: activeBudget.id },
+          data: {
+            spent: {
+              decrement: transaction.amount,
+            },
+          },
+        });
+      }
+    }
   });
 
   console.log('Transaction deleted successfully');

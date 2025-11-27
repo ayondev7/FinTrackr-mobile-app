@@ -13,7 +13,7 @@ export const getCategories = asyncHandler(async (req: AuthRequest, res: Response
   const categories = await prisma.category.findMany({
     where: {
       userId,
-      ...(type && { type: type as string }),
+      ...(type && { type: type as 'EXPENSE' | 'REVENUE' }),
     },
     include: {
       _count: {
