@@ -28,7 +28,6 @@ export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
   monthlyData,
 }) => {
   const getChartColor = (opacity: number = 1) => {
-    // Mix the base color with white by 50% to make it lighter
     const mixWithWhite = (rgb: [number, number, number], factor = 0.5) => {
       return rgb.map((c) => Math.round(c + (255 - c) * factor)) as [number, number, number];
     };
@@ -45,8 +44,6 @@ export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
 
-    // Fallback: try to parse chartConfig.color(opacity) if it returns an rgb/rgba string,
-    // otherwise return it as-is.
     try {
       const colorStr = chartConfig?.color ? chartConfig.color(opacity) : `rgba(0,0,0,${opacity})`;
       const m = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([0-9.]+))?\)/);

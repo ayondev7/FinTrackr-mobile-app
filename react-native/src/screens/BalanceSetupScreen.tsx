@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  Image,
   Dimensions,
   Modal,
   FlatList,
   ScrollView,
+  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Banknote, Building2, Smartphone, PieChart, ArrowRight, CheckCircle2 } from "lucide-react-native";
+import { Banknote, Building2, Smartphone, PieChart, CheckCircle2 } from "lucide-react-native";
+import { useForm, Controller, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useOnboardingStore } from "../store/onboardingStore";
 import { useToastStore } from "../store/toastStore";
 import { useUpdateBalance } from "../hooks";
@@ -23,78 +26,158 @@ import { CURRENCIES } from "../constants";
 
 const { width } = Dimensions.get("window");
 
+// Schema for the total balance step
+const totalBalanceSchema = z.object({
+  balance: z.string()
+    .refine((val) => val === "" || val === "0" || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
+      message: "Please enter a valid balance amount",
+    }),
+  currency: z.object({
+    code: z.string(),
+    symbol: z.string(),
+    name: z.string(),
+  }),
+});
+
+// Schema for the distribution step with custom refinement
+const distributionSchema = z.object({
+  cashBalance: z.string()
+    .refine((val) => val === "" || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
+      message: "Please enter a valid cash amount",
+    }),
+  bankBalance: z.string()
+    .refine((val) => val === "" || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
+      message: "Please enter a valid bank amount",
+    }),
+  digitalBalance: z.string()
+    .refine((val) => val === "" || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
+      message: "Please enter a valid digital wallet amount",
+    }),
+});
+
+type TotalBalanceFormData = z.infer<typeof totalBalanceSchema>;
+type DistributionFormData = z.infer<typeof distributionSchema>;
+
 export const BalanceSetupScreen: React.FC = () => {
   const [step, setStep] = useState<'total' | 'distribution'>('total');
-  const [balance, setBalance] = useState("");
-  const [cashBalance, setCashBalance] = useState("");
-  const [bankBalance, setBankBalance] = useState("");
-  const [digitalBalance, setDigitalBalance] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
+  const [totalBalance, setTotalBalance] = useState<number>(0);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
-  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const { setHasSetupBalance } = useOnboardingStore();
   const { showSuccess, showError } = useToastStore();
   const updateBalance = useUpdateBalance();
 
-  const handleBalanceChange = (text: string) => {
+  // Form for total balance step
+  const totalForm = useForm<TotalBalanceFormData>({
+    resolver: zodResolver(totalBalanceSchema),
+    defaultValues: {
+      balance: "",
+      currency: CURRENCIES[0],
+    },
+    mode: "onChange",
+  });
+
+  // Form for distribution step
+  const distributionForm = useForm<DistributionFormData>({
+    resolver: zodResolver(distributionSchema),
+    defaultValues: {
+      cashBalance: "",
+      bankBalance: "",
+      digitalBalance: "",
+    },
+    mode: "onChange",
+  });
+
+  // Watch distribution values
+  const cashValue = useWatch({ control: distributionForm.control, name: "cashBalance" });
+  const bankValue = useWatch({ control: distributionForm.control, name: "bankBalance" });
+  const digitalValue = useWatch({ control: distributionForm.control, name: "digitalBalance" });
+  const selectedCurrency = useWatch({ control: totalForm.control, name: "currency" });
+  const balanceValue = useWatch({ control: totalForm.control, name: "balance" });
+
+  // Calculate distribution totals
+  const distributionTotal = useMemo(() => {
+    const cash = parseFloat(cashValue) || 0;
+    const bank = parseFloat(bankValue) || 0;
+    const digital = parseFloat(digitalValue) || 0;
+    return cash + bank + digital;
+  }, [cashValue, bankValue, digitalValue]);
+
+  const remaining = useMemo(() => totalBalance - distributionTotal, [totalBalance, distributionTotal]);
+  const isDistributionComplete = useMemo(() => Math.abs(remaining) <= 0.01, [remaining]);
+  const isOverDistributed = useMemo(() => remaining < -0.01, [remaining]);
+
+  // Custom distribution validation error message
+  const distributionError = useMemo(() => {
+    if (isOverDistributed) {
+      return `Distribution exceeds total by ${selectedCurrency.symbol}${Math.abs(remaining).toFixed(2)}`;
+    }
+    if (!isDistributionComplete && distributionTotal > 0) {
+      return `${selectedCurrency.symbol}${remaining.toFixed(2)} remaining to distribute`;
+    }
+    return null;
+  }, [isOverDistributed, isDistributionComplete, distributionTotal, remaining, selectedCurrency.symbol]);
+
+  // Helper to sanitize decimal input
+  const sanitizeDecimalInput = useCallback((text: string): string => {
     const cleaned = text.replace(/[^0-9.]/g, "");
     const parts = cleaned.split(".");
     if (parts.length > 2) {
-      return;
+      return parts[0] + "." + parts.slice(1).join("");
     }
     if (parts[1] && parts[1].length > 2) {
+      return parts[0] + "." + parts[1].slice(0, 2);
+    }
+    return cleaned;
+  }, []);
+
+  // Handle total balance form submission
+  const handleTotalBalanceSubmit = useCallback(async (data: TotalBalanceFormData) => {
+    Keyboard.dismiss();
+    const numericBalance = parseFloat(data.balance) || 0;
+    
+    if (numericBalance === 0) {
+      // Skip distribution if balance is 0
+      await submitBalances(0, 0, 0, data.currency.code);
+    } else {
+      setTotalBalance(numericBalance);
+      // Reset distribution form when moving to distribution step
+      distributionForm.reset({
+        cashBalance: "",
+        bankBalance: "",
+        digitalBalance: "",
+      });
+      setStep('distribution');
+    }
+  }, []);
+
+  // Handle distribution form submission
+  const handleDistributionSubmit = useCallback(async () => {
+    Keyboard.dismiss();
+    
+    if (!isDistributionComplete) {
+      if (isOverDistributed) {
+        showError("Over-distributed", `Your distribution exceeds the total balance by ${selectedCurrency.symbol}${Math.abs(remaining).toFixed(2)}`);
+      } else {
+        showError("Incomplete Distribution", `Please distribute the remaining ${selectedCurrency.symbol}${remaining.toFixed(2)}`);
+      }
       return;
     }
-    setBalance(cleaned);
-  };
 
-  const handleDistributionChange = (text: string, type: 'cash' | 'bank' | 'digital') => {
-    const cleaned = text.replace(/[^0-9.]/g, "");
-    const parts = cleaned.split(".");
-    if (parts.length > 2) return;
-    if (parts[1] && parts[1].length > 2) return;
+    const cash = parseFloat(cashValue) || 0;
+    const bank = parseFloat(bankValue) || 0;
+    const digital = parseFloat(digitalValue) || 0;
 
-    if (type === 'cash') setCashBalance(cleaned);
-    else if (type === 'bank') setBankBalance(cleaned);
-    else setDigitalBalance(cleaned);
-  };
+    await submitBalances(cash, bank, digital, selectedCurrency.code);
+  }, [isDistributionComplete, isOverDistributed, remaining, cashValue, bankValue, digitalValue, selectedCurrency]);
 
-  const handleContinue = async () => {
-    if (step === 'total') {
-      const numericBalance = parseFloat(balance);
-      if (isNaN(numericBalance) || numericBalance < 0) {
-        showError("Invalid Amount", "Please enter a valid balance amount");
-        return;
-      }
-      if (numericBalance === 0) {
-        // Skip distribution if 0
-        await submitBalances(0, 0, 0);
-      } else {
-        setStep('distribution');
-      }
-    } else {
-      // Validate distribution sums up to total
-      const cash = parseFloat(cashBalance) || 0;
-      const bank = parseFloat(bankBalance) || 0;
-      const digital = parseFloat(digitalBalance) || 0;
-      const total = parseFloat(balance);
-
-      if (Math.abs(cash + bank + digital - total) > 0.01) {
-        showError("Mismatch", `Total distribution (${cash + bank + digital}) must match total balance (${total})`);
-        return;
-      }
-      await submitBalances(cash, bank, digital);
-    }
-  };
-
-  const submitBalances = async (cash: number, bank: number, digital: number) => {
+  const submitBalances = async (cash: number, bank: number, digital: number, currencyCode: string) => {
     try {
       await updateBalance.mutateAsync({
         cashBalance: cash,
         bankBalance: bank,
         digitalBalance: digital,
-        currency: selectedCurrency.code,
+        currency: currencyCode,
       });
 
       showSuccess("Balance Set!", "Your initial balance has been saved");
@@ -104,29 +187,31 @@ export const BalanceSetupScreen: React.FC = () => {
     }
   };
 
-  const isValidAmount =
-    balance.length > 0 &&
-    !isNaN(parseFloat(balance)) &&
-    parseFloat(balance) >= 0;
+  // Check if total balance form is valid
+  const isTotalFormValid = useMemo(() => {
+    const balance = totalForm.watch("balance");
+    return balance === "" || balance === "0" || (!isNaN(parseFloat(balance)) && parseFloat(balance) >= 0);
+  }, [balanceValue]);
+
+  // Handle going back to total step
+  const handleBackToTotal = useCallback(() => {
+    setStep('total');
+    setTotalBalance(0);
+  }, []);
 
   if (step === 'distribution') {
-    const total = parseFloat(balance);
-    const currentSum = (parseFloat(cashBalance) || 0) + (parseFloat(bankBalance) || 0) + (parseFloat(digitalBalance) || 0);
-    const remaining = total - currentSum;
-    
     // Calculate percentages for the visual bar
-    const cashPercent = total > 0 ? ((parseFloat(cashBalance) || 0) / total) * 100 : 0;
-    const bankPercent = total > 0 ? ((parseFloat(bankBalance) || 0) / total) * 100 : 0;
-    const digitalPercent = total > 0 ? ((parseFloat(digitalBalance) || 0) / total) * 100 : 0;
-    const remainingPercent = total > 0 ? (remaining / total) * 100 : 100;
-    const isComplete = Math.abs(remaining) <= 0.01;
+    const cashPercent = totalBalance > 0 ? ((parseFloat(cashValue) || 0) / totalBalance) * 100 : 0;
+    const bankPercent = totalBalance > 0 ? ((parseFloat(bankValue) || 0) / totalBalance) * 100 : 0;
+    const digitalPercent = totalBalance > 0 ? ((parseFloat(digitalValue) || 0) / totalBalance) * 100 : 0;
+    const remainingPercent = totalBalance > 0 ? Math.max(0, (remaining / totalBalance) * 100) : 100;
 
     return (
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 bg-white"
       >
-        <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
+        <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
           <View className="flex-1 px-6 pt-12">
             {/* Header with Icon */}
             <View className="items-center mb-6">
@@ -137,7 +222,7 @@ export const BalanceSetupScreen: React.FC = () => {
                 Balance Breakdown
               </Text>
               <Text className="text-base text-gray-500 text-center px-4 leading-6">
-                Tell us how your {selectedCurrency.symbol}{balance} is distributed across your accounts for accurate tracking
+                Tell us how your {selectedCurrency.symbol}{totalBalance.toFixed(2)} is distributed across your accounts for accurate tracking
               </Text>
             </View>
 
@@ -145,21 +230,21 @@ export const BalanceSetupScreen: React.FC = () => {
             <View className="mb-6 px-2">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-sm font-semibold text-gray-700">Distribution Progress</Text>
-                <Text className={`text-sm font-bold ${isComplete ? 'text-green-600' : remaining < 0 ? 'text-red-500' : 'text-indigo-600'}`}>
-                  {isComplete ? '✓ Complete!' : `${selectedCurrency.symbol}${Math.abs(remaining).toFixed(2)} ${remaining < 0 ? 'over' : 'remaining'}`}
+                <Text className={`text-sm font-bold ${isDistributionComplete ? 'text-green-600' : isOverDistributed ? 'text-red-500' : 'text-indigo-600'}`}>
+                  {isDistributionComplete ? '✓ Complete!' : `${selectedCurrency.symbol}${Math.abs(remaining).toFixed(2)} ${isOverDistributed ? 'over' : 'remaining'}`}
                 </Text>
               </View>
               <View style={styles.progressBarContainer}>
                 {cashPercent > 0 && (
-                  <View style={[styles.progressSegment, { width: `${cashPercent}%`, backgroundColor: '#10B981' }]} />
+                  <View style={[styles.progressSegment, { width: `${Math.min(cashPercent, 100)}%`, backgroundColor: '#10B981' }]} />
                 )}
                 {bankPercent > 0 && (
-                  <View style={[styles.progressSegment, { width: `${bankPercent}%`, backgroundColor: '#3B82F6' }]} />
+                  <View style={[styles.progressSegment, { width: `${Math.min(bankPercent, 100 - cashPercent)}%`, backgroundColor: '#3B82F6' }]} />
                 )}
                 {digitalPercent > 0 && (
-                  <View style={[styles.progressSegment, { width: `${digitalPercent}%`, backgroundColor: '#8B5CF6' }]} />
+                  <View style={[styles.progressSegment, { width: `${Math.min(digitalPercent, 100 - cashPercent - bankPercent)}%`, backgroundColor: '#8B5CF6' }]} />
                 )}
-                {remainingPercent > 0 && remaining >= 0 && (
+                {remainingPercent > 0 && !isOverDistributed && (
                   <View style={[styles.progressSegment, { width: `${remainingPercent}%`, backgroundColor: '#E5E7EB' }]} />
                 )}
               </View>
@@ -180,6 +265,20 @@ export const BalanceSetupScreen: React.FC = () => {
               </View>
             </View>
 
+            {/* Distribution Error Message */}
+            {distributionError && distributionTotal > 0 && (
+              <View className={`mb-4 p-3 rounded-xl flex-row items-center ${isOverDistributed ? 'bg-red-50' : 'bg-amber-50'}`}>
+                <Ionicons 
+                  name={isOverDistributed ? "alert-circle" : "information-circle"} 
+                  size={20} 
+                  color={isOverDistributed ? "#EF4444" : "#F59E0B"} 
+                />
+                <Text className={`ml-2 text-sm flex-1 ${isOverDistributed ? 'text-red-700' : 'text-amber-700'}`}>
+                  {distributionError}
+                </Text>
+              </View>
+            )}
+
             {/* Cash Input */}
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
@@ -188,24 +287,43 @@ export const BalanceSetupScreen: React.FC = () => {
                 </View>
                 <Text className="text-sm font-semibold text-gray-700 ml-2">Cash in Hand</Text>
               </View>
-              <View style={[styles.distributionInputContainer, focusedInput === 'cash' && styles.distributionInputFocused]}>
-                <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
-                <TextInput
-                  style={styles.distributionInput}
-                  placeholder="0.00"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="decimal-pad"
-                  value={cashBalance}
-                  onChangeText={(t) => handleDistributionChange(t, 'cash')}
-                  onFocus={() => setFocusedInput('cash')}
-                  onBlur={() => setFocusedInput(null)}
-                />
-                {parseFloat(cashBalance) > 0 && (
-                  <View style={[styles.percentBadge, { backgroundColor: '#D1FAE5' }]}>
-                    <Text style={[styles.percentText, { color: '#10B981' }]}>{cashPercent.toFixed(0)}%</Text>
+              <Controller
+                control={distributionForm.control}
+                name="cashBalance"
+                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                  <View>
+                    <View style={[
+                      styles.distributionInputContainer, 
+                      focusedInput === 'cash' && styles.distributionInputFocused,
+                      error && styles.distributionInputError
+                    ]}>
+                      <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
+                      <TextInput
+                        style={styles.distributionInput}
+                        placeholder="0.00"
+                        placeholderTextColor="#9CA3AF"
+                        keyboardType="decimal-pad"
+                        value={value}
+                        onChangeText={(text) => onChange(sanitizeDecimalInput(text))}
+                        onFocus={() => setFocusedInput('cash')}
+                        onBlur={() => {
+                          setFocusedInput(null);
+                          onBlur();
+                        }}
+                        editable={!updateBalance.isPending}
+                      />
+                      {parseFloat(value) > 0 && (
+                        <View style={[styles.percentBadge, { backgroundColor: '#D1FAE5' }]}>
+                          <Text style={[styles.percentText, { color: '#10B981' }]}>{cashPercent.toFixed(0)}%</Text>
+                        </View>
+                      )}
+                    </View>
+                    {error && (
+                      <Text className="text-red-500 text-xs mt-1 ml-1">{error.message}</Text>
+                    )}
                   </View>
                 )}
-              </View>
+              />
               <Text className="text-xs text-gray-400 mt-1 ml-1">Physical money in your wallet or at home</Text>
             </View>
 
@@ -217,24 +335,43 @@ export const BalanceSetupScreen: React.FC = () => {
                 </View>
                 <Text className="text-sm font-semibold text-gray-700 ml-2">Bank Account</Text>
               </View>
-              <View style={[styles.distributionInputContainer, focusedInput === 'bank' && styles.distributionInputFocused]}>
-                <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
-                <TextInput
-                  style={styles.distributionInput}
-                  placeholder="0.00"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="decimal-pad"
-                  value={bankBalance}
-                  onChangeText={(t) => handleDistributionChange(t, 'bank')}
-                  onFocus={() => setFocusedInput('bank')}
-                  onBlur={() => setFocusedInput(null)}
-                />
-                {parseFloat(bankBalance) > 0 && (
-                  <View style={[styles.percentBadge, { backgroundColor: '#DBEAFE' }]}>
-                    <Text style={[styles.percentText, { color: '#3B82F6' }]}>{bankPercent.toFixed(0)}%</Text>
+              <Controller
+                control={distributionForm.control}
+                name="bankBalance"
+                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                  <View>
+                    <View style={[
+                      styles.distributionInputContainer, 
+                      focusedInput === 'bank' && styles.distributionInputFocused,
+                      error && styles.distributionInputError
+                    ]}>
+                      <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
+                      <TextInput
+                        style={styles.distributionInput}
+                        placeholder="0.00"
+                        placeholderTextColor="#9CA3AF"
+                        keyboardType="decimal-pad"
+                        value={value}
+                        onChangeText={(text) => onChange(sanitizeDecimalInput(text))}
+                        onFocus={() => setFocusedInput('bank')}
+                        onBlur={() => {
+                          setFocusedInput(null);
+                          onBlur();
+                        }}
+                        editable={!updateBalance.isPending}
+                      />
+                      {parseFloat(value) > 0 && (
+                        <View style={[styles.percentBadge, { backgroundColor: '#DBEAFE' }]}>
+                          <Text style={[styles.percentText, { color: '#3B82F6' }]}>{bankPercent.toFixed(0)}%</Text>
+                        </View>
+                      )}
+                    </View>
+                    {error && (
+                      <Text className="text-red-500 text-xs mt-1 ml-1">{error.message}</Text>
+                    )}
                   </View>
                 )}
-              </View>
+              />
               <Text className="text-xs text-gray-400 mt-1 ml-1">Savings, checking, or any bank account balance</Text>
             </View>
 
@@ -246,24 +383,43 @@ export const BalanceSetupScreen: React.FC = () => {
                 </View>
                 <Text className="text-sm font-semibold text-gray-700 ml-2">Digital Wallets</Text>
               </View>
-              <View style={[styles.distributionInputContainer, focusedInput === 'digital' && styles.distributionInputFocused]}>
-                <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
-                <TextInput
-                  style={styles.distributionInput}
-                  placeholder="0.00"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="decimal-pad"
-                  value={digitalBalance}
-                  onChangeText={(t) => handleDistributionChange(t, 'digital')}
-                  onFocus={() => setFocusedInput('digital')}
-                  onBlur={() => setFocusedInput(null)}
-                />
-                {parseFloat(digitalBalance) > 0 && (
-                  <View style={[styles.percentBadge, { backgroundColor: '#EDE9FE' }]}>
-                    <Text style={[styles.percentText, { color: '#8B5CF6' }]}>{digitalPercent.toFixed(0)}%</Text>
+              <Controller
+                control={distributionForm.control}
+                name="digitalBalance"
+                render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                  <View>
+                    <View style={[
+                      styles.distributionInputContainer, 
+                      focusedInput === 'digital' && styles.distributionInputFocused,
+                      error && styles.distributionInputError
+                    ]}>
+                      <Text style={styles.distributionCurrencySymbol}>{selectedCurrency.symbol}</Text>
+                      <TextInput
+                        style={styles.distributionInput}
+                        placeholder="0.00"
+                        placeholderTextColor="#9CA3AF"
+                        keyboardType="decimal-pad"
+                        value={value}
+                        onChangeText={(text) => onChange(sanitizeDecimalInput(text))}
+                        onFocus={() => setFocusedInput('digital')}
+                        onBlur={() => {
+                          setFocusedInput(null);
+                          onBlur();
+                        }}
+                        editable={!updateBalance.isPending}
+                      />
+                      {parseFloat(value) > 0 && (
+                        <View style={[styles.percentBadge, { backgroundColor: '#EDE9FE' }]}>
+                          <Text style={[styles.percentText, { color: '#8B5CF6' }]}>{digitalPercent.toFixed(0)}%</Text>
+                        </View>
+                      )}
+                    </View>
+                    {error && (
+                      <Text className="text-red-500 text-xs mt-1 ml-1">{error.message}</Text>
+                    )}
                   </View>
                 )}
-              </View>
+              />
               <Text className="text-xs text-gray-400 mt-1 ml-1">Bkash, Nagad, PayPal, or any mobile wallet</Text>
             </View>
 
@@ -276,10 +432,10 @@ export const BalanceSetupScreen: React.FC = () => {
             </View>
 
             <TouchableOpacity
-              onPress={handleContinue}
-              disabled={!isComplete || updateBalance.isPending}
+              onPress={handleDistributionSubmit}
+              disabled={!isDistributionComplete || updateBalance.isPending}
               className={`flex-row items-center justify-center rounded-2xl py-4 px-6 mt-4 ${
-                !isComplete || updateBalance.isPending
+                !isDistributionComplete || updateBalance.isPending
                   ? "bg-gray-400"
                   : "bg-indigo-600"
               }`}
@@ -298,11 +454,14 @@ export const BalanceSetupScreen: React.FC = () => {
             </TouchableOpacity>
             
             <TouchableOpacity
-              onPress={() => setStep('total')}
+              onPress={handleBackToTotal}
+              disabled={updateBalance.isPending}
               className="flex-row items-center justify-center mt-4 mb-6"
             >
-              <Ionicons name="arrow-back" size={18} color="#6366F1" />
-              <Text className="text-indigo-600 font-semibold ml-1">Back to Total Balance</Text>
+              <Ionicons name="arrow-back" size={18} color={updateBalance.isPending ? "#9CA3AF" : "#6366F1"} />
+              <Text className={`font-semibold ml-1 ${updateBalance.isPending ? "text-gray-400" : "text-indigo-600"}`}>
+                Back to Total Balance
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -315,7 +474,7 @@ export const BalanceSetupScreen: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-white"
     >
-      <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View className="flex-1 px-8 pt-16">
           <View className="items-center mb-8">
             <View style={styles.iconContainer}>
@@ -339,50 +498,75 @@ export const BalanceSetupScreen: React.FC = () => {
             <Text className="text-sm font-semibold text-gray-700 mb-2">
               Select Currency
             </Text>
-            <TouchableOpacity
-              onPress={() => setShowCurrencyModal(true)}
-              style={styles.currencySelector}
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center">
-                <Text style={styles.currencySelectorSymbol}>
-                  {selectedCurrency.symbol}
-                </Text>
-                <View className="ml-3">
-                  <Text className="text-base font-semibold text-gray-900">
-                    {selectedCurrency.code}
-                  </Text>
-                  <Text className="text-xs text-gray-500">
-                    {selectedCurrency.name}
-                  </Text>
-                </View>
-              </View>
-              <Ionicons name="chevron-down" size={20} color="#6B7280" />
-            </TouchableOpacity>
+            <Controller
+              control={totalForm.control}
+              name="currency"
+              render={({ field: { value } }) => (
+                <TouchableOpacity
+                  onPress={() => setShowCurrencyModal(true)}
+                  style={styles.currencySelector}
+                  activeOpacity={0.7}
+                  disabled={updateBalance.isPending}
+                >
+                  <View className="flex-row items-center">
+                    <Text style={styles.currencySelectorSymbol}>
+                      {value.symbol}
+                    </Text>
+                    <View className="ml-3">
+                      <Text className="text-base font-semibold text-gray-900">
+                        {value.code}
+                      </Text>
+                      <Text className="text-xs text-gray-500">
+                        {value.name}
+                      </Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-down" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              )}
+            />
           </View>
 
           <View className="mb-6">
             <Text className="text-sm font-semibold text-gray-700 mb-2">
               Your Current Balance
             </Text>
-            <View
-              style={[
-                styles.inputContainer,
-                isFocused && styles.inputContainerFocused,
-              ]}
-            >
-              <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="decimal-pad"
-                value={balance}
-                onChangeText={handleBalanceChange}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-              />
-            </View>
+            <Controller
+              control={totalForm.control}
+              name="balance"
+              render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                <View>
+                  <View
+                    style={[
+                      styles.inputContainer,
+                      focusedInput === 'total' && styles.inputContainerFocused,
+                      error && styles.inputContainerError,
+                    ]}
+                  >
+                    <Text style={styles.currencySymbol}>{selectedCurrency.symbol}</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="0.00"
+                      placeholderTextColor="#9CA3AF"
+                      keyboardType="decimal-pad"
+                      value={value}
+                      onChangeText={(text) => onChange(sanitizeDecimalInput(text))}
+                      onFocus={() => setFocusedInput('total')}
+                      onBlur={() => {
+                        setFocusedInput(null);
+                        onBlur();
+                      }}
+                      editable={!updateBalance.isPending}
+                    />
+                  </View>
+                  {error && (
+                    <Text className="text-red-500 text-xs mt-2 ml-1">
+                      {error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
             <Text className="text-xs text-gray-400 mt-2">
               This will be your starting point for expense tracking
             </Text>
@@ -416,10 +600,10 @@ export const BalanceSetupScreen: React.FC = () => {
           </View>
 
           <TouchableOpacity
-            onPress={handleContinue}
-            disabled={!isValidAmount || updateBalance.isPending}
+            onPress={totalForm.handleSubmit(handleTotalBalanceSubmit)}
+            disabled={!isTotalFormValid || updateBalance.isPending}
             className={`flex-row items-center justify-center rounded-2xl py-4 px-6 ${
-              !isValidAmount || updateBalance.isPending
+              !isTotalFormValid || updateBalance.isPending
                 ? "bg-gray-400"
                 : "bg-indigo-600"
             }`}
@@ -439,13 +623,13 @@ export const BalanceSetupScreen: React.FC = () => {
 
           <TouchableOpacity
             onPress={() => {
-              setBalance("0");
-              submitBalances(0, 0, 0);
+              totalForm.setValue("balance", "0");
+              submitBalances(0, 0, 0, selectedCurrency.code);
             }}
             disabled={updateBalance.isPending}
             className="items-center justify-center mt-5"
           >
-            <Text className="text-base font-semibold text-gray-600">
+            <Text className={`text-base font-semibold ${updateBalance.isPending ? "text-gray-400" : "text-gray-600"}`}>
               Start with {selectedCurrency.symbol}0
             </Text>
           </TouchableOpacity>
@@ -481,7 +665,7 @@ export const BalanceSetupScreen: React.FC = () => {
                       styles.currencyItemSelected,
                   ]}
                   onPress={() => {
-                    setSelectedCurrency(item);
+                    totalForm.setValue("currency", item);
                     setShowCurrencyModal(false);
                   }}
                 >
@@ -552,6 +736,10 @@ const styles = StyleSheet.create({
   inputContainerFocused: {
     borderColor: "#4F46E5",
     backgroundColor: "#FFFFFF",
+  },
+  inputContainerError: {
+    borderColor: "#EF4444",
+    backgroundColor: "#FEF2F2",
   },
   currencySymbol: {
     fontSize: 24,
@@ -664,6 +852,10 @@ const styles = StyleSheet.create({
   distributionInputFocused: {
     borderColor: "#4F46E5",
     backgroundColor: "#FFFFFF",
+  },
+  distributionInputError: {
+    borderColor: "#EF4444",
+    backgroundColor: "#FEF2F2",
   },
   distributionCurrencySymbol: {
     fontSize: 20,
