@@ -26,7 +26,7 @@ export const SettingsScreen = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { user, updateUser } = useUserStore();
   const { transactions, clearTransactions } = useTransactionStore();
-  const { reset: resetOnboarding } = useOnboardingStore();
+  const { logout, reset: resetOnboarding } = useOnboardingStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
@@ -97,7 +97,7 @@ export const SettingsScreen = () => {
               console.error('Error signing out of Google:', error);
             }
             await clearTokens();
-            resetOnboarding();
+            logout();
           },
         },
       ]

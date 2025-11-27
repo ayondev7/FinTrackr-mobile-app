@@ -48,11 +48,13 @@ export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
   const validatedData = googleAuthSchema.parse(req.body);
   const normalizedName = resolveDisplayName(validatedData);
 
+  let isNewUser = false;
   let user = await prisma.user.findUnique({
     where: { providerId: validatedData.sub },
   });
 
   if (!user) {
+    isNewUser = true;
     user = await prisma.user.create({
       data: {
         name: normalizedName,
@@ -83,7 +85,7 @@ export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
 
   const tokens = createTokenPair(user.id);
 
-  sendSuccess(res, tokens, 'Authentication successful');
+  sendSuccess(res, { ...tokens, isNewUser }, 'Authentication successful');
 });
 
 export const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {

@@ -6,11 +6,9 @@ import axios from 'axios';
 import { useOnboardingStore } from '../store/onboardingStore';
 import { useToastStore } from '../store/toastStore';
 import { config } from '../config';
-import { authRoutes, userRoutes } from '../routes';
+import { authRoutes } from '../routes';
 import { saveTokens } from '../utils/authStorage';
 import api from '../utils/api';
-import { apiClient } from '../utils/apiClient';
-import { User, ApiResponse } from '../types';
 
 export const LoginScreen: React.FC = () => {
   const { setIsAuthenticated, setHasSetupBalance } = useOnboardingStore();
@@ -66,52 +64,20 @@ export const LoginScreen: React.FC = () => {
 
       const backendPayload = backendResponse.data;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-
       if (!backendPayload.success) {
         throw new Error(backendPayload.error || backendPayload.message || 'Authentication failed');
       }
 
-      const tokens = backendPayload.data;
+      const { accessToken, refreshToken, isNewUser } = backendPayload.data;
 
-      if (!tokens?.accessToken || !tokens?.refreshToken) {
+      if (!accessToken || !refreshToken) {
         throw new Error('Missing authentication tokens');
       }
 
-      await saveTokens(tokens.accessToken, tokens.refreshToken);
+      await saveTokens(accessToken, refreshToken);
 
-      try {
-        const profileResponse = await apiClient.get<ApiResponse<User>>(userRoutes.profile);
-        if (profileResponse.data.success && profileResponse.data.data) {
-          const userProfile = profileResponse.data.data;
-          if (userProfile.initialBalance > 0 || userProfile.currentBalance > 0) {
-            setHasSetupBalance(true);
-          }
-        }
-      } catch (profileError) {
-        console.error('Failed to fetch user profile:', profileError);
+      if (!isNewUser) {
+        setHasSetupBalance(true);
       }
 
       showSuccess('Welcome!', `Signed in as ${userData.user.name}`);
