@@ -32,7 +32,7 @@ export const AddBudgetScreen = () => {
   const [period, setPeriod] = useState<Period>('monthly');
   const [alertThreshold, setAlertThreshold] = useState('80');
 
-  const expenseCategories = categories.filter((cat) => cat.type === 'EXPENSE');
+  const expenseCategories = categories.filter((cat) => (cat.type || '').toLowerCase() === 'expense');
   
   const categoriesWithBudget = useMemo(() => {
     return budgets

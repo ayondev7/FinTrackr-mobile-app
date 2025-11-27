@@ -11,16 +11,26 @@ interface MonthlyOverviewChartProps {
   monthlyData: MonthlyOverviewItem[];
 }
 
+const formatCompactNumber = (value: number): string => {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`;
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(0)}k`;
+  }
+  return Math.round(value).toString();
+};
+
 export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
   screenWidth,
   analyticsType,
   chartConfig,
   monthlyData,
 }) => {
-  const getChartColor = () => {
-    if (analyticsType === 'revenue') return 'rgba(16, 185, 129, 1)';
-    if (analyticsType === 'expense') return 'rgba(239, 68, 68, 1)';
-    return chartConfig.color(1);
+  const getChartColor = (opacity: number = 1) => {
+    if (analyticsType === 'revenue') return `rgba(16, 185, 129, ${opacity})`;
+    if (analyticsType === 'expense') return `rgba(239, 68, 68, ${opacity})`;
+    return chartConfig.color(opacity);
   };
 
   const getChartData = () => {
@@ -55,7 +65,11 @@ export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
           height={220}
           chartConfig={{
             ...chartConfig,
-            color: (opacity = 1) => getChartColor().replace('1)', `${opacity})`),
+            fillShadowGradientFrom: getChartColor(0.5),
+            fillShadowGradientTo: getChartColor(0.5),
+            fillShadowGradientFromOpacity: 1,
+            fillShadowGradientToOpacity: 1,
+            color: () => getChartColor(0.5),
             propsForBackgroundLines: {
               strokeWidth: 0,
             },
@@ -63,7 +77,7 @@ export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
           style={{
             borderRadius: 16,
           }}
-          yAxisLabel="$"
+          yAxisLabel=""
           yAxisSuffix=""
           fromZero
           showValuesOnTopOfBars

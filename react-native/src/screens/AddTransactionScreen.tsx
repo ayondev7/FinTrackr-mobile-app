@@ -26,7 +26,7 @@ export const AddTransactionScreen = () => {
   const [description, setDescription] = useState('');
 
   const filteredCategories = categories.filter(
-    (cat) => cat.type === (type === 'expense' ? 'EXPENSE' : 'REVENUE')
+    (cat) => (cat.type || '').toLowerCase() === (type === 'expense' ? 'expense' : 'revenue')
   );
 
   const handleSubmit = () => {

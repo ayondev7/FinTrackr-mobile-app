@@ -3,6 +3,7 @@ export interface Category {
   name: string;
   icon: string;
   color: string;
-  type: 'EXPENSE' | 'REVENUE';
+  // Use lowercase values to match `config/categories.json` and app usage
+  type: 'expense' | 'revenue' | 'both';
   isPinned?: boolean;
 }

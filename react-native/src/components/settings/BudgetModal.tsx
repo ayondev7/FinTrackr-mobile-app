@@ -15,7 +15,7 @@ export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps
   const categories = categoriesData?.data || [];
   
   const expenseCategories = useMemo(() => 
-    categories.filter((cat) => cat.type === 'EXPENSE'),
+    categories.filter((cat) => (cat.type || '').toLowerCase() === 'expense'),
     [categories]
   );
   

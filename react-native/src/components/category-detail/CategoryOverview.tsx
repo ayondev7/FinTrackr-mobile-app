@@ -8,7 +8,8 @@ interface CategoryOverviewProps {
   categoryName: string;
   categoryIcon: string;
   categoryColor: string;
-  categoryType: 'EXPENSE' | 'REVENUE';
+  // Accept lowercase types to match Category.type shape
+  categoryType: 'expense' | 'revenue' | 'both';
   totalSpent: number;
   transactionCount: number;
   avgPerTransaction: number;
@@ -25,8 +26,9 @@ export const CategoryOverview = ({
   avgPerTransaction, 
   currency 
 }: CategoryOverviewProps) => {
-  const isExpense = categoryType === 'EXPENSE';
-  const label = isExpense ? 'Total Spending' : 'Total Income';
+  const normalized = (categoryType || '').toLowerCase();
+  const isExpense = normalized === 'expense';
+  const label = normalized === 'both' ? 'Total' : isExpense ? 'Total Spending' : 'Total Income';
 
   return (
     <Card className="mb-6 p-6" variant="elevated">

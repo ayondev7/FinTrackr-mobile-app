@@ -14,10 +14,10 @@ export const CategoriesScreen = () => {
   const categories = categoriesData?.data || [];
 
   const expenseCategories = categories.filter(
-    (cat) => cat.type === 'EXPENSE'
+    (cat) => (cat.type || '').toLowerCase() === 'expense'
   );
   const revenueCategories = categories.filter(
-    (cat) => cat.type === 'REVENUE'
+    (cat) => (cat.type || '').toLowerCase() === 'revenue'
   );
 
   if (isLoading) {

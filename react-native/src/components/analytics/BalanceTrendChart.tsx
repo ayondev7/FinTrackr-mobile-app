@@ -11,6 +11,16 @@ interface BalanceTrendChartProps {
   currentBalance: number;
 }
 
+const formatCompactNumber = (value: number): string => {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`;
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(0)}k`;
+  }
+  return Math.round(value).toString();
+};
+
 export const BalanceTrendChart: React.FC<BalanceTrendChartProps> = ({
   screenWidth,
   chartConfig,
@@ -64,11 +74,12 @@ export const BalanceTrendChart: React.FC<BalanceTrendChartProps> = ({
           style={{
             borderRadius: 16,
           }}
-          yAxisLabel="$"
+          yAxisLabel=""
           withInnerLines={false}
           withOuterLines={false}
           withVerticalLines={false}
           withHorizontalLines={false}
+          formatYLabel={(value) => formatCompactNumber(parseFloat(value))}
         />
       ) : (
         <View className="h-[220] items-center justify-center">
