@@ -1,8 +1,0 @@
-{
-  "id": "user-1",
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "currentBalance": 45230.50,
-  "currency": "USD",
-  "createdAt": "2024-01-01T00:00:00.000Z"
-}
