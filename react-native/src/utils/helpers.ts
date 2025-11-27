@@ -1,17 +1,16 @@
+import { CURRENCIES } from '../constants';
+
 export const formatAmount = (amount: number): string => {
   return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
+export const getCurrencySymbol = (currencyCode: string): string => {
+  const currency = CURRENCIES.find(c => c.code === currencyCode);
+  return currency?.symbol || '$';
+};
+
 export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  const symbols: Record<string, string> = {
-    USD: '$',
-    EUR: '€',
-    GBP: '£',
-    JPY: '¥',
-    INR: '₹',
-  };
-  
-  const symbol = symbols[currency] || '$';
+  const symbol = getCurrencySymbol(currency);
   return `${symbol}${formatAmount(amount)}`;
 };
 

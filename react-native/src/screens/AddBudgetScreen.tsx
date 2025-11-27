@@ -6,12 +6,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Check, Calendar, AlertCircle } from 'lucide-react-native';
-import { useThemeStore, useUserStore, useToastStore } from '../store';
-import { useCategories, useBudgets, useCreateBudget } from '../hooks';
+import { useThemeStore, useToastStore } from '../store';
+import { useCategories, useBudgets, useCreateBudget, useUserProfile } from '../hooks';
 import { colors } from '../constants/theme';
 import { Card, Loader } from '../components';
 import { CategoryIcon } from '../components/shared/CategoryIcon';
 import { PeriodSelector, CategorySelector } from '../components/budgets';
+import { getCurrencySymbol } from '../utils';
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
@@ -36,15 +37,17 @@ export const AddBudgetScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
-  const { user } = useUserStore();
   const { showSuccess, showError } = useToastStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
+  const { data: userResponse } = useUserProfile();
   const { data: categoriesData } = useCategories();
   const { data: budgetsData } = useBudgets();
   const createBudget = useCreateBudget();
 
+  const user = userResponse?.data;
+  const currency = user?.currency || 'USD';
   const categories = categoriesData?.data || [];
   const budgets = budgetsData?.data || [];
 
@@ -139,7 +142,7 @@ export const AddBudgetScreen = () => {
       const categoryName = selectedCategory?.name || 'Category';
       showSuccess(
         'Budget Created',
-        `${data.period.charAt(0).toUpperCase() + data.period.slice(1)} budget of ${getCurrencySymbol(user.currency)}${parseFloat(data.limit).toFixed(2)} set for ${categoryName}.`
+        `${data.period.charAt(0).toUpperCase() + data.period.slice(1)} budget of ${getCurrencySymbol(currency)}${parseFloat(data.limit).toFixed(2)} set for ${categoryName}.`
       );
       navigation.goBack();
     } catch (error: any) {
@@ -151,18 +154,6 @@ export const AddBudgetScreen = () => {
   const handleClose = () => {
     if (createBudget.isPending) return;
     navigation.goBack();
-  };
-
-  const getCurrencySymbol = (currency: string) => {
-    const symbols: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      BDT: '৳',
-      INR: '₹',
-      JPY: '¥',
-    };
-    return symbols[currency] || '$';
   };
 
   return (
@@ -224,7 +215,7 @@ export const AddBudgetScreen = () => {
                   className="text-2xl font-bold"
                   style={{ color: selectedCategory.color }}
                 >
-                  {getCurrencySymbol(user.currency)}
+                  {getCurrencySymbol(currency)}
                   {limitAmount || '0'}
                 </Text>
               </View>
@@ -283,7 +274,7 @@ export const AddBudgetScreen = () => {
                 <View>
                   <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 rounded-xl px-4">
                     <Text className="text-gray-500 dark:text-gray-400 text-2xl font-bold mr-2">
-                      {getCurrencySymbol(user.currency)}
+                      {getCurrencySymbol(currency)}
                     </Text>
                     <TextInput
                       className="flex-1 text-gray-900 dark:text-white text-2xl font-bold py-4"

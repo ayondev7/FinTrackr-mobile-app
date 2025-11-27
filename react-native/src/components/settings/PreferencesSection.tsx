@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../shared/Card';
 import { DollarSign, Bell, Target, ChevronRight } from 'lucide-react-native';
+import { getCurrencySymbol } from '../../utils';
 
 interface PreferencesSectionProps {
   currency: string;
@@ -22,6 +23,8 @@ export const PreferencesSection = ({
   onNotificationPress,
   onBudgetPress
 }: PreferencesSectionProps) => {
+  const currencySymbol = getCurrencySymbol(currency);
+  
   return (
     <>
       <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
@@ -38,14 +41,14 @@ export const PreferencesSection = ({
               className="w-10 h-10 rounded-xl items-center justify-center"
               style={{ backgroundColor: `${successColor}20` }}
             >
-              <DollarSign size={20} color={successColor} />
+              <Text style={{ color: successColor, fontSize: 18, fontWeight: '700' }}>{currencySymbol}</Text>
             </View>
             <View>
               <Text className="text-gray-900 dark:text-white font-semibold">
                 Currency
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-xs">
-                {currency}
+                {currencySymbol} ({currency})
               </Text>
             </View>
           </View>

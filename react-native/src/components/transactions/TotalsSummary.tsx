@@ -1,13 +1,16 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { formatAmount } from '../../utils/helpers';
+import { formatAmount, getCurrencySymbol } from '../../utils/helpers';
 
 interface TotalsSummaryProps {
   totalExpense: number;
   totalRevenue: number;
+  currency?: string;
 }
 
-export const TotalsSummary: React.FC<TotalsSummaryProps> = ({ totalExpense, totalRevenue }) => {
+export const TotalsSummary: React.FC<TotalsSummaryProps> = ({ totalExpense, totalRevenue, currency = 'USD' }) => {
+  const currencySymbol = getCurrencySymbol(currency);
+  
   return (
     <View className="flex-row justify-between">
       <View className="flex-1 mr-2">
@@ -15,7 +18,7 @@ export const TotalsSummary: React.FC<TotalsSummaryProps> = ({ totalExpense, tota
           Total Expenses
         </Text>
         <Text className="text-base font-bold text-red-500">
-          ${formatAmount(totalExpense)}
+          {currencySymbol}{formatAmount(totalExpense)}
         </Text>
       </View>
       <View className="flex-1 ml-2">
@@ -23,7 +26,7 @@ export const TotalsSummary: React.FC<TotalsSummaryProps> = ({ totalExpense, tota
           Total Revenue
         </Text>
         <Text className="text-base font-bold text-green-500">
-          ${formatAmount(totalRevenue)}
+          {currencySymbol}{formatAmount(totalRevenue)}
         </Text>
       </View>
     </View>

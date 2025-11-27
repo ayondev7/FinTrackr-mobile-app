@@ -8,9 +8,10 @@ import { z } from 'zod';
 import { Input, Card } from '../components';
 import { ScreenHeader, TypeSelector, CategorySelector } from '../components/add-transaction';
 import { useThemeStore, useToastStore } from '../store';
-import { useCategories, useCreateTransaction } from '../hooks';
+import { useCategories, useCreateTransaction, useUserProfile } from '../hooks';
 import { colors } from '../constants/theme';
 import { DollarSign } from 'lucide-react-native';
+import { getCurrencySymbol } from '../utils';
 
 // Validation schema matching backend expectations
 const transactionSchema = z.object({
@@ -32,6 +33,7 @@ export const AddTransactionScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { data: categoriesData } = useCategories();
+  const { data: userResponse } = useUserProfile();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
@@ -39,6 +41,9 @@ export const AddTransactionScreen = () => {
 
   const createTransaction = useCreateTransaction();
   const categories = categoriesData?.data || [];
+  const user = userResponse?.data;
+  const currency = user?.currency || 'USD';
+  const currencySymbol = getCurrencySymbol(currency);
 
   const {
     control,
@@ -92,7 +97,7 @@ export const AddTransactionScreen = () => {
       
       showSuccess(
         'Transaction Added',
-        `Your ${data.type} of $${parseFloat(data.amount).toFixed(2)} has been recorded.`
+        `Your ${data.type} of ${currencySymbol}${parseFloat(data.amount).toFixed(2)} has been recorded.`
       );
       navigation.goBack();
     } catch (error: any) {

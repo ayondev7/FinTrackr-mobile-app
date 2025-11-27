@@ -3,12 +3,14 @@ import { View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Card } from '../shared/Card';
 import { ProjectedBalance } from '../../types';
+import { getCurrencySymbol } from '../../utils/helpers';
 
 interface ProjectionChartProps {
   projections: ProjectedBalance[];
   currentBalance: number;
   chartConfig: any;
   screenWidth: number;
+  currency?: string;
 }
 
 const getShortMonth = (monthString: string): string => {
@@ -16,7 +18,9 @@ const getShortMonth = (monthString: string): string => {
   return parts[0].substring(0, 3);
 };
 
-export const ProjectionChart = ({ projections, currentBalance, chartConfig, screenWidth }: ProjectionChartProps) => {
+export const ProjectionChart = ({ projections, currentBalance, chartConfig, screenWidth, currency = 'USD' }: ProjectionChartProps) => {
+  const currencySymbol = getCurrencySymbol(currency);
+  
   return (
     <Card className="mb-6 p-4">
       <Text className="text-gray-900 dark:text-white text-lg font-bold mb-4">
@@ -36,7 +40,7 @@ export const ProjectionChart = ({ projections, currentBalance, chartConfig, scre
         style={{
           borderRadius: 16,
         }}
-        yAxisLabel="$"
+        yAxisLabel={currencySymbol}
         withInnerLines={false}
         withOuterLines={false}
         withVerticalLines={false}

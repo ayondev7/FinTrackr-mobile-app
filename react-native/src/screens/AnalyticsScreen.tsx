@@ -30,6 +30,7 @@ export const AnalyticsScreen = () => {
   const analytics = analyticsResponse?.data;
   const monthlyData = monthlyResponse?.data ?? [];
   const user = userResponse?.data;
+  const currency = user?.currency || 'USD';
   const currentBalance = (user?.cashBalance ?? 0) + (user?.bankBalance ?? 0) + (user?.digitalBalance ?? 0);
 
   const isLoading = isLoadingAnalytics || isLoadingMonthly;
@@ -96,6 +97,7 @@ export const AnalyticsScreen = () => {
         <StatsCardsGrid
           stats={analytics?.stats ?? defaultStats}
           isDark={isDark}
+          currency={currency}
         />
 
         <MonthlyOverviewChart
@@ -118,6 +120,7 @@ export const AnalyticsScreen = () => {
           chartConfig={chartConfig}
           isDark={isDark}
           chartColors={themeColors.chart}
+          currency={currency}
         />
       </View>
     </RefreshableScrollView>

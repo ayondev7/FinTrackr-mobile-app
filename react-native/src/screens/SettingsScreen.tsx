@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useThemeStore, useTransactionStore, useOnboardingStore } from '../store';
+import { useThemeStore, useTransactionStore, useOnboardingStore, useToastStore } from '../store';
 import { colors } from '../constants/theme';
 import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
 import { useUserProfile, useUpdateProfile } from '../hooks';
+import { CURRENCIES } from '../constants';
 import { 
   ProfileCard, 
   ThemeSection, 
@@ -27,6 +28,7 @@ export const SettingsScreen = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { transactions, clearTransactions } = useTransactionStore();
   const { logout, reset: resetOnboarding } = useOnboardingStore();
+  const { showSuccess, showError } = useToastStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
@@ -51,10 +53,15 @@ export const SettingsScreen = () => {
   };
 
   const handleCurrencySelect = async (currency: string) => {
+    const currencyInfo = CURRENCIES.find(c => c.code === currency);
+    const currencyName = currencyInfo?.name || currency;
+    
     try {
       await updateProfile.mutateAsync({ currency });
-    } catch (error) {
-      console.error('Failed to update currency:', error);
+      showSuccess('Currency Updated', `Your currency has been changed to ${currencyName} (${currencyInfo?.symbol || currency})`);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update currency';
+      showError('Update Failed', errorMessage);
     }
   };
 

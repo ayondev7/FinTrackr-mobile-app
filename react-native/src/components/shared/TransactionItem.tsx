@@ -5,19 +5,22 @@ import { CategoryBadge } from './CategoryBadge';
 import { useThemeStore } from '../../store/themeStore';
 import { colors } from '../../constants/theme';
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react-native';
-import { formatAmount as formatAmountWithCommas } from '../../utils/helpers';
+import { formatAmount as formatAmountWithCommas, getCurrencySymbol } from '../../utils/helpers';
 
 interface TransactionItemProps {
   transaction: Transaction;
   onPress?: () => void;
+  currency?: string;
 }
 
 export const TransactionItem: React.FC<TransactionItemProps> = ({
   transaction,
   onPress,
+  currency = 'USD',
 }) => {
   const { theme } = useThemeStore();
   const themeColors = colors[theme as keyof typeof colors];
+  const currencySymbol = getCurrencySymbol(currency);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -26,7 +29,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
   const formatAmount = (amount: number, type: string) => {
     const sign = type === 'expense' ? '-' : '+';
-    return `${sign}$${formatAmountWithCommas(amount)}`;
+    return `${sign}${currencySymbol}${formatAmountWithCommas(amount)}`;
   };
 
   const formatAccountType = (accountType: string) => {

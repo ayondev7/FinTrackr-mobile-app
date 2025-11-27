@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { X, Save } from 'lucide-react-native';
 import { Card } from '../shared/Card';
-import { useCategories } from '../../hooks';
+import { useCategories, useUserProfile } from '../../hooks';
+import { getCurrencySymbol } from '../../utils/helpers';
 
 interface BudgetModalProps {
   visible: boolean;
@@ -12,6 +13,10 @@ interface BudgetModalProps {
 
 export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps) => {
   const { data: categoriesData, isLoading } = useCategories();
+  const { data: userResponse } = useUserProfile();
+  const user = userResponse?.data;
+  const currencySymbol = getCurrencySymbol(user?.currency ?? 'USD');
+  
   const categories = categoriesData?.data || [];
   
   const expenseCategories = useMemo(() => 
@@ -83,7 +88,7 @@ export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps
                     </Text>
                   </View>
                   <View className="flex-row items-center gap-2">
-                    <Text className="text-gray-500 dark:text-gray-400">$</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">{currencySymbol}</Text>
                     <TextInput
                       className="flex-1 bg-gray-100 dark:bg-slate-800 px-4 py-3 rounded-xl text-gray-900 dark:text-white font-semibold"
                       placeholder="0.00"

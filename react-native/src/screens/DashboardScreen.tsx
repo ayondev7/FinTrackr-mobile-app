@@ -100,6 +100,7 @@ export const DashboardScreen = () => {
         <RecentTransactions
           transactions={recentTransactions}
           primaryColor={themeColors.primary}
+          currency={currency}
         />
       </View>
     </RefreshableScrollView>

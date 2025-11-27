@@ -4,6 +4,7 @@ export { saveTokens, getTokens, clearTokens } from './authStorage';
 export {
   formatAmount,
   formatCurrency,
+  getCurrencySymbol,
   formatDate,
   formatTime,
   getDateRange,

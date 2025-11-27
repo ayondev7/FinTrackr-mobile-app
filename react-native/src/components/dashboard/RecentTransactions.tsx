@@ -7,11 +7,13 @@ import { Transaction } from '../../types';
 interface RecentTransactionsProps {
   transactions: Transaction[];
   primaryColor: string;
+  currency: string;
 }
 
 export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   transactions,
   primaryColor,
+  currency,
 }) => {
   return (
     <>
@@ -31,7 +33,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       </View>
 
       {transactions.map((transaction) => (
-        <TransactionItem key={transaction.id} transaction={transaction} />
+        <TransactionItem key={transaction.id} transaction={transaction} currency={currency} />
       ))}
     </>
   );

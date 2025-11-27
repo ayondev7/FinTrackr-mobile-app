@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { Card } from '../shared/Card';
 import { Wallet, TrendingDown, AlertCircle, CheckCircle2 } from 'lucide-react-native';
 import { Budget } from '../../types';
+import { getCurrencySymbol } from '../../utils/helpers';
 
 interface BudgetSummaryCardProps {
   budgets: Budget[];
@@ -28,12 +29,8 @@ export const BudgetSummaryCard = ({
   const onTrackCount = budgets.length - overBudgetCount - nearLimitCount;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    const symbol = getCurrencySymbol(currency);
+    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   return (

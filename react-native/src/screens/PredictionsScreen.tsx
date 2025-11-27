@@ -101,6 +101,7 @@ export const PredictionsScreen = () => {
           currentBalance={predictions.currentBalance}
           chartConfig={chartConfig}
           screenWidth={screenWidth}
+          currency={currency}
         />
 
         <AverageCards

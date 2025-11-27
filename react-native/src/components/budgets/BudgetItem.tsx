@@ -4,6 +4,7 @@ import { Card } from '../shared/Card';
 import { BudgetProgressBar } from './BudgetProgressBar';
 import { AlertTriangle, CheckCircle, TrendingUp, Trash2 } from 'lucide-react-native';
 import { Budget } from '../../types';
+import { getCurrencySymbol } from '../../utils/helpers';
 
 interface BudgetItemProps {
   budget: Budget;
@@ -28,12 +29,8 @@ export const BudgetItem = ({
   const remaining = budget.limit - budget.spent;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    const symbol = getCurrencySymbol(currency);
+    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   const getStatusIcon = () => {

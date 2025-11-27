@@ -7,6 +7,7 @@ import { CategoryIcon } from '../shared/CategoryIcon';
 import { BudgetProgressBar } from '../budgets/BudgetProgressBar';
 import { useBudgets } from '../../hooks';
 import { Loader } from '../shared/Loader';
+import { getCurrencySymbol } from '../../utils/helpers';
 
 interface BudgetOverviewProps {
   currency: string;
@@ -20,12 +21,8 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
   const budgets = budgetsData?.data || [];
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    const symbol = getCurrencySymbol(currency);
+    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   // Get budgets that need attention (near limit or over)

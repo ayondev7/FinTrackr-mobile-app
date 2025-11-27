@@ -8,7 +8,7 @@ import {
   TransactionHeader, 
 } from '../components/transactions';
 import { TransactionItem, Loader } from '../components/shared';
-import { useInfiniteTransactions, useTransactionStats } from '../hooks';
+import { useInfiniteTransactions, useTransactionStats, useUserProfile } from '../hooks';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
 import { TimePeriod, FilterType, SortBy, Transaction } from '../types';
@@ -23,6 +23,9 @@ export const TransactionsScreen = () => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [sortBy, setSortBy] = useState<SortBy>('date');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
+
+  const { data: userResponse } = useUserProfile();
+  const currency = userResponse?.data?.currency || 'USD';
 
   // Build query params for the API - all filtering is done on backend
   const queryParams = useMemo(() => ({
@@ -99,8 +102,8 @@ export const TransactionsScreen = () => {
 
   // Render transaction item
   const renderItem = useCallback(({ item }: { item: Transaction }) => (
-    <TransactionItem transaction={item} />
-  ), []);
+    <TransactionItem transaction={item} currency={currency} />
+  ), [currency]);
 
   // Show full screen loader on initial load
   if (isLoading) {
@@ -137,6 +140,7 @@ export const TransactionsScreen = () => {
         <TotalsSummary
           totalExpense={totalExpense}
           totalRevenue={totalRevenue}
+          currency={currency}
         />
       </View>
 

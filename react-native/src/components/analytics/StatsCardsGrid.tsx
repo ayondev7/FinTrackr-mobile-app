@@ -1,16 +1,18 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { TrendingUp, TrendingDown, Activity, CreditCard } from 'lucide-react-native';
-import { formatAmount } from '../../utils/helpers';
+import { formatAmount, getCurrencySymbol } from '../../utils/helpers';
 import { AnalyticsStats } from '../../types';
 
 interface StatsCardsGridProps {
   stats: AnalyticsStats;
   isDark: boolean;
+  currency?: string;
 }
 
-export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark }) => {
+export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark, currency = 'USD' }) => {
   const averageDaily = (stats.totalExpense + stats.totalRevenue) / 30;
+  const currencySymbol = getCurrencySymbol(currency);
 
   return (
     <View className="flex-row flex-wrap justify-between gap-y-4 mb-6">
@@ -35,7 +37,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark })
             Avg. Daily Spend
           </Text>
           <Text className="text-blue-900 dark:text-blue-100 text-2xl font-black">
-            ${formatAmount(stats.averageExpense)}
+            {currencySymbol}{formatAmount(stats.averageExpense)}
           </Text>
         </View>
       </View>
@@ -99,7 +101,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark })
             Total Expense
           </Text>
           <Text className="text-red-900 dark:text-red-100 text-2xl font-black">
-            ${formatAmount(stats.totalExpense)}
+            {currencySymbol}{formatAmount(stats.totalExpense)}
           </Text>
         </View>
       </View>
@@ -131,7 +133,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark })
             Total Revenue
           </Text>
           <Text className="text-green-900 dark:text-green-100 text-2xl font-black">
-            ${formatAmount(stats.totalRevenue)}
+            {currencySymbol}{formatAmount(stats.totalRevenue)}
           </Text>
         </View>
       </View>
