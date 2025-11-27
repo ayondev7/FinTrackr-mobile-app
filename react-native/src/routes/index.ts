@@ -9,3 +9,4 @@ export { categoryRoutes } from './categoryRoutes';
 export { budgetRoutes } from './budgetRoutes';
 export { analyticsRoutes } from './analyticsRoutes';
 export { dashboardRoutes } from './dashboardRoutes';
+export { predictionRoutes } from './predictionRoutes';

@@ -43,3 +43,7 @@ export {
   type CreateCategoryInput,
   type UpdateCategoryInput,
 } from "./categoryHooks";
+export {
+  usePredictions,
+  useSpendingInsights,
+} from "./predictionHooks";

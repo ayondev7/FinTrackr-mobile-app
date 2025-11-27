@@ -2,19 +2,19 @@ import React from 'react';
 import { View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Card } from '../shared/Card';
-
-interface Projection {
-  month: string;
-  shortMonth: string;
-  balance: number;
-}
+import { ProjectedBalance } from '../../types';
 
 interface ProjectionChartProps {
-  projections: Projection[];
+  projections: ProjectedBalance[];
   currentBalance: number;
   chartConfig: any;
   screenWidth: number;
 }
+
+const getShortMonth = (monthString: string): string => {
+  const parts = monthString.split(' ');
+  return parts[0].substring(0, 3);
+};
 
 export const ProjectionChart = ({ projections, currentBalance, chartConfig, screenWidth }: ProjectionChartProps) => {
   return (
@@ -24,9 +24,9 @@ export const ProjectionChart = ({ projections, currentBalance, chartConfig, scre
       </Text>
       <LineChart
         data={{
-          labels: ['Now', ...projections.map(p => p.shortMonth)],
+          labels: ['Now', ...projections.map(p => getShortMonth(p.month))],
           datasets: [{
-            data: [currentBalance, ...projections.map(p => p.balance)],
+            data: [currentBalance, ...projections.map(p => p.estimatedBalance)],
           }],
         }}
         width={screenWidth - 80}

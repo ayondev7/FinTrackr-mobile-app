@@ -4,3 +4,4 @@ export * from './user';
 export * from './budget';
 export * from './analytics';
 export * from './dashboard';
+export * from './prediction';

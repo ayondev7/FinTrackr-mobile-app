@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTransactionStore, useUserStore, useThemeStore } from '../store';
+import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
-import { RefreshableScrollView } from '../components/shared';
+import { Loader, RefreshableScrollView } from '../components/shared';
 import { 
   BalanceTrendCard, 
   ProjectionChart, 
@@ -11,47 +11,23 @@ import {
   MonthlyBreakdown, 
   SmartInsights 
 } from '../components/predictions';
+import { usePredictions, useUserProfile } from '../hooks';
 
 export const PredictionsScreen = () => {
   const insets = useSafeAreaInsets();
-  const { transactions } = useTransactionStore();
-  const { user } = useUserStore();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const screenWidth = Dimensions.get('window').width;
   const isDark = theme === 'dark';
 
-  const calculateAverages = () => {
-    const expenses = transactions.filter((txn) => txn.type === 'expense');
-    const totalExpense = expenses.reduce((sum, txn) => sum + txn.amount, 0);
-    const avgMonthlyExpense = totalExpense / 6;
+  const { data: predictionsResponse, isLoading, refetch } = usePredictions({ months: 6 });
+  const { data: userResponse } = useUserProfile();
 
-    const revenues = transactions.filter((txn) => txn.type === 'revenue');
-    const totalRevenue = revenues.reduce((sum, txn) => sum + txn.amount, 0);
-    const avgMonthlyRevenue = totalRevenue / 6;
+  const predictions = predictionsResponse?.data;
+  const user = userResponse?.data;
+  const currency = user?.currency ?? 'USD';
 
-    return { avgMonthlyExpense, avgMonthlyRevenue };
-  };
-
-  const { avgMonthlyExpense, avgMonthlyRevenue } = calculateAverages();
-  const netMonthly = avgMonthlyRevenue - avgMonthlyExpense;
-  const monthsLeft = user.currentBalance / avgMonthlyExpense;
-  const isPositive = netMonthly >= 0;
-
-  const projections = [
-    { month: 'Dec', shortMonth: 'Dec', balance: user.currentBalance + netMonthly },
-    { month: 'Jan', shortMonth: 'Jan', balance: user.currentBalance + netMonthly * 2 },
-    { month: 'Feb', shortMonth: 'Feb', balance: user.currentBalance + netMonthly * 3 },
-    { month: 'Mar', shortMonth: 'Mar', balance: user.currentBalance + netMonthly * 4 },
-    { month: 'Apr', shortMonth: 'Apr', balance: user.currentBalance + netMonthly * 5 },
-    { month: 'May', shortMonth: 'May', balance: user.currentBalance + netMonthly * 6 },
-  ];
-
-  const getStatus = (balance: number) => {
-    if (balance >= user.currentBalance * 1.1) return 'healthy';
-    if (balance >= user.currentBalance * 0.8) return 'warning';
-    return 'critical';
-  };
+  const isPositive = (predictions?.averageMonthlyNet ?? 0) >= 0;
 
   const chartConfig = {
     backgroundColor: themeColors.card,
@@ -73,9 +49,32 @@ export const PredictionsScreen = () => {
   };
 
   const handleRefresh = async () => {
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await refetch();
   };
+
+  if (isLoading) {
+    return (
+      <View 
+        className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center"
+        style={{ paddingTop: insets.top }}
+      >
+        <Loader size={64} />
+      </View>
+    );
+  }
+
+  if (!predictions) {
+    return (
+      <View 
+        className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center"
+        style={{ paddingTop: insets.top }}
+      >
+        <Text className="text-gray-500 dark:text-gray-400">
+          Unable to load predictions
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <RefreshableScrollView 
@@ -93,38 +92,35 @@ export const PredictionsScreen = () => {
         <BalanceTrendCard
           isPositive={isPositive}
           isDark={isDark}
-          netMonthly={netMonthly}
-          currency={user.currency}
+          netMonthly={predictions.averageMonthlyNet}
+          currency={currency}
         />
 
         <ProjectionChart
-          projections={projections}
-          currentBalance={user.currentBalance}
+          projections={predictions.projectedBalances}
+          currentBalance={predictions.currentBalance}
           chartConfig={chartConfig}
           screenWidth={screenWidth}
         />
 
         <AverageCards
-          avgMonthlyExpense={avgMonthlyExpense}
-          avgMonthlyRevenue={avgMonthlyRevenue}
-          netMonthly={netMonthly}
+          avgMonthlyExpense={predictions.averageMonthlyExpense}
+          avgMonthlyRevenue={predictions.averageMonthlyRevenue}
+          netMonthly={predictions.averageMonthlyNet}
           isPositive={isPositive}
-          currency={user.currency}
+          currency={currency}
         />
 
         <MonthlyBreakdown
-          projections={projections}
-          currentBalance={user.currentBalance}
-          netMonthly={netMonthly}
-          currency={user.currency}
-          getStatus={getStatus}
+          projections={predictions.projectedBalances}
+          currentBalance={predictions.currentBalance}
+          netMonthly={predictions.averageMonthlyNet}
+          currency={currency}
         />
 
         <SmartInsights
+          recommendations={predictions.recommendations}
           isPositive={isPositive}
-          netMonthly={netMonthly}
-          projections={projections}
-          currency={user.currency}
         />
       </View>
     </RefreshableScrollView>
