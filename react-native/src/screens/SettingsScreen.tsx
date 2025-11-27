@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useThemeStore, useUserStore, useTransactionStore, useOnboardingStore } from '../store';
+import { useThemeStore, useTransactionStore, useOnboardingStore } from '../store';
 import { colors } from '../constants/theme';
 import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
+import { useUserProfile, useUpdateProfile } from '../hooks';
 import { 
   ProfileCard, 
   ThemeSection, 
@@ -18,17 +19,20 @@ import {
   ExportModal,
   ClearDataModal
 } from '../components/settings';
-import { RefreshableScrollView } from '../components/shared';
+import { RefreshableScrollView, Loader } from '../components/shared';
 
 export const SettingsScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { theme, toggleTheme } = useThemeStore();
-  const { user, updateUser } = useUserStore();
   const { transactions, clearTransactions } = useTransactionStore();
   const { logout, reset: resetOnboarding } = useOnboardingStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
+
+  const { data: userResponse, isLoading, refetch } = useUserProfile();
+  const updateProfile = useUpdateProfile();
+  const user = userResponse?.data;
 
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
@@ -43,12 +47,15 @@ export const SettingsScreen = () => {
   });
 
   const handleRefresh = async () => {
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await refetch();
   };
 
-  const handleCurrencySelect = (currency: string) => {
-    updateUser({ currency });
+  const handleCurrencySelect = async (currency: string) => {
+    try {
+      await updateProfile.mutateAsync({ currency });
+    } catch (error) {
+      console.error('Failed to update currency:', error);
+    }
   };
 
   const handleNotificationUpdate = (key: string, value: boolean) => {
@@ -104,6 +111,17 @@ export const SettingsScreen = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <View 
+        className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center"
+        style={{ paddingTop: insets.top }}
+      >
+        <Loader size={64} />
+      </View>
+    );
+  }
+
   return (
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
@@ -118,7 +136,11 @@ export const SettingsScreen = () => {
           <Settings size={28} color={isDark ? '#FFF' : '#111827'} />
         </View>
 
-        <ProfileCard userName={user.name} userEmail={user.email} />
+        <ProfileCard 
+          userName={user?.name || 'User'} 
+          userEmail={user?.email} 
+          userImage={user?.image}
+        />
 
         <ThemeSection 
           theme={theme} 
@@ -127,7 +149,7 @@ export const SettingsScreen = () => {
         />
 
         <PreferencesSection
-          currency={user.currency}
+          currency={user?.currency || 'USD'}
           successColor={themeColors.success}
           infoColor={themeColors.info}
           warningColor={themeColors.warning}
@@ -189,7 +211,7 @@ export const SettingsScreen = () => {
       <CurrencyModal
         visible={currencyModalVisible}
         onClose={() => setCurrencyModalVisible(false)}
-        selectedCurrency={user.currency}
+        selectedCurrency={user?.currency || 'USD'}
         onSelect={handleCurrencySelect}
       />
 
