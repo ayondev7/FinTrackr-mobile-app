@@ -1,44 +1,110 @@
-import React, { useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, ScrollView, Text, TouchableOpacity, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Input, Card } from '../components';
 import { ScreenHeader, TypeSelector, CategorySelector } from '../components/add-transaction';
-import { useThemeStore } from '../store';
-import { useCategories } from '../hooks';
+import { useThemeStore, useToastStore } from '../store';
+import { useCategories, useCreateTransaction } from '../hooks';
 import { colors } from '../constants/theme';
 import { DollarSign } from 'lucide-react-native';
-import { Text, TouchableOpacity } from 'react-native';
+
+// Validation schema matching backend expectations
+const transactionSchema = z.object({
+  type: z.enum(['expense', 'revenue']),
+  amount: z.string()
+    .min(1, 'Amount is required')
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: 'Amount must be a positive number',
+    }),
+  categoryId: z.string().min(1, 'Please select a category'),
+  accountType: z.enum(['CASH', 'BANK', 'DIGITAL']),
+  name: z.string().optional(),
+  description: z.string().optional(),
+});
+
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
 export const AddTransactionScreen = () => {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { data: categoriesData } = useCategories();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
+  const { showSuccess, showError } = useToastStore();
 
+  const createTransaction = useCreateTransaction();
   const categories = categoriesData?.data || [];
 
-  const [type, setType] = useState<'expense' | 'revenue'>('expense');
-  const [accountType, setAccountType] = useState<'CASH' | 'BANK' | 'DIGITAL'>('CASH');
-  const [amount, setAmount] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm<TransactionFormData>({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      type: 'expense',
+      amount: '',
+      categoryId: '',
+      accountType: 'CASH',
+      name: '',
+      description: '',
+    },
+    mode: 'onChange',
+  });
+
+  const type = watch('type');
+  const categoryId = watch('categoryId');
 
   const filteredCategories = categories.filter(
-    (cat) => (cat.type || '').toLowerCase() === (type === 'expense' ? 'expense' : 'revenue')
+    (cat) => (cat.type || '').toLowerCase() === type
   );
 
-  const handleSubmit = () => {
-    console.log('Transaction submitted', {
-      type,
-      accountType,
-      amount,
-      selectedCategory,
-      name,
-      description
-    });
-    // TODO: Call API to create transaction
+  // Reset category when type changes if current category doesn't match
+  useEffect(() => {
+    if (categoryId) {
+      const selectedCat = categories.find((c) => c.id === categoryId);
+      if (selectedCat && (selectedCat.type || '').toLowerCase() !== type) {
+        setValue('categoryId', '');
+      }
+    }
+  }, [type, categoryId, categories, setValue]);
+
+  const onSubmit = async (data: TransactionFormData) => {
+    Keyboard.dismiss();
+    
+    try {
+      await createTransaction.mutateAsync({
+        type: data.type,
+        amount: parseFloat(data.amount),
+        categoryId: data.categoryId,
+        accountType: data.accountType,
+        name: data.name || undefined,
+        description: data.description || undefined,
+        date: new Date().toISOString(),
+      });
+      
+      showSuccess(
+        'Transaction Added',
+        `Your ${data.type} of $${parseFloat(data.amount).toFixed(2)} has been recorded.`
+      );
+      navigation.goBack();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create transaction. Please try again.';
+      showError('Error', errorMessage);
+    }
+  };
+
+  const handleClose = () => {
+    if (!createTransaction.isPending) {
+      navigation.goBack();
+    }
   };
 
   return (
@@ -46,18 +112,25 @@ export const AddTransactionScreen = () => {
       <View style={{ paddingTop: insets.top }}>
         <ScreenHeader
           title="Add Transaction"
-          onClose={() => {}}
-          onSave={handleSubmit}
-          canSave={!!amount.trim() && !!selectedCategory}
+          onClose={handleClose}
+          onSave={handleSubmit(onSubmit)}
+          canSave={isValid && !createTransaction.isPending}
           saveColor={themeColors.primary}
           isDark={isDark}
+          isLoading={createTransaction.isPending}
         />
       </View>
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
         <View className="p-4">
 
         <Card className="mb-6">
-          <TypeSelector type={type} onTypeChange={setType} isDark={isDark} />
+          <Controller
+            control={control}
+            name="type"
+            render={({ field: { value, onChange } }) => (
+              <TypeSelector type={value} onTypeChange={onChange} isDark={isDark} />
+            )}
+          />
         </Card>
 
         <Card className="mb-6">
@@ -66,72 +139,117 @@ export const AddTransactionScreen = () => {
               Account Type
             </Text>
           </View>
-          <View className="flex-row gap-2">
-            {(['CASH', 'BANK', 'DIGITAL'] as const).map((acc) => (
-              <TouchableOpacity
-                key={acc}
-                onPress={() => setAccountType(acc)}
-                className={`flex-1 py-3 rounded-xl items-center justify-center border ${
-                  accountType === acc
-                    ? 'bg-indigo-600 border-indigo-600'
-                    : isDark
-                    ? 'bg-slate-800 border-slate-700'
-                    : 'bg-white border-gray-200'
-                }`}
-              >
-                <Text
-                  className={`font-semibold ${
-                    accountType === acc
-                      ? 'text-white'
-                      : isDark
-                      ? 'text-gray-300'
-                      : 'text-gray-700'
-                  }`}
-                >
-                  {acc === 'CASH' ? 'Cash' : acc === 'BANK' ? 'Bank' : 'Digital'}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Card>
-
-        <Card className="mb-6">
-          <Input
-            label="Amount *"
-            placeholder="0.00"
-            keyboardType="decimal-pad"
-            value={amount}
-            onChangeText={setAmount}
-            icon={<DollarSign size={20} color="#9CA3AF" />}
+          <Controller
+            control={control}
+            name="accountType"
+            render={({ field: { value, onChange } }) => (
+              <View className="flex-row gap-2">
+                {(['CASH', 'BANK', 'DIGITAL'] as const).map((acc) => (
+                  <TouchableOpacity
+                    key={acc}
+                    onPress={() => onChange(acc)}
+                    disabled={createTransaction.isPending}
+                    className={`flex-1 py-3 rounded-xl items-center justify-center border ${
+                      value === acc
+                        ? 'bg-indigo-600 border-indigo-600'
+                        : isDark
+                        ? 'bg-slate-800 border-slate-700'
+                        : 'bg-white border-gray-200'
+                    }`}
+                  >
+                    <Text
+                      className={`font-semibold ${
+                        value === acc
+                          ? 'text-white'
+                          : isDark
+                          ? 'text-gray-300'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {acc === 'CASH' ? 'Cash' : acc === 'BANK' ? 'Bank' : 'Digital'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           />
         </Card>
 
         <Card className="mb-6">
-          <CategorySelector
-            categories={filteredCategories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            textColor={themeColors.text.secondary}
+          <Controller
+            control={control}
+            name="amount"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <Input
+                label="Amount *"
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                icon={<DollarSign size={20} color="#9CA3AF" />}
+                error={errors.amount?.message}
+                editable={!createTransaction.isPending}
+              />
+            )}
           />
         </Card>
 
         <Card className="mb-6">
-          <Input
-            label="Name (Optional)"
-            placeholder="Transaction name"
-            value={name}
-            onChangeText={setName}
+          <Controller
+            control={control}
+            name="categoryId"
+            render={({ field: { value, onChange } }) => (
+              <View>
+                <CategorySelector
+                  categories={filteredCategories}
+                  selectedCategory={value}
+                  onSelectCategory={onChange}
+                  textColor={themeColors.text.secondary}
+                />
+                {errors.categoryId && (
+                  <Text className="text-red-500 text-xs mt-2 ml-1">
+                    {errors.categoryId.message}
+                  </Text>
+                )}
+              </View>
+            )}
           />
         </Card>
 
         <Card className="mb-6">
-          <Input
-            label="Description (Optional)"
-            placeholder="Add notes..."
-            value={description}
-            onChangeText={setDescription}
-            multiline={true}
-            numberOfLines={3}
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <Input
+                label="Name (Optional)"
+                placeholder="Transaction name"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                editable={!createTransaction.isPending}
+              />
+            )}
+          />
+        </Card>
+
+        <Card className="mb-6">
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { value, onChange, onBlur } }) => (
+              <Input
+                label="Description (Optional)"
+                placeholder="Add notes..."
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                multiline={true}
+                numberOfLines={3}
+                editable={!createTransaction.isPending}
+              />
+            )}
           />
         </Card>
 

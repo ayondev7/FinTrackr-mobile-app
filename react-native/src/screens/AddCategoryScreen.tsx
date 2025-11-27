@@ -1,15 +1,30 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Card } from '../components';
 import { ScreenHeader, TypeSelector } from '../components/add-transaction';
 import { CategoryPreview, CategoryNameInput, ColorPicker, IconPicker } from '../components/add-category';
-import { useThemeStore } from '../store';
+import { useThemeStore, useToastStore } from '../store';
 import { useCreateCategory } from '../hooks';
 import { colors } from '../constants/theme';
 import { ICON_OPTIONS, COLOR_OPTIONS } from '../constants';
 import { ShoppingCart } from 'lucide-react-native';
+
+// Validation schema matching backend expectations
+const categorySchema = z.object({
+  name: z.string()
+    .min(1, 'Category name is required')
+    .max(50, 'Category name must be less than 50 characters'),
+  type: z.enum(['EXPENSE', 'REVENUE']),
+  color: z.string().min(1, 'Please select a color'),
+  icon: z.string().min(1, 'Please select an icon'),
+});
+
+type CategoryFormData = z.infer<typeof categorySchema>;
 
 export const AddCategoryScreen = () => {
   const navigation = useNavigation();
@@ -17,13 +32,28 @@ export const AddCategoryScreen = () => {
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
+  const { showSuccess, showError } = useToastStore();
 
   const createCategory = useCreateCategory();
 
-  const [categoryName, setCategoryName] = useState('');
-  const [selectedType, setSelectedType] = useState<'EXPENSE' | 'REVENUE'>('EXPENSE');
-  const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
-  const [selectedIcon, setSelectedIcon] = useState(ICON_OPTIONS[0].name);
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<CategoryFormData>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      name: '',
+      type: 'EXPENSE',
+      color: COLOR_OPTIONS[0],
+      icon: ICON_OPTIONS[0].name,
+    },
+    mode: 'onChange',
+  });
+
+  const selectedColor = watch('color');
+  const selectedIcon = watch('icon');
 
   const getIconComponent = (iconName: string) => {
     const icon = ICON_OPTIONS.find(i => i.name === iconName);
@@ -32,20 +62,32 @@ export const AddCategoryScreen = () => {
 
   const IconComponent = getIconComponent(selectedIcon);
 
-  const handleSave = async () => {
-    if (!categoryName.trim() || createCategory.isPending) return;
-
+  const onSubmit = async (data: CategoryFormData) => {
+    Keyboard.dismiss();
+    
     try {
       await createCategory.mutateAsync({
-        name: categoryName.trim(),
-        type: selectedType,
-        color: selectedColor,
-        icon: selectedIcon,
+        name: data.name.trim(),
+        type: data.type,
+        color: data.color,
+        icon: data.icon,
         isPinned: false,
       });
+      
+      showSuccess(
+        'Category Created',
+        `"${data.name.trim()}" has been added to your categories.`
+      );
       navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to create category. Please try again.');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create category. Please try again.';
+      showError('Error', errorMessage);
+    }
+  };
+
+  const handleClose = () => {
+    if (!createCategory.isPending) {
+      navigation.goBack();
     }
   };
 
@@ -57,27 +99,43 @@ export const AddCategoryScreen = () => {
       >
         <ScreenHeader
           title="New Category"
-          onClose={() => navigation.goBack()}
-          onSave={handleSave}
-          canSave={!!categoryName.trim() && !createCategory.isPending}
+          onClose={handleClose}
+          onSave={handleSubmit(onSubmit)}
+          canSave={isValid && !createCategory.isPending}
           saveColor={selectedColor}
           isDark={isDark}
+          isLoading={createCategory.isPending}
         />
 
         <CategoryPreview color={selectedColor} IconComponent={IconComponent} />
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
         <View className="p-6">
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Category Name
             </Text>
-            <CategoryNameInput
-              value={categoryName}
-              onChangeText={setCategoryName}
-              color={selectedColor}
-              isDark={isDark}
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <View>
+                  <CategoryNameInput
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    color={selectedColor}
+                    isDark={isDark}
+                    editable={!createCategory.isPending}
+                  />
+                  {errors.name && (
+                    <Text className="text-red-500 text-xs mt-2 ml-1">
+                      {errors.name.message}
+                    </Text>
+                  )}
+                </View>
+              )}
             />
           </Card>
 
@@ -85,10 +143,17 @@ export const AddCategoryScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Category Type
             </Text>
-            <TypeSelector 
-              type={selectedType === 'EXPENSE' ? 'expense' : 'revenue'} 
-              onTypeChange={(type) => setSelectedType(type === 'expense' ? 'EXPENSE' : 'REVENUE')} 
-              isDark={isDark} 
+            <Controller
+              control={control}
+              name="type"
+              render={({ field: { value, onChange } }) => (
+                <TypeSelector 
+                  type={value === 'EXPENSE' ? 'expense' : 'revenue'} 
+                  onTypeChange={(type) => onChange(type === 'expense' ? 'EXPENSE' : 'REVENUE')} 
+                  isDark={isDark}
+                  disabled={createCategory.isPending}
+                />
+              )}
             />
           </Card>
 
@@ -96,10 +161,17 @@ export const AddCategoryScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Choose Color
             </Text>
-            <ColorPicker
-              colors={COLOR_OPTIONS}
-              selectedColor={selectedColor}
-              onSelectColor={setSelectedColor}
+            <Controller
+              control={control}
+              name="color"
+              render={({ field: { value, onChange } }) => (
+                <ColorPicker
+                  colors={COLOR_OPTIONS}
+                  selectedColor={value}
+                  onSelectColor={onChange}
+                  disabled={createCategory.isPending}
+                />
+              )}
             />
           </Card>
 
@@ -107,12 +179,19 @@ export const AddCategoryScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Choose Icon
             </Text>
-            <IconPicker
-              icons={ICON_OPTIONS}
-              selectedIcon={selectedIcon}
-              onSelectIcon={setSelectedIcon}
-              selectedColor={selectedColor}
-              isDark={isDark}
+            <Controller
+              control={control}
+              name="icon"
+              render={({ field: { value, onChange } }) => (
+                <IconPicker
+                  icons={ICON_OPTIONS}
+                  selectedIcon={value}
+                  onSelectIcon={onChange}
+                  selectedColor={selectedColor}
+                  isDark={isDark}
+                  disabled={createCategory.isPending}
+                />
+              )}
             />
           </Card>
         </View>

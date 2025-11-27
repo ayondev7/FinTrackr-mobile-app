@@ -4,15 +4,19 @@ import { TextInput } from 'react-native';
 interface CategoryNameInputProps {
   value: string;
   onChangeText: (text: string) => void;
+  onBlur?: () => void;
   color: string;
   isDark?: boolean;
+  editable?: boolean;
 }
 
 export const CategoryNameInput: React.FC<CategoryNameInputProps> = ({
   value,
   onChangeText,
+  onBlur,
   color,
   isDark = false,
+  editable = true,
 }) => {
   return (
     <TextInput
@@ -21,9 +25,12 @@ export const CategoryNameInput: React.FC<CategoryNameInputProps> = ({
       placeholderTextColor={isDark ? '#9CA3AF' : '#6B7280'}
       value={value}
       onChangeText={onChangeText}
+      onBlur={onBlur}
+      editable={editable}
       style={{ 
         borderWidth: 2,
-        borderColor: value ? color : isDark ? '#334155' : '#E5E7EB'
+        borderColor: value ? color : isDark ? '#334155' : '#E5E7EB',
+        opacity: editable ? 1 : 0.6
       }}
     />
   );

@@ -12,6 +12,7 @@ interface IconPickerProps {
   onSelectIcon: (iconName: string) => void;
   selectedColor: string;
   isDark?: boolean;
+  disabled?: boolean;
 }
 
 export const IconPicker: React.FC<IconPickerProps> = ({
@@ -20,15 +21,17 @@ export const IconPicker: React.FC<IconPickerProps> = ({
   onSelectIcon,
   selectedColor,
   isDark = false,
+  disabled = false,
 }) => {
   return (
-    <View className="flex-row flex-wrap gap-3">
+    <View className="flex-row flex-wrap gap-3" style={{ opacity: disabled ? 0.6 : 1 }}>
       {icons.map((icon) => {
         const Icon = icon.component;
         return (
           <TouchableOpacity
             key={icon.name}
             onPress={() => onSelectIcon(icon.name)}
+            disabled={disabled}
             className="w-14 h-14 rounded-xl items-center justify-center"
             style={{ 
               backgroundColor: selectedIcon === icon.name 

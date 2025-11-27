@@ -6,17 +6,19 @@ interface TypeSelectorProps {
   type: 'expense' | 'revenue';
   onTypeChange: (type: 'expense' | 'revenue') => void;
   isDark?: boolean;
+  disabled?: boolean;
 }
 
-export const TypeSelector: React.FC<TypeSelectorProps> = ({ type, onTypeChange, isDark = false }) => {
+export const TypeSelector: React.FC<TypeSelectorProps> = ({ type, onTypeChange, isDark = false, disabled = false }) => {
   return (
-    <View>
+    <View style={{ opacity: disabled ? 0.6 : 1 }}>
       <Text className="text-gray-700 dark:text-gray-300 font-medium mb-3">
         Transaction Type
       </Text>
       <View className="flex-row gap-3">
         <TouchableOpacity
           onPress={() => onTypeChange('expense')}
+          disabled={disabled}
           className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
             type === 'expense' ? 'bg-red-500' : 'bg-gray-100 dark:bg-slate-700'
           }`}
@@ -36,6 +38,7 @@ export const TypeSelector: React.FC<TypeSelectorProps> = ({ type, onTypeChange, 
 
         <TouchableOpacity
           onPress={() => onTypeChange('revenue')}
+          disabled={disabled}
           className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
             type === 'revenue' ? 'bg-green-500' : 'bg-gray-100 dark:bg-slate-700'
           }`}

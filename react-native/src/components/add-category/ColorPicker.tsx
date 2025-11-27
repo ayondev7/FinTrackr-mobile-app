@@ -6,19 +6,22 @@ interface ColorPickerProps {
   colors: string[];
   selectedColor: string;
   onSelectColor: (color: string) => void;
+  disabled?: boolean;
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
   colors,
   selectedColor,
   onSelectColor,
+  disabled = false,
 }) => {
   return (
-    <View className="flex-row flex-wrap gap-3">
+    <View className="flex-row flex-wrap gap-3" style={{ opacity: disabled ? 0.6 : 1 }}>
       {colors.map((color) => (
         <TouchableOpacity
           key={color}
           onPress={() => onSelectColor(color)}
+          disabled={disabled}
           className="w-14 h-14 rounded-xl items-center justify-center"
           style={{ 
             backgroundColor: color,
