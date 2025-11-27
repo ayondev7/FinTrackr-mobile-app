@@ -47,3 +47,9 @@ export {
   usePredictions,
   useSpendingInsights,
 } from "./predictionHooks";
+export {
+  useAnalytics,
+  useMonthlyOverview,
+  useBalanceTrend,
+  useCategoryStats,
+} from "./analyticsHooks";

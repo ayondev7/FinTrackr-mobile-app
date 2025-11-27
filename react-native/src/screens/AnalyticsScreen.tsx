@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AnalyticsTypeFilter,
@@ -8,24 +8,34 @@ import {
   BalanceTrendChart,
   DistributionChart,
 } from '../components/analytics';
-import { useTransactionStore, useThemeStore, useUserStore } from '../store';
+import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
-import { RefreshableScrollView } from '../components/shared';
+import { Loader, RefreshableScrollView } from '../components/shared';
+import { useAnalytics, useMonthlyOverview, useUserProfile } from '../hooks';
+import { AnalyticsType } from '../types';
 
 export const AnalyticsScreen = () => {
   const insets = useSafeAreaInsets();
-  const { transactions } = useTransactionStore();
   const { theme } = useThemeStore();
-  const { user } = useUserStore();
   const themeColors = colors[theme];
   const screenWidth = Dimensions.get('window').width;
   const isDark = theme === 'dark';
   
-  const [analyticsType, setAnalyticsType] = useState<'expense' | 'revenue' | 'both'>('expense');
+  const [analyticsType, setAnalyticsType] = useState<AnalyticsType>('expense');
+
+  const { data: analyticsResponse, isLoading: isLoadingAnalytics, refetch: refetchAnalytics } = useAnalytics({ type: analyticsType });
+  const { data: monthlyResponse, isLoading: isLoadingMonthly, refetch: refetchMonthly } = useMonthlyOverview();
+  const { data: userResponse } = useUserProfile();
+
+  const analytics = analyticsResponse?.data;
+  const monthlyData = monthlyResponse?.data ?? [];
+  const user = userResponse?.data;
+  const currentBalance = (user?.cashBalance ?? 0) + (user?.bankBalance ?? 0) + (user?.digitalBalance ?? 0);
+
+  const isLoading = isLoadingAnalytics || isLoadingMonthly;
 
   const handleRefresh = async () => {
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await Promise.all([refetchAnalytics(), refetchMonthly()]);
   };
 
   const chartConfig = {
@@ -45,55 +55,27 @@ export const AnalyticsScreen = () => {
     }
   };
 
-  const getFilteredTransactions = () => {
-    if (analyticsType === 'both') return transactions;
-    return transactions.filter((txn) => txn.type === analyticsType);
+  if (isLoading) {
+    return (
+      <View 
+        className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center"
+        style={{ paddingTop: insets.top }}
+      >
+        <Loader size={64} />
+      </View>
+    );
+  }
+
+  const defaultStats = {
+    totalExpense: 0,
+    totalRevenue: 0,
+    netIncome: 0,
+    expenseCount: 0,
+    revenueCount: 0,
+    totalTransactions: 0,
+    averageExpense: 0,
+    averageRevenue: 0,
   };
-
-  const expenseData = transactions
-    .filter((txn) => txn.type === 'expense')
-    .reduce((acc: any[], txn) => {
-      const existing = acc.find((item) => item.name === txn.category);
-      if (existing) {
-        existing.amount += txn.amount;
-      } else {
-        acc.push({ name: txn.category, amount: txn.amount });
-      }
-      return acc;
-    }, []);
-
-  const revenueData = transactions
-    .filter((txn) => txn.type === 'revenue')
-    .reduce((acc: any[], txn) => {
-      const existing = acc.find((item) => item.name === txn.category);
-      if (existing) {
-        existing.amount += txn.amount;
-      } else {
-        acc.push({ name: txn.category, amount: txn.amount });
-      }
-      return acc;
-    }, []);
-
-  const getChartData = () => {
-    let dataToUse = [];
-    if (analyticsType === 'expense') {
-      dataToUse = expenseData;
-    } else if (analyticsType === 'revenue') {
-      dataToUse = revenueData;
-    } else {
-      dataToUse = [...expenseData, ...revenueData];
-    }
-    return dataToUse;
-  };
-
-  const chartData = getChartData();
-  const pieData = chartData.map((item, index) => ({
-    name: item.name,
-    amount: item.amount,
-    color: Object.values(themeColors.chart)[index % 10],
-    legendFontColor: isDark ? '#F1F5F9' : '#111827',
-    legendFontSize: 12,
-  }));
 
   return (
     <RefreshableScrollView 
@@ -112,7 +94,7 @@ export const AnalyticsScreen = () => {
         />
 
         <StatsCardsGrid
-          transactionCount={transactions.length}
+          stats={analytics?.stats ?? defaultStats}
           isDark={isDark}
         />
 
@@ -120,19 +102,22 @@ export const AnalyticsScreen = () => {
           screenWidth={screenWidth}
           analyticsType={analyticsType}
           chartConfig={chartConfig}
+          monthlyData={monthlyData}
         />
 
         <BalanceTrendChart
           screenWidth={screenWidth}
           chartConfig={chartConfig}
+          monthlyData={monthlyData}
+          currentBalance={currentBalance}
         />
 
         <DistributionChart
           analyticsType={analyticsType}
-          pieData={pieData}
-          chartData={chartData}
+          categoryBreakdown={analytics?.categoryBreakdown ?? []}
           chartConfig={chartConfig}
           isDark={isDark}
+          chartColors={themeColors.chart}
         />
       </View>
     </RefreshableScrollView>

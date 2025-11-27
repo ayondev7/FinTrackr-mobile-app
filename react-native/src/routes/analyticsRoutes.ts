@@ -1,8 +1,8 @@
 const BASE = '/analytics';
 
 export const analyticsRoutes = {
-  overview: `${BASE}/overview`,
-  spending: `${BASE}/spending`,
-  income: `${BASE}/income`,
-  trends: `${BASE}/trends`,
+  analytics: BASE,
+  monthly: `${BASE}/monthly`,
+  balanceTrend: `${BASE}/balance-trend`,
+  categoryStats: `${BASE}/category-stats`,
 };

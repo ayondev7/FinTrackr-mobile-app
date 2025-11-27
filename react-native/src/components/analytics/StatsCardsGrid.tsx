@@ -2,13 +2,16 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { TrendingUp, TrendingDown, Activity, CreditCard } from 'lucide-react-native';
 import { formatAmount } from '../../utils/helpers';
+import { AnalyticsStats } from '../../types';
 
 interface StatsCardsGridProps {
-  transactionCount: number;
+  stats: AnalyticsStats;
   isDark: boolean;
 }
 
-export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount, isDark }) => {
+export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark }) => {
+  const averageDaily = (stats.totalExpense + stats.totalRevenue) / 30;
+
   return (
     <View className="flex-row flex-wrap justify-between gap-y-4 mb-6">
       <View className="w-[48%]">
@@ -27,18 +30,12 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
             >
               <Activity size={24} color="#FFFFFF" />
             </View>
-            <View 
-              className="px-3 py-1.5 rounded-full shadow-sm"
-              style={{ backgroundColor: '#10B981' }}
-            >
-              <Text className="text-white text-xs font-bold">↗ 12%</Text>
-            </View>
           </View>
           <Text className="text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wide mb-1">
-            Avg. Daily
+            Avg. Daily Spend
           </Text>
           <Text className="text-blue-900 dark:text-blue-100 text-2xl font-black">
-            ${formatAmount(42.50)}
+            ${formatAmount(stats.averageExpense)}
           </Text>
         </View>
       </View>
@@ -63,14 +60,14 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
               className="w-8 h-8 rounded-full items-center justify-center"
               style={{ backgroundColor: isDark ? '#8B5CF6' : '#A78BFA' }}
             >
-              <Text className="text-white text-lg font-bold">{transactionCount}</Text>
+              <Text className="text-white text-lg font-bold">{stats.totalTransactions}</Text>
             </View>
           </View>
           <Text className="text-purple-600 dark:text-purple-300 text-xs font-bold uppercase tracking-wide mb-1">
-            Total Txns
+            Transactions
           </Text>
           <Text className="text-purple-900 dark:text-purple-100 text-2xl font-black">
-            {transactionCount} Txns
+            {stats.totalTransactions}
           </Text>
         </View>
       </View>
@@ -95,14 +92,14 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
               className="px-2 py-1 rounded-lg"
               style={{ backgroundColor: isDark ? '#7F1D1D' : '#FEE2E2' }}
             >
-              <Text className="text-red-600 dark:text-red-400 text-xs font-bold">MAX</Text>
+              <Text className="text-red-600 dark:text-red-400 text-xs font-bold">{stats.expenseCount}</Text>
             </View>
           </View>
           <Text className="text-red-600 dark:text-red-300 text-xs font-bold uppercase tracking-wide mb-1">
-            Max Expense
+            Total Expense
           </Text>
           <Text className="text-red-900 dark:text-red-100 text-2xl font-black">
-            ${formatAmount(250.00)}
+            ${formatAmount(stats.totalExpense)}
           </Text>
         </View>
       </View>
@@ -127,14 +124,14 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ transactionCount
               className="px-2 py-1 rounded-lg"
               style={{ backgroundColor: isDark ? '#065F46' : '#D1FAE5' }}
             >
-              <Text className="text-green-600 dark:text-green-400 text-xs font-bold">TOP</Text>
+              <Text className="text-green-600 dark:text-green-400 text-xs font-bold">{stats.revenueCount}</Text>
             </View>
           </View>
           <Text className="text-green-600 dark:text-green-300 text-xs font-bold uppercase tracking-wide mb-1">
-            Max Revenue
+            Total Revenue
           </Text>
           <Text className="text-green-900 dark:text-green-100 text-2xl font-black">
-            ${formatAmount(5000.00)}
+            ${formatAmount(stats.totalRevenue)}
           </Text>
         </View>
       </View>

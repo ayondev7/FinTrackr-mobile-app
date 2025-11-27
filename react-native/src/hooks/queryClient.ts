@@ -1,5 +1,13 @@
 import { QueryClient } from '@tanstack/react-query';
-import { TransactionListParams, TransactionStatsParams, PredictionsParams } from '../types';
+import { 
+  TransactionListParams, 
+  TransactionStatsParams, 
+  PredictionsParams,
+  AnalyticsParams,
+  MonthlyOverviewParams,
+  BalanceTrendParams,
+  CategoryStatsParams,
+} from '../types';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,10 +41,10 @@ export const queryKeys = {
     detail: (id: string) => ['budget', 'detail', id] as const,
   },
   analytics: {
-    overview: ['analytics', 'overview'] as const,
-    spending: ['analytics', 'spending'] as const,
-    income: ['analytics', 'income'] as const,
-    trends: ['analytics', 'trends'] as const,
+    data: (params?: AnalyticsParams) => ['analytics', 'data', params] as const,
+    monthly: (params?: MonthlyOverviewParams) => ['analytics', 'monthly', params] as const,
+    balanceTrend: (params?: BalanceTrendParams) => ['analytics', 'balanceTrend', params] as const,
+    categoryStats: (params?: CategoryStatsParams) => ['analytics', 'categoryStats', params] as const,
   },
   dashboard: {
     summary: ['dashboard', 'summary'] as const,

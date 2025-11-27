@@ -23,13 +23,10 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
           <TrendingDown size={20} color="#EF4444" />
         </View>
         <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-          Avg. Expense/Month
+          Monthly Expense
         </Text>
         <Text className="text-red-500 text-lg font-bold">
           {formatCurrency(avgMonthlyExpense, currency)}
-        </Text>
-        <Text className="text-gray-400 dark:text-gray-500 text-[10px] mt-1">
-          Based on last 6 months
         </Text>
       </Card>
 
@@ -41,13 +38,10 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
           <TrendingUp size={20} color="#10B981" />
         </View>
         <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-          Avg. Revenue/Month
+          Monthly Revenue
         </Text>
         <Text className="text-green-500 text-lg font-bold">
           {formatCurrency(avgMonthlyRevenue, currency)}
-        </Text>
-        <Text className="text-gray-400 dark:text-gray-500 text-[10px] mt-1">
-          Based on last 6 months
         </Text>
       </Card>
 
@@ -63,7 +57,7 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
           )}
         </View>
         <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-          Avg. Net/Month
+          Net Change
         </Text>
         <Text
           className="text-lg font-bold"
@@ -71,9 +65,6 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
         >
           {isPositive ? '+' : ''}
           {formatCurrency(netMonthly, currency)}
-        </Text>
-        <Text className="text-gray-400 dark:text-gray-500 text-[10px] mt-1">
-          Based on last 6 months
         </Text>
       </Card>
     </View>

@@ -3,21 +3,22 @@ import { View, Text } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { Card } from '../shared/Card';
 import { formatAmount } from '../../utils/helpers';
+import { CategoryBreakdown, AnalyticsType } from '../../types';
 
 interface DistributionChartProps {
-  analyticsType: 'expense' | 'revenue' | 'both';
-  pieData: any[];
-  chartData: any[];
+  analyticsType: AnalyticsType;
+  categoryBreakdown: CategoryBreakdown[];
   chartConfig: any;
   isDark: boolean;
+  chartColors: Record<string, string>;
 }
 
 export const DistributionChart: React.FC<DistributionChartProps> = ({
   analyticsType,
-  pieData,
-  chartData,
+  categoryBreakdown,
   chartConfig,
   isDark,
+  chartColors,
 }) => {
   const getTitle = () => {
     if (analyticsType === 'expense') return 'Expense Distribution';
@@ -29,6 +30,20 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
     if (analyticsType === 'both') return 'No transaction data available';
     return `No ${analyticsType} data available`;
   };
+
+  const filteredData = analyticsType === 'both' 
+    ? categoryBreakdown 
+    : categoryBreakdown.filter(item => item.categoryType.toLowerCase() === analyticsType);
+
+  const totalAmount = filteredData.reduce((sum, item) => sum + item.amount, 0);
+
+  const pieData = filteredData.map((item, index) => ({
+    name: item.categoryName,
+    amount: item.amount,
+    color: item.categoryColor || Object.values(chartColors)[index % 10],
+    legendFontColor: isDark ? '#F1F5F9' : '#111827',
+    legendFontSize: 12,
+  }));
 
   return (
     <Card className="mb-6 p-4">
@@ -56,7 +71,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
             >
               <Text className="text-gray-500 dark:text-gray-400 text-xs">Total</Text>
               <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                ${formatAmount(chartData.reduce((sum, item) => sum + item.amount, 0))}
+                ${formatAmount(totalAmount)}
               </Text>
             </View>
           </View>
@@ -69,7 +84,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
                   style={{ backgroundColor: item.color }} 
                 />
                 <Text className="text-gray-600 dark:text-gray-300 text-xs">
-                  {item.name} ({Math.round((item.amount / chartData.reduce((sum, i) => sum + i.amount, 0)) * 100)}%)
+                  {item.name} ({Math.round((item.amount / totalAmount) * 100)}%)
                 </Text>
               </View>
             ))}

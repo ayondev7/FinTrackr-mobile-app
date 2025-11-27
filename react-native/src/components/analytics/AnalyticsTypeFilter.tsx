@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { AnalyticsType } from '../../types';
 
 interface AnalyticsTypeFilterProps {
-  analyticsType: 'expense' | 'revenue' | 'both';
-  onSelect: (type: 'expense' | 'revenue' | 'both') => void;
+  analyticsType: AnalyticsType;
+  onSelect: (type: AnalyticsType) => void;
 }
 
 export const AnalyticsTypeFilter: React.FC<AnalyticsTypeFilterProps> = ({ analyticsType, onSelect }) => {
