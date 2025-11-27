@@ -8,7 +8,7 @@ import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
-import { useUserProfile, useUpdateProfile, useClearUserData } from '../hooks';
+import { useUserProfile, useUpdateProfile, useClearUserData, useExportUserData } from '../hooks';
 import { CURRENCIES } from '../constants';
 import { 
   ProfileCard, 
@@ -35,6 +35,7 @@ export const SettingsScreen = () => {
   const { data: userResponse, isLoading, refetch } = useUserProfile();
   const updateProfile = useUpdateProfile();
   const clearUserData = useClearUserData();
+  const exportUserData = useExportUserData();
   const user = userResponse?.data;
 
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
@@ -70,8 +71,16 @@ export const SettingsScreen = () => {
     setNotificationSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleExportData = (format: 'csv' | 'json' | 'pdf') => {
-    console.log(`Exporting data as ${format}`);
+  const handleExportData = async (format: 'csv' | 'json' | 'pdf') => {
+    try {
+      const result = await exportUserData.mutateAsync();
+      showSuccess('Export Ready', `Your data is ready to be saved as ${format.toUpperCase()}.`);
+      return result.data;
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to export data';
+      showError('Export Failed', errorMessage);
+      return null;
+    }
   };
 
   const handleClearData = async () => {
@@ -249,6 +258,7 @@ export const SettingsScreen = () => {
         onClose={() => setExportModalVisible(false)}
         primaryColor={themeColors.primary}
         onExport={handleExportData}
+        isLoading={exportUserData.isPending}
       />
 
       <ClearDataModal
