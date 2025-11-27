@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../shared/Card';
+import { Loader } from '../shared/Loader';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { Pin } from 'lucide-react-native';
 import { useUpdateCategory, CategoryWithCount } from '../../hooks';
+import { useToastStore } from '../../store';
 
 interface CategoryItemProps {
   category: CategoryWithCount;
@@ -13,16 +15,26 @@ interface CategoryItemProps {
 
 export const CategoryItem = ({ category, onPress, refetch }: CategoryItemProps) => {
   const updateCategory = useUpdateCategory();
+  const { showSuccess, showError } = useToastStore();
   
   const handleTogglePin = async () => {
+    if (updateCategory.isPending) return;
+    
+    const newPinnedState = !category.isPinned;
+    
     try {
       await updateCategory.mutateAsync({
         id: category.id,
-        data: { isPinned: !category.isPinned },
+        data: { isPinned: newPinnedState },
       });
       refetch();
-    } catch (error) {
-      console.error('Failed to toggle pin:', error);
+      showSuccess(
+        newPinnedState ? 'Category Pinned' : 'Category Unpinned',
+        `"${category.name}" has been ${newPinnedState ? 'pinned to' : 'removed from'} quick actions.`
+      );
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update category. Please try again.';
+      showError('Error', errorMessage);
     }
   };
 
@@ -32,6 +44,7 @@ export const CategoryItem = ({ category, onPress, refetch }: CategoryItemProps) 
         className="flex-row items-center justify-between"
         onPress={onPress}
         activeOpacity={0.7}
+        disabled={updateCategory.isPending}
       >
         <View className="flex-row items-center gap-3 flex-1">
           <View
@@ -68,11 +81,15 @@ export const CategoryItem = ({ category, onPress, refetch }: CategoryItemProps) 
           activeOpacity={0.7}
           disabled={updateCategory.isPending}
         >
-          <Pin 
-            size={20} 
-            color={category.isPinned ? category.color : '#9CA3AF'}
-            fill={category.isPinned ? category.color : 'transparent'}
-          />
+          {updateCategory.isPending ? (
+            <Loader size={20} color={category.color} />
+          ) : (
+            <Pin 
+              size={20} 
+              color={category.isPinned ? category.color : '#9CA3AF'}
+              fill={category.isPinned ? category.color : 'transparent'}
+            />
+          )}
         </TouchableOpacity>
       </TouchableOpacity>
     </Card>

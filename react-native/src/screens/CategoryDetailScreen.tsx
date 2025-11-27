@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { useUserStore, useThemeStore } from '../store';
+import { useUserStore, useThemeStore, useToastStore } from '../store';
 import { useCategory, useCategoryTransactions, useUpdateCategory, useDeleteCategory } from '../hooks';
 import { ArrowLeft, Pencil, Trash2, X } from 'lucide-react-native';
 import { CategoryOverview, TimeBreakdown, RecentTransactionsList } from '../components/category-detail';
+import { Loader } from '../components/shared';
 import { colors } from '../constants/theme';
 
 type CategoryDetailRouteParams = {
@@ -20,11 +21,13 @@ export const CategoryDetailScreen = () => {
   const insets = useSafeAreaInsets();
   const { user } = useUserStore();
   const { theme } = useThemeStore();
+  const { showSuccess, showError } = useToastStore();
   const themeColors = colors[theme];
 
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [editNameError, setEditNameError] = useState('');
 
   const categoryId = route.params?.categoryId;
   const { data: categoryData, isLoading: categoryLoading } = useCategory(categoryId || '');
@@ -40,20 +43,37 @@ export const CategoryDetailScreen = () => {
   const handleEditPress = () => {
     if (category) {
       setEditedName(category.name);
+      setEditNameError('');
       setIsEditModalVisible(true);
     }
   };
 
-  const handleSaveEdit = () => {
-    if (editedName.trim() && categoryId) {
-      updateCategoryMutation.mutate(
-        { id: categoryId, data: { name: editedName.trim() } },
-        {
-          onSuccess: () => {
-            setIsEditModalVisible(false);
-          },
-        }
-      );
+  const validateEditName = (): boolean => {
+    if (!editedName.trim()) {
+      setEditNameError('Category name is required');
+      return false;
+    }
+    if (editedName.trim().length > 50) {
+      setEditNameError('Category name must be less than 50 characters');
+      return false;
+    }
+    setEditNameError('');
+    return true;
+  };
+
+  const handleSaveEdit = async () => {
+    if (!validateEditName() || !categoryId || updateCategoryMutation.isPending) return;
+
+    try {
+      await updateCategoryMutation.mutateAsync({
+        id: categoryId,
+        data: { name: editedName.trim() },
+      });
+      setIsEditModalVisible(false);
+      showSuccess('Category Updated', `Category name changed to "${editedName.trim()}".`);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update category. Please try again.';
+      showError('Error', errorMessage);
     }
   };
 
@@ -61,21 +81,38 @@ export const CategoryDetailScreen = () => {
     setIsDeleteModalVisible(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (categoryId) {
-      deleteCategoryMutation.mutate(categoryId, {
-        onSuccess: () => {
-          setIsDeleteModalVisible(false);
-          navigation.goBack();
-        },
-      });
+  const handleConfirmDelete = async () => {
+    if (!categoryId || deleteCategoryMutation.isPending) return;
+
+    const categoryName = category?.name || 'Category';
+
+    try {
+      await deleteCategoryMutation.mutateAsync(categoryId);
+      setIsDeleteModalVisible(false);
+      showSuccess('Category Deleted', `"${categoryName}" and all related data have been removed.`);
+      navigation.goBack();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete category. Please try again.';
+      showError('Error', errorMessage);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    if (!updateCategoryMutation.isPending) {
+      setIsEditModalVisible(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (!deleteCategoryMutation.isPending) {
+      setIsDeleteModalVisible(false);
     }
   };
 
   if (isLoading) {
     return (
       <View className="flex-1 bg-gray-50 dark:bg-slate-900 items-center justify-center">
-        <ActivityIndicator size="large" color="#6366F1" />
+        <Loader size={64} />
       </View>
     );
   }
@@ -155,7 +192,7 @@ export const CategoryDetailScreen = () => {
         visible={isEditModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsEditModalVisible(false)}
+        onRequestClose={handleCloseEditModal}
       >
         <View className="flex-1 bg-black/50 items-center justify-center px-6">
           <View className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm">
@@ -163,8 +200,11 @@ export const CategoryDetailScreen = () => {
               <Text className="text-gray-900 dark:text-white text-xl font-bold">
                 Edit Category
               </Text>
-              <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
-                <X size={24} color="#6B7280" />
+              <TouchableOpacity 
+                onPress={handleCloseEditModal}
+                disabled={updateCategoryMutation.isPending}
+              >
+                <X size={24} color={updateCategoryMutation.isPending ? '#9CA3AF' : '#6B7280'} />
               </TouchableOpacity>
             </View>
 
@@ -173,16 +213,29 @@ export const CategoryDetailScreen = () => {
             </Text>
             <TextInput
               value={editedName}
-              onChangeText={setEditedName}
+              onChangeText={(text) => {
+                setEditedName(text);
+                if (editNameError) setEditNameError('');
+              }}
               placeholder="Enter category name"
               placeholderTextColor="#9CA3AF"
-              className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white px-4 py-3 rounded-xl text-base mb-6"
+              editable={!updateCategoryMutation.isPending}
+              className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white px-4 py-3 rounded-xl text-base mb-2"
+              style={{ opacity: updateCategoryMutation.isPending ? 0.6 : 1 }}
             />
+            {editNameError && (
+              <Text className="text-red-500 text-xs mb-4 ml-1">
+                {editNameError}
+              </Text>
+            )}
+            {!editNameError && <View className="mb-4" />}
 
             <View className="flex-row gap-3">
               <TouchableOpacity
-                onPress={() => setIsEditModalVisible(false)}
+                onPress={handleCloseEditModal}
+                disabled={updateCategoryMutation.isPending}
                 className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-slate-700"
+                style={{ opacity: updateCategoryMutation.isPending ? 0.6 : 1 }}
               >
                 <Text className="text-gray-600 dark:text-gray-400 text-center font-semibold">
                   Cancel
@@ -190,13 +243,20 @@ export const CategoryDetailScreen = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleSaveEdit}
-                disabled={updateCategoryMutation.isPending}
-                className="flex-1 py-3 rounded-xl"
-                style={{ backgroundColor: category.color }}
+                disabled={updateCategoryMutation.isPending || !editedName.trim()}
+                className="flex-1 py-3 rounded-xl items-center justify-center"
+                style={{ 
+                  backgroundColor: category.color,
+                  opacity: updateCategoryMutation.isPending || !editedName.trim() ? 0.6 : 1
+                }}
               >
-                <Text className="text-white text-center font-semibold">
-                  {updateCategoryMutation.isPending ? 'Saving...' : 'Save'}
-                </Text>
+                {updateCategoryMutation.isPending ? (
+                  <Loader size={20} color="#FFFFFF" />
+                ) : (
+                  <Text className="text-white text-center font-semibold">
+                    Save
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -207,7 +267,7 @@ export const CategoryDetailScreen = () => {
         visible={isDeleteModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsDeleteModalVisible(false)}
+        onRequestClose={handleCloseDeleteModal}
       >
         <View className="flex-1 bg-black/50 items-center justify-center px-6">
           <View className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm">
@@ -227,8 +287,10 @@ export const CategoryDetailScreen = () => {
 
             <View className="flex-row gap-3">
               <TouchableOpacity
-                onPress={() => setIsDeleteModalVisible(false)}
+                onPress={handleCloseDeleteModal}
+                disabled={deleteCategoryMutation.isPending}
                 className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-slate-700"
+                style={{ opacity: deleteCategoryMutation.isPending ? 0.6 : 1 }}
               >
                 <Text className="text-gray-600 dark:text-gray-400 text-center font-semibold">
                   Cancel
@@ -237,11 +299,16 @@ export const CategoryDetailScreen = () => {
               <TouchableOpacity
                 onPress={handleConfirmDelete}
                 disabled={deleteCategoryMutation.isPending}
-                className="flex-1 py-3 rounded-xl bg-red-500"
+                className="flex-1 py-3 rounded-xl bg-red-500 items-center justify-center"
+                style={{ opacity: deleteCategoryMutation.isPending ? 0.8 : 1 }}
               >
-                <Text className="text-white text-center font-semibold">
-                  {deleteCategoryMutation.isPending ? 'Deleting...' : 'Delete'}
-                </Text>
+                {deleteCategoryMutation.isPending ? (
+                  <Loader size={20} color="#FFFFFF" />
+                ) : (
+                  <Text className="text-white text-center font-semibold">
+                    Delete
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>

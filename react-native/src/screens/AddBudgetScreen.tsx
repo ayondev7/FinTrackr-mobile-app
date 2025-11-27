@@ -1,22 +1,43 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useMemo, useEffect } from 'react';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { X, Check, DollarSign, Calendar, AlertCircle } from 'lucide-react-native';
-import { useThemeStore, useUserStore } from '../store';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { X, Check, Calendar, AlertCircle } from 'lucide-react-native';
+import { useThemeStore, useUserStore, useToastStore } from '../store';
 import { useCategories, useBudgets, useCreateBudget } from '../hooks';
 import { colors } from '../constants/theme';
-import { Card } from '../components';
+import { Card, Loader } from '../components';
 import { CategoryIcon } from '../components/shared/CategoryIcon';
 import { PeriodSelector, CategorySelector } from '../components/budgets';
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+// Validation schema matching backend expectations
+const budgetSchema = z.object({
+  categoryId: z.string().min(1, 'Please select a category'),
+  limit: z.string()
+    .min(1, 'Budget limit is required')
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: 'Limit must be a positive number',
+    }),
+  period: z.enum(['daily', 'weekly', 'monthly', 'yearly']),
+  alertThreshold: z.string()
+    .refine((val) => !val || (!isNaN(parseInt(val)) && parseInt(val) >= 0 && parseInt(val) <= 100), {
+      message: 'Alert threshold must be between 0 and 100',
+    }),
+});
+
+type BudgetFormData = z.infer<typeof budgetSchema>;
 
 export const AddBudgetScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const { user } = useUserStore();
+  const { showSuccess, showError } = useToastStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
 
@@ -27,10 +48,26 @@ export const AddBudgetScreen = () => {
   const categories = categoriesData?.data || [];
   const budgets = budgetsData?.data || [];
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [limitAmount, setLimitAmount] = useState('');
-  const [period, setPeriod] = useState<Period>('monthly');
-  const [alertThreshold, setAlertThreshold] = useState('80');
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm<BudgetFormData>({
+    resolver: zodResolver(budgetSchema),
+    defaultValues: {
+      categoryId: '',
+      limit: '',
+      period: 'monthly',
+      alertThreshold: '80',
+    },
+    mode: 'onChange',
+  });
+
+  const period = watch('period');
+  const categoryId = watch('categoryId');
+  const limitAmount = watch('limit');
 
   const expenseCategories = categories.filter((cat) => (cat.type || '').toLowerCase() === 'expense');
   
@@ -40,11 +77,16 @@ export const AddBudgetScreen = () => {
       .map((b) => b.categoryId);
   }, [budgets, period]);
 
-  const selectedCategory = selectedCategoryId
-    ? categories.find((c) => c.id === selectedCategoryId)
-    : null;
+  // Reset category when period changes if current category already has a budget for that period
+  useEffect(() => {
+    if (categoryId && categoriesWithBudget.includes(categoryId)) {
+      setValue('categoryId', '');
+    }
+  }, [period, categoriesWithBudget, categoryId, setValue]);
 
-  const canSave = selectedCategoryId && parseFloat(limitAmount) > 0 && !createBudget.isPending;
+  const selectedCategory = categoryId
+    ? categories.find((c) => c.id === categoryId)
+    : null;
 
   const getDateRange = (selectedPeriod: Period): { startDate: string; endDate: string } => {
     const now = new Date();
@@ -79,39 +121,36 @@ export const AddBudgetScreen = () => {
     };
   };
 
-  const handleSave = async () => {
-    if (!canSave || !selectedCategoryId) return;
-
-    const { startDate, endDate } = getDateRange(period);
+  const onSubmit = async (data: BudgetFormData) => {
+    Keyboard.dismiss();
+    
+    const { startDate, endDate } = getDateRange(data.period);
 
     try {
       await createBudget.mutateAsync({
-        categoryId: selectedCategoryId,
-        limit: parseFloat(limitAmount),
-        period,
+        categoryId: data.categoryId,
+        limit: parseFloat(data.limit),
+        period: data.period,
         startDate,
         endDate,
-        alertThreshold: parseFloat(alertThreshold) || 80,
+        alertThreshold: parseFloat(data.alertThreshold) || 80,
       });
+      
+      const categoryName = selectedCategory?.name || 'Category';
+      showSuccess(
+        'Budget Created',
+        `${data.period.charAt(0).toUpperCase() + data.period.slice(1)} budget of ${getCurrencySymbol(user.currency)}${parseFloat(data.limit).toFixed(2)} set for ${categoryName}.`
+      );
       navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to create budget. Please try again.');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create budget. Please try again.';
+      showError('Error', errorMessage);
     }
   };
 
   const handleClose = () => {
-    if (selectedCategoryId || limitAmount) {
-      Alert.alert(
-        'Discard Changes?',
-        'You have unsaved changes. Are you sure you want to go back?',
-        [
-          { text: 'Keep Editing', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: () => navigation.goBack() },
-        ]
-      );
-    } else {
-      navigation.goBack();
-    }
+    if (createBudget.isPending) return;
+    navigation.goBack();
   };
 
   const getCurrencySymbol = (currency: string) => {
@@ -133,17 +172,21 @@ export const AddBudgetScreen = () => {
         style={{ paddingTop: insets.top + 16 }}
       >
         <View className="flex-row items-center justify-between">
-          <TouchableOpacity onPress={handleClose} className="p-2">
-            <X size={24} color={isDark ? '#F1F5F9' : '#1F2937'} />
+          <TouchableOpacity onPress={handleClose} disabled={createBudget.isPending} className="p-2">
+            <X size={24} color={createBudget.isPending ? (isDark ? '#475569' : '#9CA3AF') : (isDark ? '#F1F5F9' : '#1F2937')} />
           </TouchableOpacity>
           <Text className="text-xl font-bold text-gray-900 dark:text-white">
             New Budget
           </Text>
-          <TouchableOpacity onPress={handleSave} disabled={!canSave} className="p-2">
-            <Check
-              size={24}
-              color={canSave ? themeColors.primary : isDark ? '#475569' : '#9CA3AF'}
-            />
+          <TouchableOpacity onPress={handleSubmit(onSubmit)} disabled={!isValid || createBudget.isPending} className="p-2">
+            {createBudget.isPending ? (
+              <Loader size={24} color={themeColors.primary} />
+            ) : (
+              <Check
+                size={24}
+                color={isValid ? themeColors.primary : isDark ? '#475569' : '#9CA3AF'}
+              />
+            )}
           </TouchableOpacity>
         </View>
 
@@ -190,7 +233,7 @@ export const AddBudgetScreen = () => {
         )}
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
         <View className="p-6">
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
@@ -199,11 +242,25 @@ export const AddBudgetScreen = () => {
             <Text className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               Choose an expense category to set a budget for
             </Text>
-            <CategorySelector
-              categories={expenseCategories}
-              selectedCategoryId={selectedCategoryId}
-              onSelect={setSelectedCategoryId}
-              disabledCategoryIds={categoriesWithBudget}
+            <Controller
+              control={control}
+              name="categoryId"
+              render={({ field: { value, onChange } }) => (
+                <View>
+                  <CategorySelector
+                    categories={expenseCategories}
+                    selectedCategoryId={value || null}
+                    onSelect={onChange}
+                    disabledCategoryIds={categoriesWithBudget}
+                    disabled={createBudget.isPending}
+                  />
+                  {errors.categoryId && (
+                    <Text className="text-red-500 text-xs mt-2 ml-1">
+                      {errors.categoryId.message}
+                    </Text>
+                  )}
+                </View>
+              )}
             />
             {categoriesWithBudget.length > 0 && (
               <View className="flex-row items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-slate-700">
@@ -219,19 +276,34 @@ export const AddBudgetScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Budget Limit
             </Text>
-            <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 rounded-xl px-4">
-              <Text className="text-gray-500 dark:text-gray-400 text-2xl font-bold mr-2">
-                {getCurrencySymbol(user.currency)}
-              </Text>
-              <TextInput
-                className="flex-1 text-gray-900 dark:text-white text-2xl font-bold py-4"
-                placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="decimal-pad"
-                value={limitAmount}
-                onChangeText={setLimitAmount}
-              />
-            </View>
+            <Controller
+              control={control}
+              name="limit"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <View>
+                  <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 rounded-xl px-4">
+                    <Text className="text-gray-500 dark:text-gray-400 text-2xl font-bold mr-2">
+                      {getCurrencySymbol(user.currency)}
+                    </Text>
+                    <TextInput
+                      className="flex-1 text-gray-900 dark:text-white text-2xl font-bold py-4"
+                      placeholder="0.00"
+                      placeholderTextColor="#9CA3AF"
+                      keyboardType="decimal-pad"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      editable={!createBudget.isPending}
+                    />
+                  </View>
+                  {errors.limit && (
+                    <Text className="text-red-500 text-xs mt-2 ml-1">
+                      {errors.limit.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
             <Text className="text-gray-500 dark:text-gray-400 text-sm mt-2">
               Maximum amount you want to spend
             </Text>
@@ -241,20 +313,17 @@ export const AddBudgetScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Budget Period
             </Text>
-            <PeriodSelector
-              selectedPeriod={period}
-              onSelect={(newPeriod) => {
-                setPeriod(newPeriod);
-                if (
-                  selectedCategoryId &&
-                  budgets.some(
-                    (b) => b.categoryId === selectedCategoryId && b.period === newPeriod
-                  )
-                ) {
-                  setSelectedCategoryId(null);
-                }
-              }}
-              primaryColor={themeColors.primary}
+            <Controller
+              control={control}
+              name="period"
+              render={({ field: { value, onChange } }) => (
+                <PeriodSelector
+                  selectedPeriod={value}
+                  onSelect={onChange}
+                  primaryColor={themeColors.primary}
+                  disabled={createBudget.isPending}
+                />
+              )}
             />
             <View className="flex-row items-center gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-slate-700">
               <Calendar size={14} color="#9CA3AF" />
@@ -268,27 +337,42 @@ export const AddBudgetScreen = () => {
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Alert Threshold
             </Text>
-            <View className="flex-row items-center gap-3">
-              <View className="flex-1 flex-row items-center bg-gray-100 dark:bg-slate-700 rounded-xl px-4">
-                <TextInput
-                  className="flex-1 text-gray-900 dark:text-white text-xl font-bold py-3"
-                  placeholder="80"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="number-pad"
-                  value={alertThreshold}
-                  onChangeText={(text) => {
-                    const num = parseInt(text);
-                    if (!text || (num >= 0 && num <= 100)) {
-                      setAlertThreshold(text);
-                    }
-                  }}
-                  maxLength={3}
-                />
-                <Text className="text-gray-500 dark:text-gray-400 text-xl font-bold">
-                  %
-                </Text>
-              </View>
-            </View>
+            <Controller
+              control={control}
+              name="alertThreshold"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <View>
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex-1 flex-row items-center bg-gray-100 dark:bg-slate-700 rounded-xl px-4">
+                      <TextInput
+                        className="flex-1 text-gray-900 dark:text-white text-xl font-bold py-3"
+                        placeholder="80"
+                        placeholderTextColor="#9CA3AF"
+                        keyboardType="number-pad"
+                        value={value}
+                        onChangeText={(text) => {
+                          const num = parseInt(text);
+                          if (!text || (num >= 0 && num <= 100)) {
+                            onChange(text);
+                          }
+                        }}
+                        onBlur={onBlur}
+                        maxLength={3}
+                        editable={!createBudget.isPending}
+                      />
+                      <Text className="text-gray-500 dark:text-gray-400 text-xl font-bold">
+                        %
+                      </Text>
+                    </View>
+                  </View>
+                  {errors.alertThreshold && (
+                    <Text className="text-red-500 text-xs mt-2 ml-1">
+                      {errors.alertThreshold.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
             <Text className="text-gray-500 dark:text-gray-400 text-sm mt-2">
               You'll be notified when spending reaches this percentage
             </Text>

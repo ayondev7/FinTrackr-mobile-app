@@ -9,6 +9,7 @@ interface CategorySelectorProps {
   selectedCategoryId: string | null;
   onSelect: (categoryId: string) => void;
   disabledCategoryIds?: string[];
+  disabled?: boolean;
 }
 
 export const CategorySelector = ({
@@ -16,17 +17,18 @@ export const CategorySelector = ({
   selectedCategoryId,
   onSelect,
   disabledCategoryIds = [],
+  disabled = false,
 }: CategorySelectorProps) => {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 4 }}
+      contentContainerStyle={{ paddingHorizontal: 4, opacity: disabled ? 0.6 : 1 }}
     >
       <View className="flex-row gap-3">
         {categories.map((category) => {
           const isSelected = selectedCategoryId === category.id;
-          const isDisabled = disabledCategoryIds.includes(category.id);
+          const isDisabled = disabledCategoryIds.includes(category.id) || disabled;
 
           return (
             <TouchableOpacity
@@ -34,7 +36,7 @@ export const CategorySelector = ({
               onPress={() => !isDisabled && onSelect(category.id)}
               activeOpacity={isDisabled ? 1 : 0.7}
               className={`items-center p-3 rounded-xl min-w-[80px] ${
-                isDisabled ? 'opacity-40' : ''
+                disabledCategoryIds.includes(category.id) ? 'opacity-40' : ''
               }`}
               style={{
                 backgroundColor: isSelected ? `${category.color}20` : 'transparent',
@@ -63,7 +65,7 @@ export const CategorySelector = ({
               >
                 {category.name}
               </Text>
-              {isDisabled && (
+              {disabledCategoryIds.includes(category.id) && (
                 <Text className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                   Has budget
                 </Text>
