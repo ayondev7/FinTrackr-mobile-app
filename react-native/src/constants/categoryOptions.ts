@@ -1,5 +1,5 @@
 import { 
-  ShoppingCart, Home, Car, Utensils, Coffee, Heart, 
+  ShoppingCart, Home, Car, Utensils, Coffee, Heart, HeartPulse,
   Plane, Gift, Book, Music, Film, Dumbbell, Zap, Wifi, Phone,
   Briefcase, DollarSign, TrendingUp, Coins, CreditCard, Wallet,
   ShoppingBag, Pizza, Gamepad2, Laptop, Monitor, Smartphone,
@@ -15,7 +15,8 @@ import {
   Shield, Lock, Key, Archive, Folder, FileText,
   BarChart, PieChart, Activity, TrendingDown, CircleDollarSign,
   Banknote, Receipt, Calculator, ShoppingBasket, Store,
-  Building, Factory, Warehouse, Users, UserPlus, UserCheck
+  Building, Factory, Warehouse, Users, UserPlus, UserCheck, User,
+  RotateCcw, LineChart
 } from 'lucide-react-native';
 
 export const ICON_OPTIONS = [
@@ -126,6 +127,17 @@ export const ICON_OPTIONS = [
   { name: 'Users', component: Users },
   { name: 'UserPlus', component: UserPlus },
   { name: 'UserCheck', component: UserCheck },
+  { name: 'User', component: User },
+  { name: 'HeartPulse', component: HeartPulse },
+  { name: 'RotateCcw', component: RotateCcw },
+  { name: 'LineChart', component: LineChart },
+  // Aliases for kebab-case icon names from database
+  { name: 'heart-pulse', component: HeartPulse },
+  { name: 'rotate-left', component: RotateCcw },
+  { name: 'chart-line', component: LineChart },
+  { name: 'file-invoice', component: FileText },
+  { name: 'graduation-cap', component: GraduationCap },
+  { name: 'shopping-bag', component: ShoppingBag },
 ];
 
 export const COLOR_OPTIONS = [

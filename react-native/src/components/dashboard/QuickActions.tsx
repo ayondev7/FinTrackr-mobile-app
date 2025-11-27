@@ -17,15 +17,16 @@ export const QuickActions = () => {
   const pinnedCategories = categoriesData?.data?.filter((cat) => cat.isPinned) || [];
 
   return (
-    <View className="mb-6">
+    <>
       <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
         Quick Access
       </Text>
-      
-      {/* Horizontal scroll with Budgets, Categories, and Pinned Categories */}
-      <ScrollView 
-        horizontal 
+
+      {/* Combined horizontal row: quick actions, pinned categories, and Pin at the end */}
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
+        className="mb-6 pb-4"
         contentContainerStyle={{ gap: 12 }}
       >
         {/* Budgets */}
@@ -33,22 +34,22 @@ export const QuickActions = () => {
           onPress={() => navigation.navigate('Budgets' as never)}
           activeOpacity={0.7}
         >
-          <Card className="p-4" style={{ width: 100 }}>
+          <Card className="p-4" style={{ width: 110 }}>
             <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2 self-center"
+              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
               style={{ backgroundColor: `${themeColors.warning}20` }}
             >
               <Target size={20} color={themeColors.warning} />
             </View>
             <Text
-              className="font-semibold text-sm text-center"
+              className="font-semibold text-sm mb-1"
               numberOfLines={1}
               style={{ color: themeColors.warning }}
             >
               Budgets
             </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-xs text-center">
-              Manage
+            <Text className="text-gray-500 dark:text-gray-400 text-xs">
+              Manage limits
             </Text>
           </Card>
         </TouchableOpacity>
@@ -58,22 +59,22 @@ export const QuickActions = () => {
           onPress={() => navigation.navigate('Categories' as never)}
           activeOpacity={0.7}
         >
-          <Card className="p-4" style={{ width: 100 }}>
+          <Card className="p-4" style={{ width: 110 }}>
             <View
-              className="w-10 h-10 rounded-xl items-center justify-center mb-2 self-center"
+              className="w-10 h-10 rounded-xl items-center justify-center mb-2"
               style={{ backgroundColor: `${themeColors.info}20` }}
             >
               <Grid3X3 size={20} color={themeColors.info} />
             </View>
             <Text
-              className="font-semibold text-sm text-center"
+              className="font-semibold text-sm mb-1"
               numberOfLines={1}
               style={{ color: themeColors.info }}
             >
               Categories
             </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-xs text-center">
-              Manage
+            <Text className="text-gray-500 dark:text-gray-400 text-xs">
+              Manage all
             </Text>
           </Card>
         </TouchableOpacity>
@@ -89,37 +90,33 @@ export const QuickActions = () => {
             }}
             activeOpacity={0.7}
           >
-            <Card className="p-4" style={{ width: 100 }}>
+            <Card className="p-4" style={{ width: 110 }}>
               <View
-                className="w-10 h-10 rounded-xl items-center justify-center mb-2 self-center"
+                className="w-10 h-10 rounded-xl items-center justify-center mb-2"
                 style={{ backgroundColor: `${category.color}20` }}
               >
-                <CategoryIcon 
-                  iconName={category.icon} 
-                  size={20} 
-                  color={category.color} 
-                />
+                <CategoryIcon iconName={category.icon} size={20} color={category.color} />
               </View>
               <Text
-                className="font-semibold text-sm text-center"
+                className="font-semibold text-sm mb-1"
                 numberOfLines={1}
                 style={{ color: category.color }}
               >
                 {category.name}
               </Text>
-              <Text className="text-gray-500 dark:text-gray-400 text-xs text-center">
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
                 {category._count?.transactions || 0} txns
               </Text>
             </Card>
           </TouchableOpacity>
         ))}
-        
-        {/* Add Pin Button */}
+
+        {/* Add Pin Button - placed last */}
         <TouchableOpacity
           onPress={() => navigation.navigate('Categories' as never)}
           activeOpacity={0.7}
         >
-          <Card className="p-4 items-center justify-center" style={{ width: 100 }}>
+          <Card className="p-4" style={{ width: 110 }}>
             <View
               className="w-10 h-10 rounded-xl items-center justify-center mb-2"
               style={{ backgroundColor: `${themeColors.primary}20` }}
@@ -127,18 +124,18 @@ export const QuickActions = () => {
               <Plus size={20} color={themeColors.primary} />
             </View>
             <Text
-              className="font-semibold text-sm text-center"
+              className="font-semibold text-sm mb-1"
               numberOfLines={1}
               style={{ color: themeColors.primary }}
             >
-              Add Pin
+              Pin
             </Text>
-            <Text className="text-gray-500 dark:text-gray-400 text-xs text-center">
-              Pin more
+            <Text className="text-gray-500 dark:text-gray-400 text-xs">
+              Add favorite
             </Text>
           </Card>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </>
   );
 };
