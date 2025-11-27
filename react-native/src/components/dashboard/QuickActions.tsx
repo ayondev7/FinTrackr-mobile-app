@@ -105,7 +105,7 @@ export const QuickActions = () => {
                 {category.name}
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-xs">
-                {category._count?.transactions || 0} txns
+                {category._count?.transactions || 0} transactions
               </Text>
             </Card>
           </TouchableOpacity>

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../utils/apiClient';
 import { categoryRoutes, transactionRoutes } from '../routes';
 import { queryKeys } from './queryClient';
-import { ApiResponse, Category, Transaction } from '../types';
+import { ApiResponse, Category, TransactionListResponse } from '../types';
 
 export interface CategoryWithCount extends Category {
   _count: {
@@ -46,7 +46,7 @@ export const useCategoryTransactions = (categoryId: string) => {
   return useQuery({
     queryKey: queryKeys.transaction.list({ categoryId }),
     queryFn: () =>
-      apiRequest.get<ApiResponse<Transaction[]>>(transactionRoutes.list, { categoryId }),
+      apiRequest.get<ApiResponse<TransactionListResponse>>(transactionRoutes.list, { categoryId, limit: 100 }),
     enabled: !!categoryId,
   });
 };
@@ -99,6 +99,9 @@ export const useDeleteCategory = () => {
       apiRequest.delete<ApiResponse<null>>(categoryRoutes.delete(id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.category.list });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transaction.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budget.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
     },
   });
 };

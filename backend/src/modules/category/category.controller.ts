@@ -103,12 +103,18 @@ export const updateCategory = asyncHandler(async (req: AuthRequest, res: Respons
 
 export const deleteCategory = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id: userId } = req.user!;
-  console.log('Delete category request:', req.params.id);
+  const categoryId = req.params.id;
+  console.log('Delete category request:', categoryId);
 
   const category = await prisma.category.findFirst({
     where: {
-      id: req.params.id,
+      id: categoryId,
       userId,
+    },
+    include: {
+      _count: {
+        select: { transactions: true, budgets: true },
+      },
     },
   });
 
@@ -116,11 +122,49 @@ export const deleteCategory = asyncHandler(async (req: AuthRequest, res: Respons
     throw new ApiError(404, 'Category not found');
   }
 
-  await prisma.category.delete({
-    where: { id: req.params.id },
+  await prisma.$transaction(async (tx) => {
+    const transactions = await tx.transaction.findMany({
+      where: { categoryId, userId },
+      include: {
+        category: {
+          select: { type: true },
+        },
+      },
+    });
+
+    for (const txn of transactions) {
+      const amountChange = txn.category.type === 'EXPENSE' ? txn.amount : -txn.amount;
+      const balanceField = txn.accountType === 'CASH' ? 'cashBalance' :
+                           txn.accountType === 'BANK' ? 'bankBalance' :
+                           'digitalBalance';
+
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          [balanceField]: {
+            increment: amountChange,
+          },
+        },
+      });
+    }
+
+    await tx.transaction.deleteMany({
+      where: { categoryId, userId },
+    });
+
+    await tx.budget.deleteMany({
+      where: { categoryId, userId },
+    });
+
+    await tx.category.delete({
+      where: { id: categoryId },
+    });
   });
 
-  console.log('Category deleted successfully');
+  console.log('Category and related data deleted successfully');
 
-  sendSuccess(res, null, 'Category deleted successfully');
+  sendSuccess(res, {
+    deletedTransactions: category._count.transactions,
+    deletedBudgets: category._count.budgets,
+  }, 'Category deleted successfully');
 });
