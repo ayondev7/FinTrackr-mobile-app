@@ -48,11 +48,12 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
         flex-row
         items-center
         gap-1
+        self-start
       `}
       style={{ backgroundColor: `${color}20` }}
     >
       <View
-        className="w-2 h-2 rounded-full"
+        className="w-1 h-1 rounded-full"
         style={{ backgroundColor: color }}
       />
       <Text

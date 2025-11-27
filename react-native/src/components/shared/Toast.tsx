@@ -70,31 +70,40 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   const getToastConfig = () => {
+    // Use a small palette so the toast background is a lighter tint
+    // while the content (icon + text) uses a stronger/darker color.
+    const palette = {
+      // For light mode use the same theme colors the ToastTestScreen uses
+      // and produce a subtle background tint by appending a light alpha.
+      light: {
+        // Use the original soft background tints and keep the current
+        // theme color as the foreground (icon/text) which you preferred.
+        success: { bg: '#ECFDF5', fg: themeColors.success },
+        error: { bg: '#FEF2F2', fg: themeColors.danger },
+        warning: { bg: '#FFFBEB', fg: themeColors.warning },
+        info: { bg: '#EFF6FF', fg: themeColors.info },
+      },
+      dark: {
+        // For dark mode use a subtle tinted background and keep the
+        // theme color for foreground so content remains visible.
+        success: { bg: 'rgba(52,211,153,0.12)', fg: themeColors.success },
+        error: { bg: 'rgba(239,68,68,0.12)', fg: themeColors.danger },
+        warning: { bg: 'rgba(245,158,11,0.12)', fg: themeColors.warning },
+        info: { bg: 'rgba(59,130,246,0.12)', fg: themeColors.info },
+      },
+    } as const;
+
+    const mode = theme === 'dark' ? 'dark' : 'light';
+
     switch (type) {
       case 'success':
-        return {
-          icon: CheckCircle,
-          backgroundColor: themeColors.success,
-          iconColor: '#FFFFFF',
-        };
+        return { icon: CheckCircle, backgroundColor: palette[mode].success.bg, iconColor: palette[mode].success.fg, textColor: palette[mode].success.fg };
       case 'error':
-        return {
-          icon: XCircle,
-          backgroundColor: themeColors.danger,
-          iconColor: '#FFFFFF',
-        };
+        return { icon: XCircle, backgroundColor: palette[mode].error.bg, iconColor: palette[mode].error.fg, textColor: palette[mode].error.fg };
       case 'warning':
-        return {
-          icon: AlertCircle,
-          backgroundColor: themeColors.warning,
-          iconColor: '#FFFFFF',
-        };
+        return { icon: AlertCircle, backgroundColor: palette[mode].warning.bg, iconColor: palette[mode].warning.fg, textColor: palette[mode].warning.fg };
       case 'info':
-        return {
-          icon: Info,
-          backgroundColor: themeColors.info,
-          iconColor: '#FFFFFF',
-        };
+        return { icon: Info, backgroundColor: palette[mode].info.bg, iconColor: palette[mode].info.fg, textColor: palette[mode].info.fg };
     }
   };
 
@@ -118,11 +127,11 @@ export const Toast: React.FC<ToastProps> = ({
       </View>
       
       <View style={styles.contentContainer}>
-        <Text style={[styles.title, { color: config.iconColor }]} numberOfLines={1}>
+        <Text style={[styles.title, { color: (config as any).textColor || config.iconColor }]} numberOfLines={1}>
           {title}
         </Text>
         {message && (
-          <Text style={[styles.message, { color: config.iconColor }]} numberOfLines={2}>
+          <Text style={[styles.message, { color: (config as any).textColor || config.iconColor }]} numberOfLines={2}>
             {message}
           </Text>
         )}
@@ -133,7 +142,7 @@ export const Toast: React.FC<ToastProps> = ({
         style={styles.closeButton}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <X size={20} color={config.iconColor} strokeWidth={2} />
+        <X size={20} color={(config as any).textColor || config.iconColor} strokeWidth={2} />
       </TouchableOpacity>
     </Animated.View>
   );
