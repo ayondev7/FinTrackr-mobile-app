@@ -31,3 +31,9 @@ export interface UpdateProfilePayload {
   currency?: string;
   theme?: 'light' | 'dark';
 }
+
+export interface ClearDataResult {
+  deletedTransactions: number;
+  deletedBudgets: number;
+  deletedCategories: number;
+}

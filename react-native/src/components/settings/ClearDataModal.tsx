@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { X, Trash2, AlertTriangle } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 
@@ -8,13 +8,14 @@ interface ClearDataModalProps {
   onClose: () => void;
   dangerColor: string;
   onClearData: () => void;
+  isLoading?: boolean;
 }
 
-export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData }: ClearDataModalProps) => {
+export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData, isLoading = false }: ClearDataModalProps) => {
   const handleClear = () => {
     Alert.alert(
       'Clear All Data?',
-      'This action cannot be undone. All your transactions, categories, and settings will be permanently deleted.',
+      'This action cannot be undone. All your transactions, categories, budgets, and balances will be permanently deleted.',
       [
         {
           text: 'Cancel',
@@ -23,11 +24,7 @@ export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData }: C
         {
           text: 'Delete Everything',
           style: 'destructive',
-          onPress: () => {
-            onClearData();
-            onClose();
-            Alert.alert('Success', 'All data has been cleared');
-          },
+          onPress: onClearData,
         },
       ]
     );
@@ -38,7 +35,7 @@ export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData }: C
       visible={visible}
       animationType="fade"
       transparent={true}
-      onRequestClose={onClose}
+      onRequestClose={isLoading ? undefined : onClose}
     >
       <View className="flex-1 bg-black/70 items-center justify-center p-6">
         <Card className="w-full max-w-md p-6">
@@ -65,22 +62,34 @@ export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData }: C
               • All transactions{'\n'}
               • Budget settings{'\n'}
               • Categories{'\n'}
-              • Account balances
+              • Account balances will be reset to 0
             </Text>
           </View>
 
           <View className="gap-3">
             <TouchableOpacity
               className="p-4 rounded-2xl"
-              style={{ backgroundColor: dangerColor }}
+              style={{ backgroundColor: dangerColor, opacity: isLoading ? 0.7 : 1 }}
               onPress={handleClear}
               activeOpacity={0.8}
+              disabled={isLoading}
             >
               <View className="flex-row items-center justify-center gap-2">
-                <Trash2 size={20} color="#FFFFFF" />
-                <Text className="text-white font-semibold text-base">
-                  Clear All Data
-                </Text>
+                {isLoading ? (
+                  <>
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                    <Text className="text-white font-semibold text-base">
+                      Clearing Data...
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={20} color="#FFFFFF" />
+                    <Text className="text-white font-semibold text-base">
+                      Clear All Data
+                    </Text>
+                  </>
+                )}
               </View>
             </TouchableOpacity>
 
@@ -88,6 +97,8 @@ export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData }: C
               className="p-4 rounded-2xl bg-gray-100 dark:bg-slate-800"
               onPress={onClose}
               activeOpacity={0.8}
+              disabled={isLoading}
+              style={{ opacity: isLoading ? 0.5 : 1 }}
             >
               <Text className="text-gray-900 dark:text-white font-semibold text-base text-center">
                 Cancel

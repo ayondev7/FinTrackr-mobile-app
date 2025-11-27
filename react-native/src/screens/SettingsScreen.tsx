@@ -8,7 +8,7 @@ import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
-import { useUserProfile, useUpdateProfile } from '../hooks';
+import { useUserProfile, useUpdateProfile, useClearUserData } from '../hooks';
 import { CURRENCIES } from '../constants';
 import { 
   ProfileCard, 
@@ -34,6 +34,7 @@ export const SettingsScreen = () => {
 
   const { data: userResponse, isLoading, refetch } = useUserProfile();
   const updateProfile = useUpdateProfile();
+  const clearUserData = useClearUserData();
   const user = userResponse?.data;
 
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
@@ -73,8 +74,21 @@ export const SettingsScreen = () => {
     console.log(`Exporting data as ${format}`);
   };
 
-  const handleClearData = () => {
-    clearTransactions();
+  const handleClearData = async () => {
+    try {
+      const result = await clearUserData.mutateAsync();
+      setClearDataModalVisible(false);
+      clearTransactions(); // Clear local store as well
+      
+      const data = result.data;
+      showSuccess(
+        'Data Cleared',
+        `Deleted ${data.deletedTransactions} transactions, ${data.deletedBudgets} budgets, and ${data.deletedCategories} categories. Balances reset to 0.`
+      );
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to clear data';
+      showError('Error', errorMessage);
+    }
   };
 
   const handleResetOnboarding = () => {
@@ -242,6 +256,7 @@ export const SettingsScreen = () => {
         onClose={() => setClearDataModalVisible(false)}
         dangerColor={themeColors.danger}
         onClearData={handleClearData}
+        isLoading={clearUserData.isPending}
       />
     </RefreshableScrollView>
   );

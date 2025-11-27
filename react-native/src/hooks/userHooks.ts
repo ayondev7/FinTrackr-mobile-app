@@ -7,6 +7,7 @@ import {
   ApiResponse,
   UpdateBalancePayload,
   UpdateProfilePayload,
+  ClearDataResult,
 } from "../types";
 
 export const useUserProfile = () => {
@@ -44,5 +45,24 @@ export const useDeleteAccount = () => {
   return useMutation({
     mutationFn: () =>
       apiRequest.delete<ApiResponse<null>>(userRoutes.deleteAccount),
+  });
+};
+
+export const useClearUserData = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () =>
+      apiRequest.delete<ApiResponse<ClearDataResult>>(userRoutes.clearData),
+    onSuccess: () => {
+      // Invalidate all queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile });
+      queryClient.invalidateQueries({ queryKey: ['transaction'] });
+      queryClient.invalidateQueries({ queryKey: ['category'] });
+      queryClient.invalidateQueries({ queryKey: ['budget'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.summary });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['prediction'] });
+    },
   });
 };

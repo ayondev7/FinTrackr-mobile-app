@@ -106,3 +106,46 @@ export const deleteAccount = asyncHandler(async (req: AuthRequest, res: Response
 
   sendSuccess(res, null, 'Account deleted successfully');
 });
+
+export const clearUserData = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
+  console.log('Clear user data request for user:', userId);
+
+  // Use Prisma transaction to ensure atomicity - all or nothing
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Delete all transactions for this user
+    const deletedTransactions = await tx.transaction.deleteMany({
+      where: { userId },
+    });
+
+    // 2. Delete all budgets for this user
+    const deletedBudgets = await tx.budget.deleteMany({
+      where: { userId },
+    });
+
+    // 3. Delete all categories for this user
+    const deletedCategories = await tx.category.deleteMany({
+      where: { userId },
+    });
+
+    // 4. Reset user balances to 0
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        cashBalance: 0,
+        bankBalance: 0,
+        digitalBalance: 0,
+      },
+    });
+
+    return {
+      deletedTransactions: deletedTransactions.count,
+      deletedBudgets: deletedBudgets.count,
+      deletedCategories: deletedCategories.count,
+    };
+  });
+
+  console.log('User data cleared successfully:', result);
+
+  sendSuccess(res, result, 'All data cleared successfully');
+});

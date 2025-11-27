@@ -5,4 +5,5 @@ export const userRoutes = {
   updateProfile: `${BASE}/profile`,
   updateBalance: `${BASE}/balance`,
   deleteAccount: `${BASE}/account`,
+  clearData: `${BASE}/data`,
 };
