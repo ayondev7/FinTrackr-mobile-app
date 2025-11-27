@@ -8,6 +8,7 @@ import {
   UpdateBalancePayload,
   UpdateProfilePayload,
   ClearDataResult,
+  ExportData,
 } from "../types";
 
 export const useUserProfile = () => {
@@ -64,5 +65,12 @@ export const useClearUserData = () => {
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
       queryClient.invalidateQueries({ queryKey: ['prediction'] });
     },
+  });
+};
+
+export const useExportUserData = () => {
+  return useMutation({
+    mutationFn: () =>
+      apiRequest.get<ApiResponse<ExportData>>(userRoutes.exportData),
   });
 };

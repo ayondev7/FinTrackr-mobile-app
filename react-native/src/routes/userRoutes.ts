@@ -6,4 +6,5 @@ export const userRoutes = {
   updateBalance: `${BASE}/balance`,
   deleteAccount: `${BASE}/account`,
   clearData: `${BASE}/data`,
+  exportData: `${BASE}/export`,
 };

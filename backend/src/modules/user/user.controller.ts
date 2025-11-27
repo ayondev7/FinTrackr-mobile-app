@@ -149,3 +149,90 @@ export const clearUserData = asyncHandler(async (req: AuthRequest, res: Response
 
   sendSuccess(res, result, 'All data cleared successfully');
 });
+
+export const exportUserData = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
+  console.log('Export user data request for user:', userId);
+
+  // Fetch user profile
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+      email: true,
+      currency: true,
+      cashBalance: true,
+      bankBalance: true,
+      digitalBalance: true,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  // Fetch all transactions with basic category info
+  const transactions = await prisma.transaction.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      amount: true,
+      accountType: true,
+      name: true,
+      description: true,
+      date: true,
+      createdAt: true,
+      category: {
+        select: {
+          name: true,
+          type: true,
+          icon: true,
+        },
+      },
+    },
+    orderBy: { date: 'desc' },
+  });
+
+  // Format transactions for export
+  const formattedTransactions = transactions.map((txn) => ({
+    id: txn.id,
+    amount: txn.amount,
+    type: txn.category.type.toLowerCase(),
+    category: txn.category.name,
+    categoryIcon: txn.category.icon,
+    accountType: txn.accountType,
+    name: txn.name,
+    description: txn.description,
+    date: txn.date.toISOString(),
+    createdAt: txn.createdAt.toISOString(),
+  }));
+
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    profile: {
+      name: user.name,
+      email: user.email,
+      currency: user.currency,
+    },
+    balances: {
+      cash: user.cashBalance,
+      bank: user.bankBalance,
+      digital: user.digitalBalance,
+      total: user.cashBalance + user.bankBalance + user.digitalBalance,
+    },
+    transactions: formattedTransactions,
+    summary: {
+      totalTransactions: transactions.length,
+      totalExpenses: formattedTransactions
+        .filter((t) => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0),
+      totalRevenue: formattedTransactions
+        .filter((t) => t.type === 'revenue')
+        .reduce((sum, t) => sum + t.amount, 0),
+    },
+  };
+
+  console.log('User data exported successfully');
+
+  sendSuccess(res, exportData, 'Data exported successfully');
+});

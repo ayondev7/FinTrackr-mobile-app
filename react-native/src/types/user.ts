@@ -37,3 +37,37 @@ export interface ClearDataResult {
   deletedBudgets: number;
   deletedCategories: number;
 }
+
+export interface ExportTransaction {
+  id: string;
+  amount: number;
+  type: 'expense' | 'revenue';
+  category: string;
+  categoryIcon: string;
+  accountType: string;
+  name?: string;
+  description?: string;
+  date: string;
+  createdAt: string;
+}
+
+export interface ExportData {
+  exportedAt: string;
+  profile: {
+    name: string;
+    email: string;
+    currency: string;
+  };
+  balances: {
+    cash: number;
+    bank: number;
+    digital: number;
+    total: number;
+  };
+  transactions: ExportTransaction[];
+  summary: {
+    totalTransactions: number;
+    totalExpenses: number;
+    totalRevenue: number;
+  };
+}

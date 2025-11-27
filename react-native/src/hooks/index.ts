@@ -5,6 +5,7 @@ export {
   useUpdateProfile,
   useDeleteAccount,
   useClearUserData,
+  useExportUserData,
 } from "./userHooks";
 export {
   useDashboardSummary,
