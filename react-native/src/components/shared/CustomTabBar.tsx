@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { LayoutDashboard, CreditCard, PiggyBank, PieChart, Settings } from 'lucide-react-native';
+import { LayoutDashboard, CreditCard, TrendingUp, PieChart, Settings } from 'lucide-react-native';
 import { useThemeStore } from '../../store';
 import { colors } from '../../constants/theme';
 
@@ -58,9 +58,9 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
                 IconComponent = CreditCard; 
                 label = 'Txns';
                 break;
-            case 'Budgets': 
-                IconComponent = PiggyBank; 
-                label = 'Budget';
+            case 'Predictions': 
+                IconComponent = TrendingUp; 
+                label = 'Predictions';
                 break;
             case 'Analytics': 
                 IconComponent = PieChart; 
@@ -84,10 +84,21 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
             onLongPress={onLongPress}
             className="flex-1 items-center justify-center h-full"
           >
-             <View className={`items-center justify-center w-12 h-12 rounded-full ${isFocused ? (isDark ? 'bg-slate-700' : 'bg-indigo-50') : 'bg-transparent'}`}>
-                <IconComponent 
-                    size={24} 
-                    color={isFocused ? themeColors.primary : (isDark ? '#94A3B8' : '#64748B')} 
+             <View
+               className="items-center justify-center"
+               style={{
+                 width: 48,
+                 height: 48,
+                 borderRadius: 24,
+                 overflow: 'hidden',
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 backgroundColor: isFocused ? (isDark ? '#334155' : '#eef2ff') : 'transparent',
+               }}
+             >
+                <IconComponent
+                    size={24}
+                    color={isFocused ? themeColors.primary : (isDark ? '#94A3B8' : '#64748B')}
                 />
              </View>
           </TouchableOpacity>

@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { X, Download, FileText, CheckCircle, FileJson, FileSpreadsheet } from 'lucide-react-native';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Card } from '../shared/Card';
 import { ExportData } from '../../types';
+import { useToastStore } from '../../store/toastStore';
 
 interface ExportModalProps {
   visible: boolean;
@@ -176,6 +178,7 @@ const convertToHTML = (data: ExportData): string => {
 
 export const ExportModal = ({ visible, onClose, primaryColor, onExport, isLoading = false }: ExportModalProps) => {
   const [exportingFormat, setExportingFormat] = React.useState<'csv' | 'json' | 'pdf' | null>(null);
+  const { showSuccess, showError } = useToastStore();
 
   const exportOptions = [
     {
@@ -211,35 +214,76 @@ export const ExportModal = ({ visible, onClose, primaryColor, onExport, isLoadin
 
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().split('T')[0];
-      
+      let fileUri = '';
+      let mimeType = '';
+      let filename = '';
+
       if (format === 'pdf') {
         // Generate PDF using expo-print
         const html = convertToHTML(data);
-        const { uri } = await Print.printToFileAsync({ html });
-        
-        // Share the PDF
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'application/pdf',
-            dialogTitle: `Save fintrackr-export-${timestamp}.pdf`,
-          });
-        }
+        const result = await Print.printToFileAsync({ html });
+        fileUri = result.uri;
+        mimeType = 'application/pdf';
+        filename = `fintrackr-export-${timestamp}.pdf`;
       } else {
         // Generate file content for JSON/CSV
         const content = format === 'json' 
           ? JSON.stringify(data, null, 2) 
           : convertToCSV(data);
         
-        const filename = `fintrackr-export-${timestamp}.${format}`;
-        const fileUri = `${FileSystem.documentDirectory}${filename}`;
+        filename = `fintrackr-export-${timestamp}.${format}`;
+        fileUri = `${FileSystem.documentDirectory}${filename}`;
+        mimeType = format === 'json' ? 'application/json' : 'text/csv';
         
         // Write file to device
         await FileSystem.writeAsStringAsync(fileUri, content);
-        
-        // Share/download the file
+      }
+
+      // Handle saving/sharing
+      if (Platform.OS === 'android') {
+        try {
+          const EXPORT_DIR_KEY = 'fintrackr_export_dir_uri';
+          let directoryUri = await AsyncStorage.getItem(EXPORT_DIR_KEY);
+          let saved = false;
+
+          if (directoryUri) {
+            try {
+              const base64 = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
+              const createdUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, filename, mimeType);
+              await FileSystem.writeAsStringAsync(createdUri, base64, { encoding: FileSystem.EncodingType.Base64 });
+              saved = true;
+              showSuccess('Export Saved', 'File saved to your selected folder');
+            } catch (e) {
+              console.log("Saved URI failed, requesting new permission");
+              directoryUri = null; // Reset to force permission request
+            }
+          }
+
+          if (!saved) {
+            const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+            if (permissions.granted) {
+              await AsyncStorage.setItem(EXPORT_DIR_KEY, permissions.directoryUri);
+              const base64 = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
+              const createdUri = await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, filename, mimeType);
+              await FileSystem.writeAsStringAsync(createdUri, base64, { encoding: FileSystem.EncodingType.Base64 });
+              showSuccess('Export Saved', 'File saved successfully');
+            } else {
+              // Fallback to share if user cancels folder picker
+              if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(fileUri, { mimeType, dialogTitle: `Save ${filename}` });
+              }
+            }
+          }
+        } catch (e) {
+          console.log("SAF failed, falling back to share", e);
+          if (await Sharing.isAvailableAsync()) {
+            await Sharing.shareAsync(fileUri, { mimeType, dialogTitle: `Save ${filename}` });
+          }
+        }
+      } else {
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(fileUri, {
-            mimeType: format === 'json' ? 'application/json' : 'text/csv',
+            mimeType,
             dialogTitle: `Save ${filename}`,
           });
         }
@@ -249,6 +293,7 @@ export const ExportModal = ({ visible, onClose, primaryColor, onExport, isLoadin
       onClose();
     } catch (error) {
       console.error('Export error:', error);
+      showError('Export Failed', 'An error occurred while exporting data');
       setExportingFormat(null);
     }
   };
