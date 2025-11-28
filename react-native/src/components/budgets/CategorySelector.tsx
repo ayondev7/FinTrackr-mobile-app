@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Check, Plus } from 'lucide-react-native';
 import { Category } from '../../types';
 import { CategoryIcon } from '../shared/CategoryIcon';
 
@@ -19,6 +20,29 @@ export const CategorySelector = ({
   disabledCategoryIds = [],
   disabled = false,
 }: CategorySelectorProps) => {
+  const navigation = useNavigation();
+
+  const handleCreateCategory = () => {
+    navigation.navigate('AddCategory' as never);
+  };
+
+  if (categories.length === 0) {
+    return (
+      <View className="items-center py-6">
+        <Text className="text-gray-500 dark:text-gray-400 text-center mb-4">
+          No expense categories available. Create one to set a budget.
+        </Text>
+        <TouchableOpacity
+          onPress={handleCreateCategory}
+          className="flex-row items-center gap-2 bg-indigo-600 px-5 py-3 rounded-xl"
+        >
+          <Plus size={20} color="#FFFFFF" />
+          <Text className="text-white font-semibold">Create New Category</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       horizontal

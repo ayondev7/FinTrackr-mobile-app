@@ -250,11 +250,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderWidth: 2,
     borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
   },
   googleButtonDisabled: {
     opacity: 0.7,
