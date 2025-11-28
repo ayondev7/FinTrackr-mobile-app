@@ -189,17 +189,6 @@ export const LoginScreen: React.FC = () => {
             {' '}and{' '}
             <Text className="text-indigo-600 font-semibold">Privacy Policy</Text>
           </Text>
-
-          {/* Skip to Dashboard Button */}
-          <TouchableOpacity
-            onPress={() => setIsAuthenticated(true)}
-            style={styles.skipButton}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.skipButtonText}>
-              Skip for now
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* Bottom Tagline */}
@@ -249,21 +238,5 @@ const styles = StyleSheet.create({
   },
   spinner: {
     marginRight: 12,
-  },
-  skipButton: {
-    backgroundColor: 'transparent',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    marginTop: 16,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-  },
-  skipButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6B7280',
-    textAlign: 'center',
-    letterSpacing: 0.3,
   },
 });

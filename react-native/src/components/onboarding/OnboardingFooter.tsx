@@ -4,27 +4,21 @@ import { View, Text, TouchableOpacity } from 'react-native';
 interface OnboardingFooterProps {
   currentIndex: number;
   totalSlides: number;
-  onSkip: () => void;
   onNext: () => void;
 }
 
 export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
   currentIndex,
   totalSlides,
-  onSkip,
   onNext,
 }) => {
   const isLastSlide = currentIndex === totalSlides - 1;
 
   return (
-    <View className="flex-row justify-between items-center">
-      <TouchableOpacity onPress={onSkip} className="py-4 px-6">
-        <Text className="text-base text-gray-600 font-semibold">Skip</Text>
-      </TouchableOpacity>
-
+    <View className="items-center mt-4">
       <TouchableOpacity
         onPress={onNext}
-        className="bg-indigo-600 py-4 px-12 rounded-full"
+        className="bg-indigo-600 py-4 rounded-full w-full items-center"
         style={{
           shadowColor: '#6366F1',
           shadowOffset: { width: 0, height: 4 },
@@ -33,7 +27,7 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
           elevation: 6,
         }}
       >
-        <Text className="text-base text-white font-bold">
+        <Text className="text-base text-white font-bold min-w-full text-center">
           {isLastSlide ? 'Get Started' : 'Next'}
         </Text>
       </TouchableOpacity>

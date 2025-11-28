@@ -88,7 +88,6 @@ export const OnboardingScreen: React.FC = () => {
           <OnboardingFooter
             currentIndex={currentIndex}
             totalSlides={slides.length}
-            onSkip={handleFinish}
             onNext={scrollTo}
           />
         </View>
