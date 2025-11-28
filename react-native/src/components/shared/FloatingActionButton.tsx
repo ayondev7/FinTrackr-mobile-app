@@ -101,7 +101,7 @@ export const FloatingActionButton = () => {
           onPress={handleAddCategory}
           style={[
             styles.secondaryButtonTouchable,
-            { backgroundColor: '#8B5CF6' },
+            { backgroundColor: themeColors.info },
           ]}
           activeOpacity={0.8}
         >

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Plus, Target, Grid3X3 } from 'lucide-react-native';
+import { Plus, Target, Tag } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { useCategories } from '../../hooks';
@@ -64,7 +64,7 @@ export const QuickActions = () => {
               className="w-10 h-10 rounded-xl items-center justify-center mb-2"
               style={{ backgroundColor: `${themeColors.info}20` }}
             >
-              <Grid3X3 size={20} color={themeColors.info} />
+              <Tag size={20} color={themeColors.info} />
             </View>
             <Text
               className="font-semibold text-sm mb-1"
@@ -119,14 +119,14 @@ export const QuickActions = () => {
           <Card className="p-4" style={{ width: 110 }}>
             <View
               className="w-10 h-10 rounded-xl items-center justify-center mb-2"
-              style={{ backgroundColor: `${themeColors.primary}20` }}
+              style={{ backgroundColor: `${themeColors.info}20` }}
             >
-              <Plus size={20} color={themeColors.primary} />
+              <Plus size={20} color={themeColors.info} />
             </View>
             <Text
               className="font-semibold text-sm mb-1"
               numberOfLines={1}
-              style={{ color: themeColors.primary }}
+              style={{ color: themeColors.info }}
             >
               Pin
             </Text>

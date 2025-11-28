@@ -5,7 +5,8 @@ import { Loader } from '../shared/Loader';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { Pin } from 'lucide-react-native';
 import { useUpdateCategory, CategoryWithCount } from '../../hooks';
-import { useToastStore } from '../../store';
+import { useToastStore, useThemeStore } from '../../store';
+import { colors } from '../../constants/theme';
 
 interface CategoryItemProps {
   category: CategoryWithCount;
@@ -16,6 +17,8 @@ interface CategoryItemProps {
 export const CategoryItem = ({ category, onPress, refetch }: CategoryItemProps) => {
   const updateCategory = useUpdateCategory();
   const { showSuccess, showError } = useToastStore();
+  const { theme } = useThemeStore();
+  const themeColors = colors[theme];
   
   const handleTogglePin = async () => {
     if (updateCategory.isPending) return;
@@ -82,12 +85,12 @@ export const CategoryItem = ({ category, onPress, refetch }: CategoryItemProps) 
           disabled={updateCategory.isPending}
         >
           {updateCategory.isPending ? (
-            <Loader size={20} color={category.color} />
+            <Loader size={20} color={themeColors.info} />
           ) : (
             <Pin 
               size={20} 
-              color={category.isPinned ? category.color : '#9CA3AF'}
-              fill={category.isPinned ? category.color : 'transparent'}
+              color={category.isPinned ? themeColors.info : '#9CA3AF'}
+              fill={category.isPinned ? themeColors.info : 'transparent'}
             />
           )}
         </TouchableOpacity>

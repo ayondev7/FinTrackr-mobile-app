@@ -152,7 +152,7 @@ export const CategoryDetailScreen = () => {
                 onPress={handleEditPress}
                 className="w-10 h-10 rounded-xl items-center justify-center bg-gray-100 dark:bg-slate-800"
               >
-                <Pencil size={20} color={themeColors.primary} />
+                <Pencil size={20} color={themeColors.info} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDeletePress}

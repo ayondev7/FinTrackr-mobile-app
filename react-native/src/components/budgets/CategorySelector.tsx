@@ -4,6 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Check, Plus } from 'lucide-react-native';
 import { Category } from '../../types';
 import { CategoryIcon } from '../shared/CategoryIcon';
+import { useThemeStore } from '../../store';
+import { colors } from '../../constants/theme';
 
 interface CategorySelectorProps {
   categories: Category[];
@@ -21,6 +23,8 @@ export const CategorySelector = ({
   disabled = false,
 }: CategorySelectorProps) => {
   const navigation = useNavigation();
+  const { theme } = useThemeStore();
+  const themeColors = colors[theme];
 
   const handleCreateCategory = () => {
     navigation.navigate('AddCategory' as never);
@@ -34,7 +38,8 @@ export const CategorySelector = ({
         </Text>
         <TouchableOpacity
           onPress={handleCreateCategory}
-          className="flex-row items-center gap-2 bg-indigo-600 px-5 py-3 rounded-xl"
+          className="flex-row items-center gap-2 px-5 py-3 rounded-xl"
+          style={{ backgroundColor: themeColors.info }}
         >
           <Plus size={20} color="#FFFFFF" />
           <Text className="text-white font-semibold">Create New Category</Text>
