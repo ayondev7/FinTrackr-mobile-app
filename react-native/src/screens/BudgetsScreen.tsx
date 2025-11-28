@@ -139,14 +139,18 @@ export const BudgetsScreen = () => {
                       key={filter.value}
                       onPress={() => setActiveFilter(filter.value)}
                       activeOpacity={0.7}
-                      className={`px-4 py-2 rounded-full ${
-                        isActive ? '' : 'bg-gray-100 dark:bg-slate-800'
-                      }`}
-                      style={isActive ? { backgroundColor: themeColors.primary } : undefined}
+                      className="px-4 py-2 rounded-full"
+                      style={isActive ? {
+                        backgroundColor: '#FEF3C7',
+                        borderWidth: 2,
+                        borderColor: '#FDE68A',
+                      } : {
+                        backgroundColor: isDark ? '#1E293B' : '#F3F4F6',
+                      }}
                     >
                       <Text
                         className={`font-medium ${
-                          isActive ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                          isActive ? 'text-amber-700 dark:text-amber-400' : 'text-gray-600 dark:text-gray-400'
                         }`}
                       >
                         {filter.label}

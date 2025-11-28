@@ -18,15 +18,18 @@ export const TimePeriodFilter: React.FC<TimePeriodFilterProps> = ({ timePeriod, 
           key={period}
           onPress={() => onSelect(period)}
           className={`flex-1 py-2 px-2 rounded-lg ${
-            timePeriod === period
-              ? 'bg-indigo-600 dark:bg-indigo-500'
-              : 'bg-gray-100 dark:bg-slate-700'
+            timePeriod === period ? '' : 'bg-gray-100 dark:bg-slate-700'
           }`}
+          style={timePeriod === period ? {
+            backgroundColor: '#EFF6FF',
+            borderWidth: 2,
+            borderColor: '#BFDBFE',
+          } : undefined}
         >
           <Text
             className={`text-center font-medium text-xs ${
               timePeriod === period
-                ? 'text-white'
+                ? 'text-blue-700 dark:text-blue-400'
                 : 'text-gray-700 dark:text-gray-300'
             }`}
           >

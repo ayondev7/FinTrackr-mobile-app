@@ -154,18 +154,21 @@ export const AddTransactionScreen = () => {
                     key={acc}
                     onPress={() => onChange(acc)}
                     disabled={createTransaction.isPending}
-                    className={`flex-1 py-3 rounded-xl items-center justify-center border ${
-                      value === acc
-                        ? 'bg-indigo-600 border-indigo-600'
-                        : isDark
-                        ? 'bg-slate-800 border-slate-700'
-                        : 'bg-white border-gray-200'
-                    }`}
+                    className="flex-1 py-3 rounded-xl items-center justify-center"
+                    style={value === acc ? {
+                      backgroundColor: '#EFF6FF',
+                      borderWidth: 2,
+                      borderColor: '#BFDBFE',
+                    } : {
+                      backgroundColor: isDark ? '#1E293B' : '#FFFFFF',
+                      borderWidth: 1,
+                      borderColor: isDark ? '#334155' : '#E5E7EB',
+                    }}
                   >
                     <Text
                       className={`font-semibold ${
                         value === acc
-                          ? 'text-white'
+                          ? 'text-blue-700 dark:text-blue-400'
                           : isDark
                           ? 'text-gray-300'
                           : 'text-gray-700'

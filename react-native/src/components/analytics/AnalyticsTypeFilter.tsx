@@ -13,15 +13,18 @@ export const AnalyticsTypeFilter: React.FC<AnalyticsTypeFilterProps> = ({ analyt
       <TouchableOpacity
         onPress={() => onSelect('expense')}
         className={`flex-1 py-2.5 px-4 rounded-xl ${
-          analyticsType === 'expense'
-            ? 'bg-red-500'
-            : 'bg-gray-100 dark:bg-slate-700'
+          analyticsType === 'expense' ? '' : 'bg-gray-100 dark:bg-slate-700'
         }`}
+        style={analyticsType === 'expense' ? {
+          backgroundColor: '#FEF2F2',
+          borderWidth: 2,
+          borderColor: '#FECACA',
+        } : undefined}
       >
         <Text
           className={`text-center font-semibold ${
             analyticsType === 'expense'
-              ? 'text-white'
+              ? 'text-red-700 dark:text-red-400'
               : 'text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -32,15 +35,18 @@ export const AnalyticsTypeFilter: React.FC<AnalyticsTypeFilterProps> = ({ analyt
       <TouchableOpacity
         onPress={() => onSelect('revenue')}
         className={`flex-1 py-2.5 px-4 rounded-xl ${
-          analyticsType === 'revenue'
-            ? 'bg-green-500'
-            : 'bg-gray-100 dark:bg-slate-700'
+          analyticsType === 'revenue' ? '' : 'bg-gray-100 dark:bg-slate-700'
         }`}
+        style={analyticsType === 'revenue' ? {
+          backgroundColor: '#F0FDF4',
+          borderWidth: 2,
+          borderColor: '#BBF7D0',
+        } : undefined}
       >
         <Text
           className={`text-center font-semibold ${
             analyticsType === 'revenue'
-              ? 'text-white'
+              ? 'text-green-700 dark:text-green-400'
               : 'text-gray-700 dark:text-gray-300'
           }`}
         >
@@ -51,15 +57,18 @@ export const AnalyticsTypeFilter: React.FC<AnalyticsTypeFilterProps> = ({ analyt
       <TouchableOpacity
         onPress={() => onSelect('both')}
         className={`flex-1 py-2.5 px-4 rounded-xl ${
-          analyticsType === 'both'
-            ? 'bg-indigo-600 dark:bg-indigo-500'
-            : 'bg-gray-100 dark:bg-slate-700'
+          analyticsType === 'both' ? '' : 'bg-gray-100 dark:bg-slate-700'
         }`}
+        style={analyticsType === 'both' ? {
+          backgroundColor: '#EFF6FF',
+          borderWidth: 2,
+          borderColor: '#BFDBFE',
+        } : undefined}
       >
         <Text
           className={`text-center font-semibold ${
             analyticsType === 'both'
-              ? 'text-white'
+              ? 'text-blue-700 dark:text-blue-400'
               : 'text-gray-700 dark:text-gray-300'
           }`}
         >
