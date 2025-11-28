@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronRight, Wallet, AlertTriangle } from 'lucide-react-native';
+import { ChevronRight, Target, AlertTriangle } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 import { CategoryIcon } from '../shared/CategoryIcon';
 import { BudgetProgressBar } from '../budgets/BudgetProgressBar';
@@ -66,7 +66,7 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
               className="w-14 h-14 rounded-full items-center justify-center mb-3"
               style={{ backgroundColor: `${primaryColor}20` }}
             >
-              <Wallet size={28} color={primaryColor} />
+              <Target size={28} color={primaryColor} />
             </View>
             <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
               Set Up Your Budgets

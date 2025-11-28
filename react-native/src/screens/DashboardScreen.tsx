@@ -94,7 +94,7 @@ export const DashboardScreen = () => {
 
         <BudgetOverview
           currency={currency}
-          primaryColor={themeColors.primary}
+          primaryColor={themeColors.warning}
         />
 
         <RecentTransactions

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Wallet, Filter } from 'lucide-react-native';
+import { Target, Filter } from 'lucide-react-native';
 import { useThemeStore, useUserStore } from '../store';
 import { useBudgets, useDeleteBudget, BudgetWithCategory } from '../hooks';
 import { colors } from '../constants/theme';
@@ -87,14 +87,14 @@ export const BudgetsScreen = () => {
             <Text className="text-gray-900 dark:text-white text-3xl font-bold">
               Budgets
             </Text>
-            <Wallet size={28} color={isDark ? '#FFF' : '#111827'} />
+            <Target size={28} color={themeColors.warning} />
           </View>
         </View>
 
         {budgets.length === 0 ? (
           <EmptyBudgetState
             onCreatePress={handleNavigateToAddBudget}
-            primaryColor={themeColors.primary}
+            primaryColor={themeColors.warning}
           />
         ) : (
           <>
@@ -112,7 +112,7 @@ export const BudgetsScreen = () => {
                 categoryName: b.category?.name || 'Unknown',
               }))}
               currency={user.currency}
-              primaryColor={themeColors.primary}
+              primaryColor={themeColors.warning}
             />
 
             <AddBudgetButton

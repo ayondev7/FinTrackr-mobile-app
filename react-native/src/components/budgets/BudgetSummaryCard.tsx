@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Card } from '../shared/Card';
-import { Wallet, TrendingDown, AlertCircle, CheckCircle2 } from 'lucide-react-native';
+import { Target, TrendingDown, AlertCircle, CheckCircle2 } from 'lucide-react-native';
 import { Budget } from '../../types';
 import { getCurrencySymbol } from '../../utils/helpers';
 
@@ -40,7 +40,7 @@ export const BudgetSummaryCard = ({
           className="w-12 h-12 rounded-xl items-center justify-center"
           style={{ backgroundColor: `${primaryColor}20` }}
         >
-          <Wallet size={24} color={primaryColor} />
+          <Target size={24} color={primaryColor} />
         </View>
         <View className="flex-1">
           <Text className="text-gray-500 dark:text-gray-400 text-sm">
@@ -64,7 +64,7 @@ export const BudgetSummaryCard = ({
         </View>
         <View className="flex-1 bg-gray-50 dark:bg-slate-700 rounded-xl p-3">
           <View className="flex-row items-center gap-2 mb-1">
-            <Wallet size={16} color="#10B981" />
+            <Target size={16} color="#10B981" />
             <Text className="text-gray-500 dark:text-gray-400 text-xs">Remaining</Text>
           </View>
           <Text
