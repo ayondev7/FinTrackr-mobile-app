@@ -80,6 +80,7 @@ export const PredictionsScreen = () => {
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       onRefresh={handleRefresh}
+      contentContainerStyle={{ paddingBottom: 100 }}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">

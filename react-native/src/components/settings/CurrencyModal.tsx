@@ -30,7 +30,7 @@ export const CurrencyModal = ({ visible, onClose, selectedCurrency, onSelect }: 
             </TouchableOpacity>
           </View>
           
-          <ScrollView className="flex-1 p-6">
+          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: 100 }}>
             {CURRENCIES.map((currency) => (
               <TouchableOpacity
                 key={currency.code}
