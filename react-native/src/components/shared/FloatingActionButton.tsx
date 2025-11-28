@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
-import { Plus, X, Receipt, Tag } from 'lucide-react-native';
+import { Plus, X, BanknoteArrowDown, Tag } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeStore } from '../../store';
 import { colors } from '../../constants/theme';
@@ -130,7 +130,7 @@ export const FloatingActionButton = () => {
           ]}
           activeOpacity={0.8}
         >
-          <Receipt color="white" size={24} strokeWidth={2.5} />
+          <BanknoteArrowDown color="white" size={24} strokeWidth={2.5} />
         </TouchableOpacity>
       </Animated.View>
 
