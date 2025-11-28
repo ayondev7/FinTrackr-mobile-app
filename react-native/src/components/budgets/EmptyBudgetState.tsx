@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { PiggyBank, Plus } from 'lucide-react-native';
+import { Wallet, Plus } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 
 interface EmptyBudgetStateProps {
@@ -15,7 +15,7 @@ export const EmptyBudgetState = ({ onCreatePress, primaryColor }: EmptyBudgetSta
         className="w-20 h-20 rounded-full items-center justify-center mb-4"
         style={{ backgroundColor: `${primaryColor}20` }}
       >
-        <PiggyBank size={40} color={primaryColor} />
+        <Wallet size={40} color={primaryColor} />
       </View>
       <Text className="text-gray-900 dark:text-white text-xl font-bold mb-2 text-center">
         No Budgets Yet

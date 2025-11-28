@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { PiggyBank, Filter } from 'lucide-react-native';
+import { Wallet, Filter } from 'lucide-react-native';
 import { useThemeStore, useUserStore } from '../store';
 import { useBudgets, useDeleteBudget, BudgetWithCategory } from '../hooks';
 import { colors } from '../constants/theme';
@@ -87,7 +87,7 @@ export const BudgetsScreen = () => {
             <Text className="text-gray-900 dark:text-white text-3xl font-bold">
               Budgets
             </Text>
-            <PiggyBank size={28} color={isDark ? '#FFF' : '#111827'} />
+            <Wallet size={28} color={isDark ? '#FFF' : '#111827'} />
           </View>
         </View>
 
