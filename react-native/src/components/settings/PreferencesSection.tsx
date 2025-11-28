@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../shared/Card';
-import { DollarSign, Bell, Target, ChevronRight } from 'lucide-react-native';
+import { Bell, Target, ChevronRight, Wallet } from 'lucide-react-native';
 import { getCurrencySymbol } from '../../utils';
 
 interface PreferencesSectionProps {
@@ -9,9 +9,11 @@ interface PreferencesSectionProps {
   successColor: string;
   infoColor: string;
   warningColor: string;
+  primaryColor: string;
   onCurrencyPress: () => void;
   onNotificationPress: () => void;
   onBudgetPress: () => void;
+  onAccountBalancesPress: () => void;
 }
 
 export const PreferencesSection = ({ 
@@ -19,9 +21,11 @@ export const PreferencesSection = ({
   successColor, 
   infoColor, 
   warningColor,
+  primaryColor,
   onCurrencyPress,
   onNotificationPress,
-  onBudgetPress
+  onBudgetPress,
+  onAccountBalancesPress
 }: PreferencesSectionProps) => {
   const currencySymbol = getCurrencySymbol(currency);
   
@@ -49,6 +53,30 @@ export const PreferencesSection = ({
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-xs">
                 {currencySymbol} ({currency})
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700"
+          onPress={onAccountBalancesPress}
+          activeOpacity={0.7}
+        >
+          <View className="flex-row items-center gap-3">
+            <View
+              className="w-10 h-10 rounded-xl items-center justify-center"
+              style={{ backgroundColor: `${primaryColor}20` }}
+            >
+              <Wallet size={20} color={primaryColor} />
+            </View>
+            <View>
+              <Text className="text-gray-900 dark:text-white font-semibold">
+                Account Balances
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                Edit cash, bank & digital
               </Text>
             </View>
           </View>

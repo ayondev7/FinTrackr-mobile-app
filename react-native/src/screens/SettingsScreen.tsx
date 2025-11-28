@@ -8,7 +8,7 @@ import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
-import { useUserProfile, useUpdateProfile, useClearUserData, useExportUserData } from '../hooks';
+import { useUserProfile, useUpdateProfile, useClearUserData, useExportUserData, useUpdateBalance } from '../hooks';
 import { CURRENCIES } from '../constants';
 import { 
   ProfileCard, 
@@ -18,7 +18,8 @@ import {
   CurrencyModal,
   NotificationModal,
   ExportModal,
-  ClearDataModal
+  ClearDataModal,
+  AccountBalancesModal
 } from '../components/settings';
 import { RefreshableScrollView, Loader } from '../components/shared';
 
@@ -34,6 +35,7 @@ export const SettingsScreen = () => {
 
   const { data: userResponse, isLoading, refetch } = useUserProfile();
   const updateProfile = useUpdateProfile();
+  const updateBalance = useUpdateBalance();
   const clearUserData = useClearUserData();
   const exportUserData = useExportUserData();
   const user = userResponse?.data;
@@ -42,6 +44,7 @@ export const SettingsScreen = () => {
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const [exportModalVisible, setExportModalVisible] = useState(false);
   const [clearDataModalVisible, setClearDataModalVisible] = useState(false);
+  const [accountBalancesModalVisible, setAccountBalancesModalVisible] = useState(false);
 
   const [notificationSettings, setNotificationSettings] = useState({
     transactions: true,
@@ -63,6 +66,21 @@ export const SettingsScreen = () => {
       showSuccess('Currency Updated', `Your currency has been changed to ${currencyName} (${currencyInfo?.symbol || currency})`);
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update currency';
+      showError('Update Failed', errorMessage);
+    }
+  };
+
+  const handleAccountBalancesUpdate = async (cash: number, bank: number, digital: number) => {
+    try {
+      await updateBalance.mutateAsync({
+        cashBalance: cash,
+        bankBalance: bank,
+        digitalBalance: digital,
+      });
+      setAccountBalancesModalVisible(false);
+      showSuccess('Balances Updated', 'Your account balances have been successfully updated.');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update balances';
       showError('Update Failed', errorMessage);
     }
   };
@@ -183,9 +201,11 @@ export const SettingsScreen = () => {
           successColor={themeColors.success}
           infoColor={themeColors.info}
           warningColor={themeColors.warning}
+          primaryColor={themeColors.primary}
           onCurrencyPress={() => setCurrencyModalVisible(true)}
           onNotificationPress={() => setNotificationModalVisible(true)}
           onBudgetPress={() => navigation.navigate('Budgets' as never)}
+          onAccountBalancesPress={() => setAccountBalancesModalVisible(true)}
         />
 
         <DataPrivacySection
@@ -267,6 +287,17 @@ export const SettingsScreen = () => {
         dangerColor={themeColors.danger}
         onClearData={handleClearData}
         isLoading={clearUserData.isPending}
+      />
+
+      <AccountBalancesModal
+        visible={accountBalancesModalVisible}
+        onClose={() => setAccountBalancesModalVisible(false)}
+        cashBalance={user?.cashBalance || 0}
+        bankBalance={user?.bankBalance || 0}
+        digitalBalance={user?.digitalBalance || 0}
+        currencySymbol={CURRENCIES.find(c => c.code === user?.currency)?.symbol || '$'}
+        onUpdate={handleAccountBalancesUpdate}
+        isLoading={updateBalance.isPending}
       />
     </RefreshableScrollView>
   );

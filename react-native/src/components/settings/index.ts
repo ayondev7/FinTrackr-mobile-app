@@ -7,3 +7,4 @@ export { NotificationModal } from './NotificationModal';
 export { BudgetModal } from './BudgetModal';
 export { ExportModal } from './ExportModal';
 export { ClearDataModal } from './ClearDataModal';
+export { AccountBalancesModal } from './AccountBalancesModal';
