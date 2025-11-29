@@ -42,8 +42,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       >
         <Image
           source={{ uri: 'https://ik.imagekit.io/swiftChat/fintrackr/splash-icon.png' }}
-          style={{ width: 230, height: 120, marginBottom: 18 }}
-          resizeMode="contain"
+          style={{ width: 300, height: 95, marginBottom: 0 }}
+          resizeMode="cover"
         />
 
         <Text className="text-lg text-indigo-900 font-semibold mb-2" style={{ letterSpacing: 2 }}>
