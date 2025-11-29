@@ -22,6 +22,9 @@ export const useUserStore = create<UserState>((set) => {
     theme: ((userData as any)?.theme as 'light' | 'dark') ?? 'light',
     createdAt: (userData as any)?.createdAt,
     updatedAt: (userData as any)?.updatedAt,
+    notifyTransactions: true,
+    notifyBudgetAlerts: true,
+    notifyMonthlyReports: false,
   };
 
   return {
