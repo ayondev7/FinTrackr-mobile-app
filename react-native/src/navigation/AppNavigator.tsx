@@ -18,6 +18,7 @@ import {
   AddBudgetScreen,
   PredictionsScreen,
   SettingsScreen,
+  SplashDemoScreen,
   
   ToastTestScreen,
 } from '../screens';
@@ -76,7 +77,7 @@ export const AppNavigator = () => {
         <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
         <Stack.Screen name="Budgets" component={BudgetsScreen} />
         <Stack.Screen name="AddBudget" component={AddBudgetScreen} />
-        
+        <Stack.Screen name="SplashDemo" component={SplashDemoScreen} />
         <Stack.Screen name="ToastTest" component={ToastTestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -228,6 +228,14 @@ export const SettingsScreen = () => {
               Test Toast Notifications
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SplashDemo' as never)}
+            className="bg-violet-600 p-4 rounded-xl mb-3 flex-row items-center justify-center gap-2"
+          >
+            <Text className="text-white text-center font-semibold">
+              Show App Splash
+            </Text>
+          </TouchableOpacity>
           
           <TouchableOpacity
             onPress={handleResetOnboarding}
