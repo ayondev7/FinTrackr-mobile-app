@@ -10,6 +10,7 @@ export { AddBudgetScreen } from './AddBudgetScreen';
 export { PredictionsScreen } from './PredictionsScreen';
 export { SettingsScreen } from './SettingsScreen';
 export { SplashScreen } from './SplashScreen';
+// preview/demo screens removed
 export { OnboardingScreen } from './OnboardingScreen';
 export { LoginScreen } from './LoginScreen';
 export { SignupScreen } from './SignupScreen';

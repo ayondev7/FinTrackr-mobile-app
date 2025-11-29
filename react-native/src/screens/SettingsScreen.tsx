@@ -228,6 +228,7 @@ export const SettingsScreen = () => {
               Test Toast Notifications
             </Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             onPress={handleResetOnboarding}
             className="bg-orange-500 p-4 rounded-xl"
