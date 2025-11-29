@@ -5,10 +5,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash-icon.png",
-      "resizeMode": "contain"
+      "resizeMode": "cover"
     },
     "ios": {
       "supportsTablet": true
@@ -16,7 +15,8 @@
     "android": {
       "package": "com.ayon.fintrackr",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "resizeMode": "contain"
       }
     },
     "web": {
