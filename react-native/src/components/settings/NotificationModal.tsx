@@ -39,13 +39,6 @@ export const NotificationModal = ({ visible, onClose, settings, onUpdate, primar
       description: 'Receive monthly spending summaries',
       value: settings.monthlyReports,
     },
-    {
-      key: 'reminderAlerts',
-      icon: AlertCircle,
-      title: 'Bill Reminders',
-      description: 'Remind about upcoming bills',
-      value: settings.reminderAlerts,
-    },
   ];
 
   return (
