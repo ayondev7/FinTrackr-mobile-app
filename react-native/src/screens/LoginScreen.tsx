@@ -142,7 +142,7 @@ export const LoginScreen: React.FC = () => {
           <View className="items-center">
             <Image
               source={{
-                uri: "https://ik.imagekit.io/swiftChat/fintrackr/auth-logo.webp",
+                uri: "https://ik.imagekit.io/swiftChat/fintrackr/splash-icon.png",
               }}
               style={styles.logo}
               resizeMode="contain"
@@ -240,7 +240,7 @@ export const LoginScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   logo: {
-    width: 220,
+    width: 320,
     height: 110,
   },
   googleButton: {
