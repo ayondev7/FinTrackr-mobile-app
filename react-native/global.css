@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+  html, body, #root, * {
+    font-family: 'Inter_400Regular';
+  }
+}
+
+@layer utilities {
+  .font-medium {
+    font-family: 'Inter_500Medium';
+  }
+  .font-semibold {
+    font-family: 'Inter_600SemiBold';
+  }
+  .font-bold {
+    font-family: 'Inter_700Bold';
+  }
+  .font-extrabold {
+    font-family: 'Inter_800ExtraBold';
+  }
+}

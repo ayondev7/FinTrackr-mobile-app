@@ -27,7 +27,7 @@ export const OnboardingFooter: React.FC<OnboardingFooterProps> = ({
           elevation: 6,
         }}
       >
-        <Text className="text-base text-white font-bold min-w-full text-center">
+        <Text className="text-base text-white font-semibold px-20 text-center">
           {isLastSlide ? 'Get Started' : 'Next'}
         </Text>
       </TouchableOpacity>
