@@ -94,7 +94,7 @@ export const AddCategoryScreen = () => {
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-900">
       <View 
-        className="bg-white dark:bg-slate-800 px-6 pb-4 border-b border-gray-200 dark:border-gray-700"
+        className="bg-white dark:bg-slate-800 px-6 pb-4"
         style={{ paddingTop: insets.top + 16 }}
       >
         <ScreenHeader

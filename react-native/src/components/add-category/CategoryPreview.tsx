@@ -9,10 +9,10 @@ interface CategoryPreviewProps {
 export const CategoryPreview: React.FC<CategoryPreviewProps> = ({ color, IconComponent }) => {
   return (
     <View 
-      className="w-20 h-20 rounded-2xl items-center justify-center self-center mb-4"
+      className="w-20 h-20 rounded-2xl items-center justify-center mt-6 self-center mb-2"
       style={{ backgroundColor: `${color}20` }}
     >
-      <IconComponent size={40} color={color} />
+      <IconComponent size={36} color={color} />
     </View>
   );
 };

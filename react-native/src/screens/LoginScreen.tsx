@@ -91,14 +91,13 @@ export const LoginScreen: React.FC = () => {
       if (!accessToken || !refreshToken) {
         throw new Error("Missing authentication tokens");
       }
-
       await saveTokens(accessToken, refreshToken);
-
       if (!isNewUser) {
         setHasSetupBalance(true);
+        showSuccess("Welcome back to FinTrackr!","Continue achieving your goals.");
+      } else {
+        showSuccess("Welcome to FinTrackr!", "Please complete your setup.");
       }
-
-      showSuccess("Welcome to FinTrackr!", `Please complete your setup.`);
 
       setIsAuthenticated(true);
     } catch (error) {
