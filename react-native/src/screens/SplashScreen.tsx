@@ -35,7 +35,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   }, []);
 
   return (
-    <View className="flex-1 justify-center items-center">
+    <View className="flex-1 justify-center items-center bg-white">
       <Animated.View
         className="items-center"
         style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}
