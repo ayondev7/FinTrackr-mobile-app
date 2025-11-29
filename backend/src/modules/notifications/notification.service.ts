@@ -13,10 +13,14 @@ export const sendNotificationToUser = async (
   userId: string,
   payload: NotificationPayload
 ): Promise<void> => {
+  console.log('sendNotificationToUser called for userId:', userId, 'payload:', payload);
+  
   const deviceTokens = await prisma.deviceToken.findMany({
     where: { userId },
     select: { id: true, expoPushToken: true },
   });
+
+  console.log('Device tokens found:', deviceTokens.length, deviceTokens.map(d => ({ id: d.id, token: d.expoPushToken.substring(0, 30) + '...' })));
 
   if (deviceTokens.length === 0) {
     console.log(`No device tokens found for user ${userId}`);
@@ -52,7 +56,9 @@ export const sendNotificationToUser = async (
 
   for (const chunk of chunks) {
     try {
+      console.log('Sending push notification chunk:', chunk.length, 'messages');
       const tickets = await expo.sendPushNotificationsAsync(chunk);
+      console.log('Push notification tickets received:', tickets);
       await handlePushTickets(tickets, chunk, tokenIdMap);
     } catch (error) {
       console.error('Error sending push notifications:', error);

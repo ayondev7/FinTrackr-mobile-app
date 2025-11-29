@@ -2,6 +2,7 @@
   "expo": {
     "name": "FinTrackr",
     "slug": "fintrackr-app",
+    "userInterfaceStyle": "automatic",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

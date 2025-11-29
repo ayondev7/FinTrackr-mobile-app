@@ -300,10 +300,13 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
   const { transaction, user, isExpense, budgetAlertType, budgetInfo } = result;
 
   // Transaction notification
+  console.log('User notification preferences:', { notifyTransactions: user?.notifyTransactions, notifyBudgetAlerts: user?.notifyBudgetAlerts });
+  
   if (user?.notifyTransactions) {
     const sign = isExpense ? '-' : '+';
     const formattedAmount = `${sign}${user.currency} ${validatedData.amount.toFixed(2)}`;
 
+    console.log('Sending transaction notification to user:', userId);
     sendNotificationToUser(userId, {
       title: 'Transaction Added',
       body: `${transaction.category.name}: ${formattedAmount}`,
