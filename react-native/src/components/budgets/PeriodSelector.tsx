@@ -17,6 +17,13 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: 'yearly', label: 'Yearly' },
 ];
 
+// Match selected tab styling used in TimePeriodFilter (Transactions screen)
+const SELECTED_STYLE = {
+  backgroundColor: '#EFF6FF',
+  borderWidth: 2,
+  borderColor: '#BFDBFE',
+};
+
 export const PeriodSelector = ({
   selectedPeriod,
   onSelect,
@@ -36,11 +43,11 @@ export const PeriodSelector = ({
             className={`flex-1 py-3 rounded-xl items-center ${
               isSelected ? '' : 'bg-gray-100 dark:bg-slate-700'
             }`}
-            style={isSelected ? { backgroundColor: primaryColor } : undefined}
+            style={isSelected ? SELECTED_STYLE : undefined}
           >
             <Text
               className={`font-medium text-sm ${
-                isSelected ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                isSelected ? 'text-blue-700 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
               }`}
             >
               {period.label}
