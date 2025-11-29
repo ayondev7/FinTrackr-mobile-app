@@ -45,6 +45,8 @@ export const useNotifications = () => {
   const [permissionStatus, setPermissionStatus] = useState<Notifications.PermissionStatus | null>(null);
   const notificationListener = useRef<Notifications.EventSubscription | undefined>(undefined);
   const responseListener = useRef<Notifications.EventSubscription | undefined>(undefined);
+  const isRegisteringRef = useRef<boolean>(false);
+  const hasRegisteredRef = useRef<boolean>(false);
 
   const registerDevice = useRegisterDevice();
   const unregisterDevice = useUnregisterDevice();
@@ -84,9 +86,19 @@ export const useNotifications = () => {
   }, []);
 
   const registerDeviceWithBackend = useCallback(async () => {
+    // Prevent duplicate registrations
+    if (isRegisteringRef.current || hasRegisteredRef.current) {
+      return;
+    }
+
+    isRegisteringRef.current = true;
+
     try {
       const token = await registerForPushNotifications();
-      if (!token) return;
+      if (!token) {
+        isRegisteringRef.current = false;
+        return;
+      }
 
       setExpoPushToken(token);
 
@@ -103,22 +115,26 @@ export const useNotifications = () => {
         platform,
       });
 
+      hasRegisteredRef.current = true;
       console.log('Device registered for push notifications');
     } catch (error) {
       console.error('Failed to register device:', error);
+    } finally {
+      isRegisteringRef.current = false;
     }
-  }, [registerForPushNotifications, registerDevice]);
+  }, [registerForPushNotifications]);
 
   const unregisterDeviceFromBackend = useCallback(async () => {
     if (!deviceId) return;
 
     try {
       await unregisterDevice.mutateAsync(deviceId);
+      hasRegisteredRef.current = false; // Allow re-registration after unregister
       console.log('Device unregistered from push notifications');
     } catch (error) {
       console.error('Failed to unregister device:', error);
     }
-  }, [deviceId, unregisterDevice]);
+  }, [deviceId]);
 
   useEffect(() => {
     notificationListener.current = Notifications.addNotificationReceivedListener((notification: Notifications.Notification) => {
@@ -134,12 +150,8 @@ export const useNotifications = () => {
     });
 
     return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
     };
   }, []);
 
