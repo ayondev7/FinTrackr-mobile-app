@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../shared/Card';
-import { Bell, Target, ChevronRight, Wallet } from 'lucide-react-native';
+import { Bell, Target, ChevronRight, Wallet, Smartphone } from 'lucide-react-native';
 import { getCurrencySymbol } from '../../utils';
 
 interface PreferencesSectionProps {
@@ -14,6 +14,7 @@ interface PreferencesSectionProps {
   onNotificationPress: () => void;
   onBudgetPress: () => void;
   onAccountBalancesPress: () => void;
+  onDeviceManagementPress: () => void;
 }
 
 export const PreferencesSection = ({ 
@@ -25,7 +26,8 @@ export const PreferencesSection = ({
   onCurrencyPress,
   onNotificationPress,
   onBudgetPress,
-  onAccountBalancesPress
+  onAccountBalancesPress,
+  onDeviceManagementPress
 }: PreferencesSectionProps) => {
   const currencySymbol = getCurrencySymbol(currency);
   
@@ -101,6 +103,30 @@ export const PreferencesSection = ({
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-xs">
                 Manage alerts
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          className="p-4 flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700"
+          onPress={onDeviceManagementPress}
+          activeOpacity={0.7}
+        >
+          <View className="flex-row items-center gap-3">
+            <View
+              className="w-10 h-10 rounded-xl items-center justify-center"
+              style={{ backgroundColor: `${primaryColor}20` }}
+            >
+              <Smartphone size={20} color={primaryColor} />
+            </View>
+            <View>
+              <Text className="text-gray-900 dark:text-white font-semibold">
+                Manage Devices
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                View connected devices
               </Text>
             </View>
           </View>

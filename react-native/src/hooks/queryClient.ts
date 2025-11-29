@@ -25,6 +25,7 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   user: {
     profile: ['user', 'profile'] as const,
+    devices: ['user', 'devices'] as const,
   },
   transaction: {
     all: ['transaction'] as const,

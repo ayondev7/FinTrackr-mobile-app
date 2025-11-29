@@ -26,9 +26,14 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  notifyTransactions   Boolean @default(true)
+  notifyBudgetAlerts   Boolean @default(true)
+  notifyMonthlyReports Boolean @default(false)
+
   categories   Category[]
   transactions Transaction[]
   budgets      Budget[]
+  deviceTokens DeviceToken[]
 
   @@index([providerId])
   @@index([id])
@@ -91,6 +96,9 @@ model Budget {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  warningAlertSentAt  DateTime?
+  exceededAlertSentAt DateTime?
+
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
@@ -99,4 +107,22 @@ model Budget {
   @@index([userId, period])
   @@index([startDate, endDate])
   @@map("budgets")
+}
+
+model DeviceToken {
+  id            String   @id @default(uuid())
+  userId        String
+  deviceId      String
+  expoPushToken String   @unique
+  deviceName    String?
+  platform      String
+  lastActiveAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceId])
+  @@index([userId])
+  @@index([lastActiveAt])
+  @@map("device_tokens")
 }

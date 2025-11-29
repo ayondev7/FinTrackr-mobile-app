@@ -14,5 +14,12 @@ export const updateBalanceSchema = z.object({
   currency: z.string().min(3).max(3).optional(),
 });
 
+export const updateNotificationSettingsSchema = z.object({
+  notifyTransactions: z.boolean().optional(),
+  notifyBudgetAlerts: z.boolean().optional(),
+  notifyMonthlyReports: z.boolean().optional(),
+});
+
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type UpdateBalanceInput = z.infer<typeof updateBalanceSchema>;
+export type UpdateNotificationSettingsInput = z.infer<typeof updateNotificationSettingsSchema>;

@@ -1,43 +1,58 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, Switch, ScrollView } from 'react-native';
-import { X, Bell, TrendingDown, Calendar, AlertCircle } from 'lucide-react-native';
+import { View, Text, Modal, TouchableOpacity, Switch, ScrollView, ActivityIndicator } from 'react-native';
+import { X, Bell, TrendingDown, Calendar } from 'lucide-react-native';
 import { Card } from '../shared/Card';
+
+interface NotificationSettings {
+  notifyTransactions: boolean;
+  notifyBudgetAlerts: boolean;
+  notifyMonthlyReports: boolean;
+}
 
 interface NotificationModalProps {
   visible: boolean;
   onClose: () => void;
-  settings: {
-    transactions: boolean;
-    budgetAlerts: boolean;
-    monthlyReports: boolean;
-    reminderAlerts: boolean;
-  };
-  onUpdate: (key: string, value: boolean) => void;
+  settings: NotificationSettings;
+  onUpdate: (key: keyof NotificationSettings, value: boolean) => void;
   primaryColor: string;
+  isLoading?: boolean;
 }
 
-export const NotificationModal = ({ visible, onClose, settings, onUpdate, primaryColor }: NotificationModalProps) => {
-  const notificationOptions = [
+export const NotificationModal = ({ 
+  visible, 
+  onClose, 
+  settings, 
+  onUpdate, 
+  primaryColor,
+  isLoading = false,
+}: NotificationModalProps) => {
+  const notificationOptions: Array<{
+    key: keyof NotificationSettings;
+    icon: typeof Bell;
+    title: string;
+    description: string;
+    value: boolean;
+  }> = [
     {
-      key: 'transactions',
+      key: 'notifyTransactions',
       icon: Bell,
       title: 'Transaction Notifications',
       description: 'Get notified when transactions are added',
-      value: settings.transactions,
+      value: settings.notifyTransactions,
     },
     {
-      key: 'budgetAlerts',
+      key: 'notifyBudgetAlerts',
       icon: TrendingDown,
       title: 'Budget Alerts',
       description: 'Alert when approaching budget limits',
-      value: settings.budgetAlerts,
+      value: settings.notifyBudgetAlerts,
     },
     {
-      key: 'monthlyReports',
+      key: 'notifyMonthlyReports',
       icon: Calendar,
       title: 'Monthly Reports',
       description: 'Receive monthly spending summaries',
-      value: settings.monthlyReports,
+      value: settings.notifyMonthlyReports,
     },
   ];
 
@@ -62,7 +77,7 @@ export const NotificationModal = ({ visible, onClose, settings, onUpdate, primar
           <ScrollView className="flex-1 p-6">
             <View className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
               <Text className="text-blue-800 dark:text-blue-300 text-sm">
-                Manage which notifications you'd like to receive
+                Manage which push notifications you'd like to receive
               </Text>
             </View>
 
@@ -87,12 +102,16 @@ export const NotificationModal = ({ visible, onClose, settings, onUpdate, primar
                         </Text>
                       </View>
                     </View>
-                    <Switch
-                      value={option.value}
-                      onValueChange={(value) => onUpdate(option.key, value)}
-                      trackColor={{ false: '#D1D5DB', true: primaryColor }}
-                      thumbColor="#FFFFFF"
-                    />
+                    {isLoading ? (
+                      <ActivityIndicator size="small" color={primaryColor} />
+                    ) : (
+                      <Switch
+                        value={option.value}
+                        onValueChange={(value) => onUpdate(option.key, value)}
+                        trackColor={{ false: '#D1D5DB', true: primaryColor }}
+                        thumbColor="#FFFFFF"
+                      />
+                    )}
                   </View>
                 </Card>
               );

@@ -3,6 +3,7 @@ import prisma from '../../config/database';
 import { ApiError, asyncHandler, sendSuccess } from '../../utils/apiHelpers';
 import { AuthRequest } from '../../middleware/auth';
 import { createTransactionSchema, updateTransactionSchema } from './transaction.validation';
+import { sendNotificationToUser } from '../notifications/notification.service';
 
 // Helper function to get date range for time period
 const getDateRangeForTimePeriod = (timePeriod: string) => {
@@ -188,6 +189,16 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       throw new ApiError(404, 'Category not found');
     }
 
+    // Get user for notification preferences and currency
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: {
+        currency: true,
+        notifyTransactions: true,
+        notifyBudgetAlerts: true,
+      },
+    });
+
     // Remove type from validated data since it's determined by category
     const { type: _type, ...transactionData } = validatedData;
 
@@ -226,6 +237,9 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
     });
 
     // 4. If expense, update budget spent amount for the current period
+    let budgetAlertType: 'warning' | 'exceeded' | null = null;
+    let budgetInfo: { categoryName: string; spent: number; limit: number } | null = null;
+
     if (isExpense) {
       const now = new Date();
       const activeBudget = await tx.budget.findFirst({
@@ -238,6 +252,9 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       });
 
       if (activeBudget) {
+        const newSpent = activeBudget.spent + validatedData.amount;
+        const percentage = (newSpent / activeBudget.limit) * 100;
+
         await tx.budget.update({
           where: { id: activeBudget.id },
           data: {
@@ -246,15 +263,77 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
             },
           },
         });
+
+        // Check for budget alerts
+        if (percentage >= 100 && !activeBudget.exceededAlertSentAt) {
+          budgetAlertType = 'exceeded';
+          budgetInfo = {
+            categoryName: category.name,
+            spent: newSpent,
+            limit: activeBudget.limit,
+          };
+
+          await tx.budget.update({
+            where: { id: activeBudget.id },
+            data: { exceededAlertSentAt: now },
+          });
+        } else if (percentage >= activeBudget.alertThreshold && percentage < 100 && !activeBudget.warningAlertSentAt) {
+          budgetAlertType = 'warning';
+          budgetInfo = {
+            categoryName: category.name,
+            spent: newSpent,
+            limit: activeBudget.limit,
+          };
+
+          await tx.budget.update({
+            where: { id: activeBudget.id },
+            data: { warningAlertSentAt: now },
+          });
+        }
       }
     }
 
-    return transaction;
+    return { transaction, user, isExpense, budgetAlertType, budgetInfo };
   });
 
-  console.log('Transaction created successfully:', result.id);
+  // Send notifications after transaction completes (non-blocking)
+  const { transaction, user, isExpense, budgetAlertType, budgetInfo } = result;
 
-  sendSuccess(res, result, 'Transaction created successfully', 201);
+  // Transaction notification
+  if (user?.notifyTransactions) {
+    const sign = isExpense ? '-' : '+';
+    const formattedAmount = `${sign}${user.currency} ${validatedData.amount.toFixed(2)}`;
+
+    sendNotificationToUser(userId, {
+      title: 'Transaction Added',
+      body: `${transaction.category.name}: ${formattedAmount}`,
+      data: { type: 'transaction', transactionId: transaction.id },
+    }).catch((err) => console.error('Failed to send transaction notification:', err));
+  }
+
+  // Budget alert notification
+  if (user?.notifyBudgetAlerts && budgetAlertType && budgetInfo) {
+    const percentage = Math.round((budgetInfo.spent / budgetInfo.limit) * 100);
+
+    if (budgetAlertType === 'exceeded') {
+      const exceededBy = budgetInfo.spent - budgetInfo.limit;
+      sendNotificationToUser(userId, {
+        title: '🚨 Budget Exceeded',
+        body: `${budgetInfo.categoryName}: You've exceeded your ${user.currency} ${budgetInfo.limit} budget by ${user.currency} ${exceededBy.toFixed(2)}!`,
+        data: { type: 'budget_exceeded', categoryName: budgetInfo.categoryName },
+      }).catch((err) => console.error('Failed to send budget exceeded notification:', err));
+    } else {
+      sendNotificationToUser(userId, {
+        title: '⚠️ Budget Warning',
+        body: `${budgetInfo.categoryName}: You've used ${percentage}% of your ${user.currency} ${budgetInfo.limit} budget. Be careful!`,
+        data: { type: 'budget_warning', categoryName: budgetInfo.categoryName },
+      }).catch((err) => console.error('Failed to send budget warning notification:', err));
+    }
+  }
+
+  console.log('Transaction created successfully:', transaction.id);
+
+  sendSuccess(res, transaction, 'Transaction created successfully', 201);
 });
 
 export const updateTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {

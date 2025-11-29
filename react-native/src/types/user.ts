@@ -8,8 +8,26 @@ export interface User {
   bankBalance: number;
   digitalBalance: number;
   theme: 'light' | 'dark';
+  notifyTransactions: boolean;
+  notifyBudgetAlerts: boolean;
+  notifyMonthlyReports: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface NotificationSettings {
+  notifyTransactions: boolean;
+  notifyBudgetAlerts: boolean;
+  notifyMonthlyReports: boolean;
+}
+
+export interface DeviceToken {
+  id: string;
+  deviceId: string;
+  deviceName?: string;
+  platform: 'ios' | 'android';
+  lastActiveAt: string;
+  createdAt: string;
 }
 
 export interface ApiResponse<T> {

@@ -1,90 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AppNavigator } from './src/navigation';
 import { useThemeStore, useOnboardingStore } from './src/store';
-import { queryClient } from './src/hooks';
+import { queryClient, useNotifications } from './src/hooks';
 import { TestBoolean } from './TestBoolean';
 import './global.css';
 import { useColorScheme } from 'nativewind';
@@ -97,6 +16,19 @@ import { ToastContainer } from './src/components/shared';
 ExpoSplashScreen.preventAutoHideAsync();
 
 const USE_TEST_MODE = false;
+
+function NotificationRegistrar() {
+  const { registerDeviceWithBackend } = useNotifications();
+  const { isAuthenticated } = useOnboardingStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      registerDeviceWithBackend();
+    }
+  }, [isAuthenticated, registerDeviceWithBackend]);
+
+  return null;
+}
 
 function AppContent() {
   const { theme } = useThemeStore();
@@ -166,6 +98,7 @@ function AppContent() {
 
   return (
     <SafeAreaProvider>
+      <NotificationRegistrar />
       <AppNavigator />
       <ToastContainer />
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />

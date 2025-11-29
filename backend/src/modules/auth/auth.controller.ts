@@ -7,6 +7,7 @@ import { config } from '../../config';
 import { ApiError, asyncHandler, sendSuccess } from '../../utils/apiHelpers';
 import { googleAuthSchema, refreshTokenSchema } from './auth.validation';
 import type { GoogleAuthInput } from './auth.validation';
+import { cleanupUserInactiveDevices } from '../notifications/notification.service';
 
 const resolveDisplayName = (payload: GoogleAuthInput) => {
   if (payload.name && payload.name.trim()) {
@@ -82,6 +83,11 @@ export const googleAuth = asyncHandler(async (req: Request, res: Response) => {
 
     console.log('Existing Google auth user logged in:', user.id);
   }
+
+  // Cleanup inactive devices for this user (non-blocking)
+  cleanupUserInactiveDevices(user.id, 60).catch((err) =>
+    console.error('Failed to cleanup inactive devices:', err)
+  );
 
   const tokens = createTokenPair(user.id);
 

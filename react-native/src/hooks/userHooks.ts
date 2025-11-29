@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "../utils/apiClient";
-import { userRoutes } from "../routes";
+import { userRoutes, notificationRoutes } from "../routes";
 import { queryKeys } from "./queryClient";
 import {
   User,
@@ -9,6 +9,8 @@ import {
   UpdateProfilePayload,
   ClearDataResult,
   ExportData,
+  NotificationSettings,
+  DeviceToken,
 } from "../types";
 
 export const useUserProfile = () => {
@@ -72,5 +74,68 @@ export const useExportUserData = () => {
   return useMutation({
     mutationFn: () =>
       apiRequest.get<ApiResponse<ExportData>>(userRoutes.exportData),
+  });
+};
+
+export const useUpdateNotificationSettings = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: Partial<NotificationSettings>) =>
+      apiRequest.patch<ApiResponse<NotificationSettings>>(
+        userRoutes.updateNotificationSettings,
+        payload
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile });
+    },
+  });
+};
+
+export interface RegisterDevicePayload {
+  deviceId: string;
+  expoPushToken: string;
+  deviceName?: string;
+  platform: 'ios' | 'android';
+}
+
+export const useRegisterDevice = () => {
+  return useMutation({
+    mutationFn: (payload: RegisterDevicePayload) =>
+      apiRequest.post<ApiResponse<{ id: string }>>(
+        notificationRoutes.registerDevice,
+        payload
+      ),
+  });
+};
+
+export const useUnregisterDevice = () => {
+  return useMutation({
+    mutationFn: (deviceId: string) =>
+      apiRequest.delete<ApiResponse<null>>(
+        notificationRoutes.unregisterDevice(deviceId)
+      ),
+  });
+};
+
+export const useDevices = () => {
+  return useQuery({
+    queryKey: queryKeys.user.devices,
+    queryFn: () =>
+      apiRequest.get<ApiResponse<DeviceToken[]>>(notificationRoutes.devices),
+  });
+};
+
+export const useRemoveDevice = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (deviceId: string) =>
+      apiRequest.delete<ApiResponse<null>>(
+        notificationRoutes.removeDevice(deviceId)
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.devices });
+    },
   });
 };

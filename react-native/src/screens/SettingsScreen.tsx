@@ -8,8 +8,9 @@ import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
-import { useUserProfile, useUpdateProfile, useClearUserData, useExportUserData, useUpdateBalance } from '../hooks';
+import { useUserProfile, useUpdateProfile, useClearUserData, useExportUserData, useUpdateBalance, useUpdateNotificationSettings, useNotifications } from '../hooks';
 import { CURRENCIES } from '../constants';
+import { NotificationSettings } from '../types';
 import { 
   ProfileCard, 
   ThemeSection, 
@@ -19,7 +20,8 @@ import {
   NotificationModal,
   ExportModal,
   ClearDataModal,
-  AccountBalancesModal
+  AccountBalancesModal,
+  DeviceManagementModal
 } from '../components/settings';
 import { RefreshableScrollView, Loader } from '../components/shared';
 
@@ -38,6 +40,8 @@ export const SettingsScreen = () => {
   const updateBalance = useUpdateBalance();
   const clearUserData = useClearUserData();
   const exportUserData = useExportUserData();
+  const updateNotificationSettings = useUpdateNotificationSettings();
+  const { unregisterDeviceFromBackend } = useNotifications();
   const user = userResponse?.data;
 
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
@@ -45,13 +49,7 @@ export const SettingsScreen = () => {
   const [exportModalVisible, setExportModalVisible] = useState(false);
   const [clearDataModalVisible, setClearDataModalVisible] = useState(false);
   const [accountBalancesModalVisible, setAccountBalancesModalVisible] = useState(false);
-
-  const [notificationSettings, setNotificationSettings] = useState({
-    transactions: true,
-    budgetAlerts: true,
-    monthlyReports: false,
-    reminderAlerts: true,
-  });
+  const [deviceManagementModalVisible, setDeviceManagementModalVisible] = useState(false);
 
   const handleRefresh = async () => {
     await refetch();
@@ -85,8 +83,13 @@ export const SettingsScreen = () => {
     }
   };
 
-  const handleNotificationUpdate = (key: string, value: boolean) => {
-    setNotificationSettings(prev => ({ ...prev, [key]: value }));
+  const handleNotificationUpdate = async (key: keyof NotificationSettings, value: boolean) => {
+    try {
+      await updateNotificationSettings.mutateAsync({ [key]: value });
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update notification settings';
+      showError('Update Failed', errorMessage);
+    }
   };
 
   const handleExportData = async (format: 'csv' | 'json' | 'pdf') => {
@@ -143,6 +146,11 @@ export const SettingsScreen = () => {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
+            try {
+              await unregisterDeviceFromBackend();
+            } catch (error) {
+              console.error('Error unregistering device:', error);
+            }
             try {
               GoogleSignin.configure({
                 webClientId: config.google.webClientId,
@@ -206,6 +214,7 @@ export const SettingsScreen = () => {
           onNotificationPress={() => setNotificationModalVisible(true)}
           onBudgetPress={() => navigation.navigate('Budgets' as never)}
           onAccountBalancesPress={() => setAccountBalancesModalVisible(true)}
+          onDeviceManagementPress={() => setDeviceManagementModalVisible(true)}
         />
 
         <DataPrivacySection
@@ -277,9 +286,14 @@ export const SettingsScreen = () => {
       <NotificationModal
         visible={notificationModalVisible}
         onClose={() => setNotificationModalVisible(false)}
-        settings={notificationSettings}
+        settings={{
+          notifyTransactions: user?.notifyTransactions ?? true,
+          notifyBudgetAlerts: user?.notifyBudgetAlerts ?? true,
+          notifyMonthlyReports: user?.notifyMonthlyReports ?? false,
+        }}
         onUpdate={handleNotificationUpdate}
         primaryColor={themeColors.primary}
+        isLoading={updateNotificationSettings.isPending}
       />
 
       <ExportModal
@@ -307,6 +321,13 @@ export const SettingsScreen = () => {
         currencySymbol={CURRENCIES.find(c => c.code === user?.currency)?.symbol || '$'}
         onUpdate={handleAccountBalancesUpdate}
         isLoading={updateBalance.isPending}
+      />
+
+      <DeviceManagementModal
+        visible={deviceManagementModalVisible}
+        onClose={() => setDeviceManagementModalVisible(false)}
+        primaryColor={themeColors.primary}
+        dangerColor={themeColors.danger}
       />
     </RefreshableScrollView>
   );

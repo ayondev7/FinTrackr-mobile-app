@@ -2,7 +2,7 @@ import { Response } from 'express';
 import prisma from '../../config/database';
 import { ApiError, asyncHandler, sendSuccess } from '../../utils/apiHelpers';
 import { AuthRequest } from '../../middleware/auth';
-import { updateProfileSchema, updateBalanceSchema } from './user.validation';
+import { updateProfileSchema, updateBalanceSchema, updateNotificationSettingsSchema } from './user.validation';
 
 export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id: userId } = req.user!;
@@ -20,6 +20,9 @@ export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) =
       bankBalance: true,
       digitalBalance: true,
       theme: true,
+      notifyTransactions: true,
+      notifyBudgetAlerts: true,
+      notifyMonthlyReports: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -53,6 +56,9 @@ export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response
       bankBalance: true,
       digitalBalance: true,
       theme: true,
+      notifyTransactions: true,
+      notifyBudgetAlerts: true,
+      notifyMonthlyReports: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -235,4 +241,25 @@ export const exportUserData = asyncHandler(async (req: AuthRequest, res: Respons
   console.log('User data exported successfully');
 
   sendSuccess(res, exportData, 'Data exported successfully');
+});
+
+export const updateNotificationSettings = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id: userId } = req.user!;
+  console.log('Update notification settings for user:', userId);
+
+  const validatedData = updateNotificationSettingsSchema.parse(req.body);
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: validatedData,
+    select: {
+      notifyTransactions: true,
+      notifyBudgetAlerts: true,
+      notifyMonthlyReports: true,
+    },
+  });
+
+  console.log('Notification settings updated successfully');
+
+  sendSuccess(res, user, 'Notification settings updated successfully');
 });

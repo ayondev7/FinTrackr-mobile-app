@@ -6,7 +6,13 @@ export {
   useDeleteAccount,
   useClearUserData,
   useExportUserData,
+  useUpdateNotificationSettings,
+  useRegisterDevice,
+  useUnregisterDevice,
+  useDevices,
+  useRemoveDevice,
 } from "./userHooks";
+export { useNotifications } from "./notificationHooks";
 export {
   useDashboardSummary,
   useRecentTransactions,
