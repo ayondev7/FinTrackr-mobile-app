@@ -263,10 +263,18 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
 
   const effectiveScreenWidth = screenWidth;
 
-  const paddingLeft = isLandscape
-    ? Math.max(insets.left, HORIZONTAL_PADDING)
-    : HORIZONTAL_PADDING + insets.left;
-  const paddingRight = HORIZONTAL_PADDING + insets.right;
+  let paddingLeft: number;
+  let paddingRight: number;
+  if (isLandscape) {
+    // Landscape: minimal left gap (safe area plus 4px), keep right as usual
+    paddingLeft = insets.left + -14; // a 4px gap to avoid sticking to the edge
+    paddingRight = HORIZONTAL_PADDING + insets.right;
+  } else {
+    // Portrait: reduce both paddings more (increase card width on both sides)
+    const reducedPadding = Math.max(4, HORIZONTAL_PADDING - 4); // reduce to 8, clamped to at least 4
+    paddingLeft = reducedPadding + insets.left;
+    paddingRight = reducedPadding + insets.right;
+  }
 
   const cardWidth = effectiveScreenWidth - paddingLeft - paddingRight;
 
