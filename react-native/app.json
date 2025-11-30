@@ -2,6 +2,7 @@
   "expo": {
     "name": "FinTrackr",
     "slug": "fintrackr-app",
+    "jsEngine": "hermes",
     "userInterfaceStyle": "automatic",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,7 +19,7 @@
       "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "resizeMode": "contain"
+        "backgroundColor": "#FFFFFF"
       }
     },
     "web": {
