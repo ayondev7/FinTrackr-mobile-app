@@ -1,8 +1,21 @@
-import React, { useRef } from 'react';
-import { View, Text, ScrollView, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import { Banknote, Building2, Smartphone, TrendingUp, TrendingDown } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { formatCurrency, formatSmartCurrency } from '../../utils/helpers';
+import React, { useRef } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  useWindowDimensions,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
+import {
+  Banknote,
+  Building2,
+  Smartphone,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { formatCurrency, formatSmartCurrency } from "../../utils/helpers";
 
 const HORIZONTAL_PADDING = 16; // px-4 = 16px on each side
 
@@ -16,7 +29,6 @@ interface AccountType {
 }
 
 // Static data removed
-
 
 // Total Balance Card (first card in the scroll)
 interface TotalBalanceCardProps {
@@ -38,17 +50,19 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
 }) => {
   const isPositiveChange = balanceChangePercent >= 0;
   const TrendIcon = isPositiveChange ? TrendingUp : TrendingDown;
-  const trendColor = isPositiveChange ? '#10B981' : '#EF4444';
-  const trendBgColor = isPositiveChange ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
-  const trendTextClass = isPositiveChange ? 'text-green-300' : 'text-red-300';
+  const trendColor = isPositiveChange ? "#10B981" : "#EF4444";
+  const trendBgColor = isPositiveChange
+    ? "rgba(16, 185, 129, 0.25)"
+    : "rgba(239, 68, 68, 0.25)";
+  const trendTextClass = isPositiveChange ? "text-green-300" : "text-red-300";
 
   return (
-    <View 
+    <View
       className="p-6 rounded-3xl overflow-hidden"
       style={{
         width: cardWidth,
-        backgroundColor: '#6366F1',
-        shadowColor: '#6366F1',
+        backgroundColor: "#6366F1",
+        shadowColor: "#6366F1",
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
         shadowRadius: 16,
@@ -56,20 +70,20 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
       }}
     >
       {/* Decorative circles */}
-      <View 
+      <View
         className="absolute rounded-full"
-        style={{ 
-          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.15)",
           width: 160,
           height: 160,
           right: -40,
           top: -40,
         }}
       />
-      <View 
+      <View
         className="absolute rounded-full"
-        style={{ 
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
           width: 120,
           height: 120,
           left: -20,
@@ -82,13 +96,11 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
         <Text className="text-indigo-100 text-sm font-medium tracking-wide">
           TOTAL BALANCE
         </Text>
-        <View 
+        <View
           className="px-3 py-1.5 rounded-full"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+          style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
         >
-          <Text className="text-white text-xs font-bold">
-            {currency}
-          </Text>
+          <Text className="text-white text-xs font-bold">{currency}</Text>
         </View>
       </View>
 
@@ -100,20 +112,21 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
       {/* Footer */}
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <View 
+          <View
             className="flex-row items-center px-3 py-1.5 rounded-full"
             style={{ backgroundColor: trendBgColor }}
           >
             <TrendIcon size={14} color={trendColor} />
             <Text className={`${trendTextClass} text-xs font-bold ml-1`}>
-              {isPositiveChange ? '+' : ''}{balanceChangePercent}%
+              {isPositiveChange ? "+" : ""}
+              {balanceChangePercent}%
             </Text>
           </View>
           <Text className="text-indigo-100 text-xs font-medium">
             vs last month
           </Text>
         </View>
-        
+
         {/* Pagination indicator */}
         <Text className="text-white/70 text-xs font-medium">
           {index + 1} / {total}
@@ -131,8 +144,8 @@ interface AccountTypeCardProps {
   cardWidth: number;
 }
 
-const AccountTypeCard: React.FC<AccountTypeCardProps> = ({ 
-  account, 
+const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
+  account,
   currency,
   index,
   total,
@@ -142,7 +155,7 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
   const isNegative = account.balance < 0;
 
   return (
-    <View 
+    <View
       className="p-6 rounded-3xl overflow-hidden"
       style={{
         width: cardWidth,
@@ -155,20 +168,20 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
       }}
     >
       {/* Decorative circles */}
-      <View 
+      <View
         className="absolute rounded-full"
-        style={{ 
-          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.15)",
           width: 160,
           height: 160,
           right: -40,
           top: -40,
         }}
       />
-      <View 
+      <View
         className="absolute rounded-full"
-        style={{ 
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
           width: 120,
           height: 120,
           left: -20,
@@ -179,9 +192,9 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
       {/* Header */}
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center gap-3">
-          <View 
+          <View
             className="w-10 h-10 rounded-full items-center justify-center"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.25)" }}
           >
             <IconComponent size={20} color="#FFFFFF" />
           </View>
@@ -189,18 +202,16 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
             {account.name}
           </Text>
         </View>
-        <View 
+        <View
           className="px-3 py-1.5 rounded-full"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+          style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
         >
-          <Text className="text-white text-xs font-bold">
-            {currency}
-          </Text>
+          <Text className="text-white text-xs font-bold">{currency}</Text>
         </View>
       </View>
 
       {/* Balance */}
-      <Text 
+      <Text
         className="text-white text-5xl font-bold mb-4 tracking-tight"
         style={{ opacity: isNegative ? 0.9 : 1 }}
       >
@@ -209,15 +220,15 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
 
       {/* Footer */}
       <View className="flex-row items-center justify-between">
-        <View 
+        <View
           className="px-3 py-1.5 rounded-full"
-          style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+          style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
         >
           <Text className="text-white text-xs font-bold">
             {account.percentage}% of total
           </Text>
         </View>
-        
+
         {/* Pagination indicator */}
         <Text className="text-white/70 text-xs font-medium">
           {index + 1} / {total}
@@ -236,7 +247,7 @@ interface AccountTypeCardsProps {
   digitalBalance: number;
 }
 
-export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({ 
+export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
   currency,
   totalBalance,
   balanceChangePercent,
@@ -248,40 +259,45 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
   const [activeIndex, setActiveIndex] = React.useState(0);
   const { width: screenWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  
-  // Calculate dynamic widths accounting for safe area
+
   const effectiveScreenWidth = screenWidth;
-  const cardWidth = effectiveScreenWidth - (HORIZONTAL_PADDING * 2) - insets.left - insets.right;
-  
+  const cardWidth =
+    effectiveScreenWidth - HORIZONTAL_PADDING * 2 - insets.left - insets.right;
+
   const accountTypes: AccountType[] = [
     {
-      id: 'cash',
-      name: 'Cash',
+      id: "cash",
+      name: "Cash",
       balance: cashBalance,
       icon: Banknote,
-      color: '#10B981',
-      percentage: totalBalance > 0 ? Math.round((cashBalance / totalBalance) * 100) : 0,
+      color: "#10B981",
+      percentage:
+        totalBalance > 0 ? Math.round((cashBalance / totalBalance) * 100) : 0,
     },
     {
-      id: 'bank',
-      name: 'Bank Account',
+      id: "bank",
+      name: "Bank Account",
       balance: bankBalance,
       icon: Building2,
-      color: '#3B82F6',
-      percentage: totalBalance > 0 ? Math.round((bankBalance / totalBalance) * 100) : 0,
+      color: "#3B82F6",
+      percentage:
+        totalBalance > 0 ? Math.round((bankBalance / totalBalance) * 100) : 0,
     },
     {
-      id: 'digital',
-      name: 'Digital Banking',
+      id: "digital",
+      name: "Digital Banking",
       balance: digitalBalance,
       icon: Smartphone,
-      color: '#8B5CF6',
-      percentage: totalBalance > 0 ? Math.round((digitalBalance / totalBalance) * 100) : 0,
+      color: "#8B5CF6",
+      percentage:
+        totalBalance > 0
+          ? Math.round((digitalBalance / totalBalance) * 100)
+          : 0,
     },
   ];
 
-  const totalCards = accountTypes.length + 1; // +1 for total balance card
-  const allCardColors = ['#6366F1', ...accountTypes.map(a => a.color)];
+  const totalCards = accountTypes.length + 1;
+  const allCardColors = ["#6366F1", ...accountTypes.map((a) => a.color)];
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = event.nativeEvent.contentOffset.x;
@@ -291,7 +307,6 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
 
   return (
     <View className="mb-6">
-      {/* Horizontal Scroll */}
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -301,8 +316,14 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        {/* Total Balance Card (First) */}
-        <View style={{ width: effectiveScreenWidth, paddingHorizontal: HORIZONTAL_PADDING, paddingLeft: HORIZONTAL_PADDING + insets.left, paddingRight: HORIZONTAL_PADDING + insets.right }}>
+        <View
+          style={{
+            width: effectiveScreenWidth,
+            paddingHorizontal: HORIZONTAL_PADDING,
+            paddingLeft: HORIZONTAL_PADDING + insets.left,
+            paddingRight: HORIZONTAL_PADDING + insets.right,
+          }}
+        >
           <TotalBalanceCard
             balance={totalBalance}
             currency={currency}
@@ -312,10 +333,17 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
             cardWidth={cardWidth}
           />
         </View>
-        
-        {/* Account Type Cards */}
+
         {accountTypes.map((account, index) => (
-          <View key={account.id} style={{ width: effectiveScreenWidth, paddingHorizontal: HORIZONTAL_PADDING, paddingLeft: HORIZONTAL_PADDING + insets.left, paddingRight: HORIZONTAL_PADDING + insets.right }}>
+          <View
+            key={account.id}
+            style={{
+              width: effectiveScreenWidth,
+              paddingHorizontal: HORIZONTAL_PADDING,
+              paddingLeft: HORIZONTAL_PADDING + insets.left,
+              paddingRight: HORIZONTAL_PADDING + insets.right,
+            }}
+          >
             <AccountTypeCard
               account={account}
               currency={currency}
@@ -327,7 +355,6 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
         ))}
       </ScrollView>
 
-      {/* Dot Indicators */}
       <View className="flex-row items-center justify-center mt-4 gap-2">
         {allCardColors.map((color, index) => (
           <View
@@ -336,7 +363,8 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
             style={{
               width: activeIndex === index ? 20 : 8,
               height: 8,
-              backgroundColor: activeIndex === index ? color : 'rgba(156, 163, 175, 0.4)',
+              backgroundColor:
+                activeIndex === index ? color : "rgba(156, 163, 175, 0.4)",
             }}
           />
         ))}

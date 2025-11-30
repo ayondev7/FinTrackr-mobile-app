@@ -169,15 +169,22 @@ const getBalanceField = (accountType: string): 'cashBalance' | 'bankBalance' | '
   }
 };
 
+const getAccountTypeName = (accountType: string): string => {
+  switch (accountType) {
+    case 'CASH': return 'Cash';
+    case 'BANK': return 'Bank';
+    case 'DIGITAL': return 'Digital';
+    default: return 'Cash';
+  }
+};
+
 export const createTransaction = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id: userId } = req.user!;
   console.log('Create transaction request for user:', userId);
 
   const validatedData = createTransactionSchema.parse(req.body);
 
-  // Use Prisma transaction to ensure atomicity
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Verify category exists and belongs to user
     const category = await tx.category.findFirst({
       where: {
         id: validatedData.categoryId,
@@ -189,20 +196,35 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       throw new ApiError(404, 'Category not found');
     }
 
-    // Get user for notification preferences and currency
     const user = await tx.user.findUnique({
       where: { id: userId },
       select: {
         currency: true,
         notifyTransactions: true,
         notifyBudgetAlerts: true,
+        cashBalance: true,
+        bankBalance: true,
+        digitalBalance: true,
       },
     });
 
-    // Remove type from validated data since it's determined by category
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    const isExpense = category.type === 'EXPENSE';
+    if (isExpense) {
+      const balanceField = getBalanceField(validatedData.accountType);
+      const currentBalance = user[balanceField];
+      
+      if (currentBalance < validatedData.amount) {
+        const accountName = getAccountTypeName(validatedData.accountType);
+        throw new ApiError(400, `Insufficient balance in ${accountName} account. You can update your balance from Settings.`);
+      }
+    }
+
     const { type: _type, ...transactionData } = validatedData;
 
-    // 2. Create the transaction
     const transaction = await tx.transaction.create({
       data: {
         ...transactionData,
@@ -222,8 +244,6 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       },
     });
 
-    // 3. Update user balance based on transaction type and account
-    const isExpense = category.type === 'EXPENSE';
     const amountChange = isExpense ? -validatedData.amount : validatedData.amount;
     const balanceField = getBalanceField(validatedData.accountType);
 
@@ -236,7 +256,6 @@ export const createTransaction = asyncHandler(async (req: AuthRequest, res: Resp
       },
     });
 
-    // 4. If expense, update budget spent amount for the current period
     let budgetAlertType: 'warning' | 'exceeded' | null = null;
     let budgetInfo: { categoryName: string; spent: number; limit: number } | null = null;
 
