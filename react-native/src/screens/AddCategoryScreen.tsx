@@ -6,12 +6,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card } from '../components';
+import { Loader } from '../components/shared';
 import { ScreenHeader, TypeSelector } from '../components/add-transaction';
 import { CategoryPreview, CategoryNameInput, ColorPicker, IconPicker } from '../components/add-category';
 import { useThemeStore, useToastStore } from '../store';
 import { useCreateCategory } from '../hooks';
 import { colors } from '../constants/theme';
-import { ICON_OPTIONS, COLOR_OPTIONS } from '../constants';
+// ICON_OPTIONS and COLOR_OPTIONS are large — lazy-load them to avoid blocking navigation
 import { ShoppingCart } from 'lucide-react-native';
 
 // Validation schema matching backend expectations
@@ -36,18 +37,44 @@ export const AddCategoryScreen = () => {
 
   const createCategory = useCreateCategory();
 
+  const [iconOptions, setIconOptions] = React.useState<any[] | null>(null);
+  const [colorOptions, setColorOptions] = React.useState<string[] | null>(null);
+  const [isPreparing, setIsPreparing] = React.useState(true);
+
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const mod = await import('../constants/categoryOptions');
+        if (!mounted) return;
+        setIconOptions(mod.ICON_OPTIONS || []);
+        setColorOptions(mod.COLOR_OPTIONS || []);
+      } catch (err) {
+        console.error('Failed to load category options:', err);
+        setIconOptions([]);
+        setColorOptions([]);
+      } finally {
+        if (mounted) setIsPreparing(false);
+      }
+    })();
+
+    return () => { mounted = false; };
+  }, []);
+
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isValid },
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: '',
       type: 'EXPENSE',
-      color: COLOR_OPTIONS[0],
-      icon: ICON_OPTIONS[0].name,
+      // will be set after options load; use placeholders for now
+      color: '',
+      icon: '',
     },
     mode: 'onChange',
   });
@@ -55,12 +82,32 @@ export const AddCategoryScreen = () => {
   const selectedColor = watch('color');
   const selectedIcon = watch('icon');
 
+  // When options load, set sensible defaults into the form if they're empty
+  React.useEffect(() => {
+    if (!isPreparing && colorOptions && iconOptions) {
+      if ((!selectedColor || selectedColor === '') && colorOptions.length > 0) {
+        setValue('color', colorOptions[0]);
+      }
+      if ((!selectedIcon || selectedIcon === '') && iconOptions.length > 0) {
+        setValue('icon', iconOptions[0].name);
+      }
+    }
+  }, [isPreparing, colorOptions, iconOptions, selectedColor, selectedIcon, setValue]);
+
   const getIconComponent = (iconName: string) => {
-    const icon = ICON_OPTIONS.find(i => i.name === iconName);
+    const icon = (iconOptions || []).find((i: any) => i.name === iconName);
     return icon ? icon.component : ShoppingCart;
   };
 
   const IconComponent = getIconComponent(selectedIcon);
+
+  if (isPreparing) {
+    return (
+      <View className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center">
+        <Loader size={64} />
+      </View>
+    );
+  }
 
   const onSubmit = async (data: CategoryFormData) => {
     Keyboard.dismiss();
@@ -166,7 +213,7 @@ export const AddCategoryScreen = () => {
               name="color"
               render={({ field: { value, onChange } }) => (
                 <ColorPicker
-                  colors={COLOR_OPTIONS}
+                  colors={colorOptions || []}
                   selectedColor={value}
                   onSelectColor={onChange}
                   disabled={createCategory.isPending}
@@ -184,7 +231,7 @@ export const AddCategoryScreen = () => {
               name="icon"
               render={({ field: { value, onChange } }) => (
                 <IconPicker
-                  icons={ICON_OPTIONS}
+                  icons={iconOptions || []}
                   selectedIcon={value}
                   onSelectIcon={onChange}
                   selectedColor={selectedColor}
