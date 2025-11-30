@@ -287,7 +287,7 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
     paddingRight = HORIZONTAL_PADDING + insets.right;
   } else {
     // Portrait: reduce both paddings more (increase card width on both sides)
-    const reducedPadding = Math.max(4, HORIZONTAL_PADDING - 8); // reduce to 8, clamped to at least 4
+    const reducedPadding = Math.max(4, HORIZONTAL_PADDING - 3); // reduce to 8, clamped to at least 4
     paddingLeft = reducedPadding + insets.left;
     paddingRight = reducedPadding + insets.right;
   }
