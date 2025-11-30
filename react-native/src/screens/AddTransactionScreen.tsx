@@ -6,6 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input, Card } from '../components';
+import { Loader } from '../components/shared';
 import { ScreenHeader, TypeSelector, CategorySelector } from '../components/add-transaction';
 import { useThemeStore, useToastStore } from '../store';
 import { useCategories, useCreateTransaction, useUserProfile } from '../hooks';
@@ -32,8 +33,8 @@ type TransactionFormData = z.infer<typeof transactionSchema>;
 export const AddTransactionScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { data: categoriesData } = useCategories();
-  const { data: userResponse } = useUserProfile();
+  const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
+  const { data: userResponse, isLoading: isLoadingUser } = useUserProfile();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
@@ -70,6 +71,15 @@ export const AddTransactionScreen = () => {
   const filteredCategories = categories.filter(
     (cat) => (cat.type || '').toLowerCase() === type
   );
+
+  // Show shared full-screen loader while essential data is being fetched
+  if (isLoadingCategories || isLoadingUser) {
+    return (
+      <View className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center">
+        <Loader size={64} />
+      </View>
+    );
+  }
 
   // Reset category when type changes if current category doesn't match
   useEffect(() => {
