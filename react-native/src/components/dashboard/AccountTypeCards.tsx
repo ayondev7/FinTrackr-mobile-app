@@ -257,12 +257,18 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const isLandscape = screenWidth > screenHeight;
 
   const effectiveScreenWidth = screenWidth;
-  const cardWidth =
-    effectiveScreenWidth - HORIZONTAL_PADDING * 2 - insets.left - insets.right;
+
+  const paddingLeft = isLandscape
+    ? Math.max(insets.left, HORIZONTAL_PADDING)
+    : HORIZONTAL_PADDING + insets.left;
+  const paddingRight = HORIZONTAL_PADDING + insets.right;
+
+  const cardWidth = effectiveScreenWidth - paddingLeft - paddingRight;
 
   const accountTypes: AccountType[] = [
     {
@@ -319,9 +325,8 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
         <View
           style={{
             width: effectiveScreenWidth,
-            paddingHorizontal: HORIZONTAL_PADDING,
-            paddingLeft: HORIZONTAL_PADDING + insets.left,
-            paddingRight: HORIZONTAL_PADDING + insets.right,
+            paddingLeft,
+            paddingRight,
           }}
         >
           <TotalBalanceCard
@@ -339,9 +344,8 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
             key={account.id}
             style={{
               width: effectiveScreenWidth,
-              paddingHorizontal: HORIZONTAL_PADDING,
-              paddingLeft: HORIZONTAL_PADDING + insets.left,
-              paddingRight: HORIZONTAL_PADDING + insets.right,
+              paddingLeft,
+              paddingRight,
             }}
           >
             <AccountTypeCard
