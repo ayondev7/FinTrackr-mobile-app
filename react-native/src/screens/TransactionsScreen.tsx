@@ -27,7 +27,7 @@ export const TransactionsScreen = () => {
   const { data: userResponse } = useUserProfile();
   const currency = userResponse?.data?.currency || 'USD';
 
-  // Build query params for the API - all filtering is done on backend
+
   const queryParams = useMemo(() => ({
     type: filterType,
     timePeriod,
@@ -35,7 +35,7 @@ export const TransactionsScreen = () => {
     limit: 15,
   }), [filterType, timePeriod, sortBy]);
 
-  // Fetch transactions with infinite scrolling
+ 
   const {
     data,
     isLoading,
@@ -46,7 +46,7 @@ export const TransactionsScreen = () => {
     isRefetching
   } = useInfiniteTransactions(queryParams);
 
-  // Fetch stats for the current time period (for totals summary)
+  
   const { data: statsData, refetch: refetchStats } = useTransactionStats({ timePeriod });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -60,7 +60,7 @@ export const TransactionsScreen = () => {
     }
   };
 
-  // Flatten all pages of transactions
+  
   const transactions = useMemo(() => {
     if (!data?.pages) return [];
     return data.pages.flatMap((page) => page.data.transactions);
@@ -70,14 +70,14 @@ export const TransactionsScreen = () => {
   const totalExpense = statsData?.data.totalExpense ?? 0;
   const totalRevenue = statsData?.data.totalRevenue ?? 0;
 
-  // Handle loading more transactions
+
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Render footer with loading indicator
+
   const renderFooter = () => {
     if (!isFetchingNextPage) return null;
     return (
@@ -100,12 +100,10 @@ export const TransactionsScreen = () => {
     );
   };
 
-  // Render transaction item
   const renderItem = useCallback(({ item }: { item: Transaction }) => (
     <TransactionItem transaction={item} currency={currency} />
   ), [currency]);
 
-  // Show full screen loader on initial load
   if (isLoading) {
     return (
       <View 

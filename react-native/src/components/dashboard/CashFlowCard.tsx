@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Card } from '../shared/Card';
-import { formatCurrency } from '../../utils/helpers';
+import { formatCurrency, formatSmartCurrency } from '../../utils/helpers';
 
 interface CashFlowCardProps {
   totalRevenue: number;
@@ -39,7 +39,7 @@ export const CashFlowCard: React.FC<CashFlowCardProps> = ({
               color: netCashFlow >= 0 ? successColor : dangerColor,
             }}
           >
-            {formatCurrency(netCashFlow, currency)}
+            {formatSmartCurrency(netCashFlow, currency, 100000, 1)}
           </Text>
         </View>
         <View className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -67,7 +67,7 @@ export const CashFlowCard: React.FC<CashFlowCardProps> = ({
             Savings
           </Text>
           <Text className="text-gray-900 dark:text-white font-semibold">
-            {formatCurrency(netCashFlow, currency)}
+            {formatSmartCurrency(netCashFlow, currency, 100000, 1)}
           </Text>
         </View>
       </View>

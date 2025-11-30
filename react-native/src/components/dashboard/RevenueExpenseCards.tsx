@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { ArrowDownCircle, ArrowUpCircle } from 'lucide-react-native';
 import { Card } from '../shared/Card';
-import { formatCurrency } from '../../utils/helpers';
+import { formatCurrency, formatSmartCurrency } from '../../utils/helpers';
 
 interface RevenueExpenseCardsProps {
   totalRevenue: number;
@@ -35,7 +35,7 @@ export const RevenueExpenseCards: React.FC<RevenueExpenseCardsProps> = ({
           className="text-xl font-bold"
           style={{ color: successColor }}
         >
-          {formatCurrency(totalRevenue, currency)}
+          {formatSmartCurrency(totalRevenue, currency, 100000, 1)}
         </Text>
         <Text className="text-gray-500 dark:text-gray-500 text-xs mt-1">
           This month
@@ -56,7 +56,7 @@ export const RevenueExpenseCards: React.FC<RevenueExpenseCardsProps> = ({
           className="text-xl font-bold"
           style={{ color: dangerColor }}
         >
-          {formatCurrency(totalExpense, currency)}
+          {formatSmartCurrency(totalExpense, currency, 100000, 1)}
         </Text>
         <Text className="text-gray-500 dark:text-gray-500 text-xs mt-1">
           This month

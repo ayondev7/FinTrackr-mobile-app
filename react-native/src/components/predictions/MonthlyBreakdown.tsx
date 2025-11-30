@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Card } from '../shared/Card';
-import { formatCurrency } from '../../utils/helpers';
+import { formatCurrency, formatSmartCurrency } from '../../utils/helpers';
 import { ProjectedBalance } from '../../types';
 
 interface MonthlyBreakdownProps {
@@ -37,7 +37,7 @@ export const MonthlyBreakdown = ({ projections, currentBalance, netMonthly, curr
                     {projection.month}
                   </Text>
                   <Text className="text-gray-500 dark:text-gray-400 text-xs">
-                    {change >= 0 ? '+' : ''}{formatCurrency(change, currency)}
+                    {change >= 0 ? '+' : ''}{formatSmartCurrency(change, currency, 100000, 1)}
                   </Text>
                 </View>
               </View>
@@ -45,7 +45,7 @@ export const MonthlyBreakdown = ({ projections, currentBalance, netMonthly, curr
                 className="text-lg font-bold"
                 style={{ color: projection.estimatedBalance >= currentBalance ? '#10B981' : '#EF4444' }}
               >
-                {formatCurrency(projection.estimatedBalance, currency)}
+                {formatSmartCurrency(projection.estimatedBalance, currency, 100000, 1)}
               </Text>
             </View>
           );

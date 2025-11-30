@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Banknote, Building2, Smartphone, TrendingUp, TrendingDown } from 'lucide-react-native';
-import { formatCurrency } from '../../utils/helpers';
+import { formatCurrency, formatSmartCurrency } from '../../utils/helpers';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HORIZONTAL_PADDING = 16; // px-4 = 16px on each side
@@ -93,7 +93,7 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
 
       {/* Balance */}
       <Text className="text-white text-5xl font-bold mb-4 tracking-tight">
-        {formatCurrency(balance, currency)}
+        {formatSmartCurrency(balance, currency, 100000, 1)}
       </Text>
 
       {/* Footer */}
@@ -201,7 +201,7 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
         className="text-white text-5xl font-bold mb-4 tracking-tight"
         style={{ opacity: isNegative ? 0.9 : 1 }}
       >
-        {isNegative ? '-' : ''}{formatCurrency(Math.abs(account.balance), currency)}
+        {formatSmartCurrency(account.balance, currency, 100000, 1)}
       </Text>
 
       {/* Footer */}
