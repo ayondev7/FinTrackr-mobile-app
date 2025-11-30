@@ -128,15 +128,29 @@ const handlePushTickets = async (
     const token = message.to as string;
 
     if (ticket.status === 'error') {
-      console.error(`Push notification error for token ${token}:`, ticket.message);
+        console.error(`Push notification error for token ${token}:`, ticket.message);
 
-      if (ticket.details?.error === 'DeviceNotRegistered') {
-        const deviceId = tokenIdMap.get(token);
-        if (deviceId) {
-          await prisma.deviceToken.delete({ where: { id: deviceId } });
-          console.log(`Deleted invalid device token: ${token}`);
+        // Detect when Expo's servers lack the FCM/Android credentials
+        if (
+          ticket.details?.error === 'InvalidCredentials' ||
+          (typeof ticket.message === 'string' && ticket.message.includes('Unable to retrieve the FCM server key'))
+        ) {
+          console.error(
+            `Expo is missing FCM credentials for this project (InvalidCredentials). ` +
+              `Upload your Android FCM credentials (Service Account JSON or legacy server key) to Expo/EAS. ` +
+              `See https://docs.expo.dev/push-notifications/using-fcm/ for instructions.`
+          );
+          // Optionally: notify an admin, increment a metric, or throw to surface the issue.
+          continue;
         }
-      }
+
+        if (ticket.details?.error === 'DeviceNotRegistered') {
+          const deviceId = tokenIdMap.get(token);
+          if (deviceId) {
+            await prisma.deviceToken.delete({ where: { id: deviceId } });
+            console.log(`Deleted invalid device token: ${token}`);
+          }
+        }
     }
   }
 };
