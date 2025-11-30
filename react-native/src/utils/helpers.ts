@@ -59,6 +59,27 @@ export const formatCompactCurrency = (amount: number, currency: string = 'USD', 
   return `${symbol}${formatAmount(amount)}`;
 };
 
+export const formatSmartCurrency = (
+  amount: number,
+  currency: string = 'USD',
+  compactThreshold: number = 1000000,
+  decimals: number = 1
+) => {
+  const abs = Math.abs(amount);
+  if (abs < compactThreshold) {
+    return `${getCurrencySymbol(currency)}${formatAmount(amount)}`;
+  }
+
+  // Fallback to compact formatting when above threshold
+  return formatCompactCurrency(amount, currency, decimals);
+};
+
+export const formatSmartNumber = (value: number, compactThreshold: number = 1000000, decimals = 1): string => {
+  const abs = Math.abs(value);
+  if (abs < compactThreshold) return `${Math.round(value)}`;
+  return formatCompactNumber(value, decimals);
+};
+
 export const formatDate = (dateString: string, format: 'short' | 'medium' | 'long' = 'medium'): string => {
   const date = new Date(dateString);
   

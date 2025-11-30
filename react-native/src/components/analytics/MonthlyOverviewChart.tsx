@@ -81,6 +81,7 @@ export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
       {hasData ? (
         (() => {
           // Determine scale for compact display when values get large
+          // Bar charts: switch to compact notation when values >= 1,000
           const visibleValues = data.slice(-6).map((v) => v || 0);
           const maxValue = Math.max(...visibleValues, 0);
           let scale = 1;
@@ -91,10 +92,10 @@ export const MonthlyOverviewChart: React.FC<MonthlyOverviewChartProps> = ({
             scale = 1000000;
             suffix = 'M';
             decimals = 1;
-          } else if (maxValue >= 10000) {
+          } else if (maxValue >= 1000) {
             scale = 1000;
             suffix = 'k';
-            decimals = 1;
+            decimals = 0;
           }
 
           const scaledValues = visibleValues.map((v) => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { Card } from '../shared/Card';
-import { formatAmount, getCurrencySymbol } from '../../utils/helpers';
+import { formatSmartCurrency, getCurrencySymbol } from '../../utils/helpers';
 import { CategoryBreakdown, AnalyticsType } from '../../types';
 
 interface DistributionChartProps {
@@ -74,7 +74,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
             >
               <Text className="text-gray-500 dark:text-gray-400 text-xs">Total</Text>
               <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                {currencySymbol}{formatAmount(totalAmount)}
+                {formatSmartCurrency(totalAmount, currency, 100000)}
               </Text>
             </View>
           </View>
