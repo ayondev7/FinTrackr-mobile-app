@@ -104,26 +104,13 @@ export const NotificationModal = ({
                         </Text>
                       </View>
                     </View>
-                    {isLoading || loadingKey ? (
-                      loadingKey === option.key || isLoading ? (
-                        <ActivityIndicator size="small" color={primaryColor} />
-                      ) : (
-                        <Switch
-                          value={option.value}
-                          onValueChange={(value) => onUpdate(option.key, value)}
-                          trackColor={{ false: '#D1D5DB', true: primaryColor }}
-                          thumbColor="#FFFFFF"
-                          disabled={true}
-                        />
-                      )
-                    ) : (
-                      <Switch
-                        value={option.value}
-                        onValueChange={(value) => onUpdate(option.key, value)}
-                        trackColor={{ false: '#D1D5DB', true: primaryColor }}
-                        thumbColor="#FFFFFF"
-                      />
-                    )}
+                    <Switch
+                      value={option.value}
+                      onValueChange={(value) => onUpdate(option.key, value)}
+                      trackColor={{ false: '#D1D5DB', true: primaryColor }}
+                      thumbColor="#FFFFFF"
+                      disabled={isLoading}
+                    />
                   </View>
                 </Card>
               );

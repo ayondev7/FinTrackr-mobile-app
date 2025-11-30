@@ -65,7 +65,6 @@ export const LoginScreen: React.FC = () => {
       }
 
       const userData = signInResponse.data;
-      console.log("Google Sign-In successful:", userData);
 
       const backendResponse = await api.post(authRoutes.googleLogin, {
         sub: userData.user.id,

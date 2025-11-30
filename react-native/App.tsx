@@ -4,7 +4,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AppNavigator } from './src/navigation';
 import { useThemeStore, useOnboardingStore } from './src/store';
 import { queryClient, useNotifications } from './src/hooks';
-import { TestBoolean } from './TestBoolean';
 import './global.css';
 import { useColorScheme } from 'nativewind';
 import { useEffect, useState } from 'react';
@@ -15,7 +14,7 @@ import { ToastContainer } from './src/components/shared';
 
 ExpoSplashScreen.preventAutoHideAsync();
 
-const USE_TEST_MODE = false;
+// Developer test mode removed
 
 function NotificationRegistrar() {
   const { registerDeviceWithBackend } = useNotifications();
@@ -58,9 +57,7 @@ function AppContent() {
     return null;
   }
 
-  if (USE_TEST_MODE) {
-    return <TestBoolean />;
-  }
+  // test mode removed
 
   if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeStore, useTransactionStore, useOnboardingStore, useToastStore } from '../store';
 import { colors } from '../constants/theme';
-import { Settings, MessageSquare, LogOut } from 'lucide-react-native';
+import { Settings, LogOut } from 'lucide-react-native';
 import { clearTokens } from '../utils/authStorage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { config } from '../config';
@@ -126,20 +126,7 @@ export const SettingsScreen = () => {
     }
   };
 
-  const handleResetOnboarding = () => {
-    Alert.alert(
-      'Reset Onboarding',
-      'This will log you out and show the onboarding screens again. Continue?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Reset', 
-          style: 'destructive',
-          onPress: () => resetOnboarding()
-        },
-      ]
-    );
-  };
+  // Reset onboarding removed from Developer Options
 
   const handleLogout = () => {
     Alert.alert(
@@ -231,38 +218,6 @@ export const SettingsScreen = () => {
 
         <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-6">
           <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">
-            Developer Options
-          </Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ToastTest' as never)}
-            className="bg-indigo-500 p-4 rounded-xl mb-3 flex-row items-center justify-center gap-2"
-          >
-            <MessageSquare size={20} color="#FFF" />
-            <Text className="text-white text-center font-semibold">
-              Test Toast Notifications
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SplashDemo' as never)}
-            className="bg-violet-600 p-4 rounded-xl mb-3 flex-row items-center justify-center gap-2"
-          >
-            <Text className="text-white text-center font-semibold">
-              Show App Splash
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            onPress={handleResetOnboarding}
-            className="bg-orange-500 p-4 rounded-xl"
-          >
-            <Text className="text-white text-center font-semibold">
-              Reset Onboarding
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-6">
-          <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">
             Account
           </Text>
           <TouchableOpacity
@@ -298,7 +253,7 @@ export const SettingsScreen = () => {
         }}
         onUpdate={handleNotificationUpdate}
         primaryColor={themeColors.primary}
-        loadingKey={notificationLoadingKey}
+        isLoading={updateNotificationSettings.isPending}
       />
 
       <ExportModal
