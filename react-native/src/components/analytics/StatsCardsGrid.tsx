@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { TrendingUp, TrendingDown, Activity, CreditCard } from 'lucide-react-native';
-import { formatAmount, getCurrencySymbol } from '../../utils/helpers';
+import { formatAmount, getCurrencySymbol, formatCompactNumber, formatCompactCurrency } from '../../utils/helpers';
 import { AnalyticsStats } from '../../types';
 
 interface StatsCardsGridProps {
@@ -37,7 +37,7 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark, c
             Avg. Daily Spend
           </Text>
           <Text className="text-blue-900 dark:text-blue-100 text-2xl font-black">
-            {currencySymbol}{formatAmount(stats.averageExpense)}
+            {formatCompactCurrency(stats.averageExpense, currency)}
           </Text>
         </View>
       </View>
@@ -62,14 +62,14 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark, c
               className="px-2 py-1 rounded-lg items-center justify-center"
               style={{ backgroundColor: isDark ? '#8B5CF6' : '#A78BFA' }}
             >
-              <Text className="text-white text-xs font-bold">{stats.totalTransactions}</Text>
+              <Text className="text-white text-xs font-bold">{formatCompactNumber(stats.totalTransactions)}</Text>
             </View>
           </View>
           <Text className="text-purple-600 dark:text-purple-300 text-xs font-bold uppercase tracking-wide mb-1">
             Transactions
           </Text>
           <Text className="text-purple-900 dark:text-purple-100 text-2xl font-black">
-            {stats.totalTransactions}
+            {formatCompactNumber(stats.totalTransactions)}
           </Text>
         </View>
       </View>
@@ -94,14 +94,14 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark, c
               className="px-2 py-1 rounded-lg"
               style={{ backgroundColor: isDark ? '#7F1D1D' : '#FEE2E2' }}
             >
-              <Text className="text-red-600 dark:text-red-400 text-xs font-bold">{stats.expenseCount}</Text>
+              <Text className="text-red-600 dark:text-red-400 text-xs font-bold">{formatCompactNumber(stats.expenseCount)}</Text>
             </View>
           </View>
           <Text className="text-red-600 dark:text-red-300 text-xs font-bold uppercase tracking-wide mb-1">
             Total Expense
           </Text>
           <Text className="text-red-900 dark:text-red-100 text-2xl font-black">
-            {currencySymbol}{formatAmount(stats.totalExpense)}
+            {formatCompactCurrency(stats.totalExpense, currency)}
           </Text>
         </View>
       </View>
@@ -126,14 +126,14 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark, c
               className="px-2 py-1 rounded-lg"
               style={{ backgroundColor: isDark ? '#065F46' : '#D1FAE5' }}
             >
-              <Text className="text-green-600 dark:text-green-400 text-xs font-bold">{stats.revenueCount}</Text>
+              <Text className="text-green-600 dark:text-green-400 text-xs font-bold">{formatCompactNumber(stats.revenueCount)}</Text>
             </View>
           </View>
           <Text className="text-green-600 dark:text-green-300 text-xs font-bold uppercase tracking-wide mb-1">
             Total Revenue
           </Text>
           <Text className="text-green-900 dark:text-green-100 text-2xl font-black">
-            {currencySymbol}{formatAmount(stats.totalRevenue)}
+            {formatCompactCurrency(stats.totalRevenue, currency)}
           </Text>
         </View>
       </View>

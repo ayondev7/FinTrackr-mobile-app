@@ -14,6 +14,51 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
   return `${symbol}${formatAmount(amount)}`;
 };
 
+export const formatCompactNumber = (value: number, decimals = 1): string => {
+  const abs = Math.abs(value);
+  if (abs < 1000) return `${value}`;
+  const units = [
+    { value: 1e12, symbol: 'T' },
+    { value: 1e9, symbol: 'B' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e3, symbol: 'K' },
+  ];
+
+  for (const unit of units) {
+    if (abs >= unit.value) {
+      const formatted = (value / unit.value).toFixed(decimals);
+      // remove trailing .0
+      const cleaned = formatted.replace(/\.0+$/, '');
+      return `${cleaned}${unit.symbol}`;
+    }
+  }
+
+  return `${value}`;
+};
+
+export const formatCompactCurrency = (amount: number, currency: string = 'USD', decimals = 1): string => {
+  const symbol = getCurrencySymbol(currency);
+  const abs = Math.abs(amount);
+  if (abs < 1000) return `${symbol}${formatAmount(amount)}`;
+
+  const units = [
+    { value: 1e12, symbol: 'T' },
+    { value: 1e9, symbol: 'B' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e3, symbol: 'K' },
+  ];
+
+  for (const unit of units) {
+    if (abs >= unit.value) {
+      const formatted = (amount / unit.value).toFixed(decimals);
+      const cleaned = formatted.replace(/\.0+$/, '');
+      return `${symbol}${cleaned}${unit.symbol}`;
+    }
+  }
+
+  return `${symbol}${formatAmount(amount)}`;
+};
+
 export const formatDate = (dateString: string, format: 'short' | 'medium' | 'long' = 'medium'): string => {
   const date = new Date(dateString);
   

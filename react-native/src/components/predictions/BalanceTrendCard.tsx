@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react-native';
-import { formatCurrency } from '../../utils/helpers';
+import { formatCurrency, formatCompactCurrency } from '../../utils/helpers';
 
 interface BalanceTrendCardProps {
   isPositive: boolean;
@@ -50,8 +50,8 @@ export const BalanceTrendCard = ({ isPositive, isDark, netMonthly, currency }: B
       return 'Add some transactions to see your balance trend forecast.';
     }
     return isPositive 
-      ? `Your balance will grow by ${formatCurrency(netMonthly * 6, currency)} in 6 months`
-      : `Your balance will decrease by ${formatCurrency(Math.abs(netMonthly * 6), currency)} in 6 months`;
+      ? `Your balance will grow by ${formatCompactCurrency(netMonthly * 6, currency)} in 6 months`
+      : `Your balance will decrease by ${formatCompactCurrency(Math.abs(netMonthly * 6), currency)} in 6 months`;
   };
 
   return (
