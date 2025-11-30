@@ -13,6 +13,7 @@ import {
   Smartphone,
   TrendingUp,
   TrendingDown,
+  Minus,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { formatCurrency, formatSmartCurrency } from "../../utils/helpers";
@@ -48,13 +49,28 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
   total,
   cardWidth,
 }) => {
-  const isPositiveChange = balanceChangePercent >= 0;
-  const TrendIcon = isPositiveChange ? TrendingUp : TrendingDown;
-  const trendColor = isPositiveChange ? "#10B981" : "#EF4444";
-  const trendBgColor = isPositiveChange
+  const isNeutral = balanceChangePercent === 0;
+  const isPositiveChange = balanceChangePercent > 0;
+  const TrendIcon = isNeutral
+    ? Minus
+    : isPositiveChange
+    ? TrendingUp
+    : TrendingDown;
+  const trendColor = isNeutral
+    ? "#9CA3AF"
+    : isPositiveChange
+    ? "#10B981"
+    : "#EF4444";
+  const trendBgColor = isNeutral
+    ? "rgba(156, 163, 175, 0.15)"
+    : isPositiveChange
     ? "rgba(16, 185, 129, 0.25)"
     : "rgba(239, 68, 68, 0.25)";
-  const trendTextClass = isPositiveChange ? "text-green-300" : "text-red-300";
+  const trendTextClass = isNeutral
+    ? "text-gray-300"
+    : isPositiveChange
+    ? "text-green-300"
+    : "text-red-300";
 
   return (
     <View
@@ -117,7 +133,7 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
             style={{ backgroundColor: trendBgColor }}
           >
             <TrendIcon size={14} color={trendColor} />
-            <Text className={`${trendTextClass} text-xs font-bold ml-1`}>
+            <Text className={`${trendTextClass} text-xs font-bold ml-1`}> 
               {isPositiveChange ? "+" : ""}
               {balanceChangePercent}%
             </Text>
@@ -267,11 +283,11 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
   let paddingRight: number;
   if (isLandscape) {
     // Landscape: minimal left gap (safe area plus 4px), keep right as usual
-    paddingLeft = insets.left + -14; // a 4px gap to avoid sticking to the edge
+    paddingLeft = insets.left + 4; // a 4px gap to avoid sticking to the edge
     paddingRight = HORIZONTAL_PADDING + insets.right;
   } else {
     // Portrait: reduce both paddings more (increase card width on both sides)
-    const reducedPadding = Math.max(4, HORIZONTAL_PADDING - 4); // reduce to 8, clamped to at least 4
+    const reducedPadding = Math.max(4, HORIZONTAL_PADDING - 8); // reduce to 8, clamped to at least 4
     paddingLeft = reducedPadding + insets.left;
     paddingRight = reducedPadding + insets.right;
   }
