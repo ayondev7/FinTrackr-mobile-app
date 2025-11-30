@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Dimensions } from 'react-native';
+import { View, Text, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeStore } from '../store';
 import { colors } from '../constants/theme';
@@ -17,7 +17,8 @@ export const PredictionsScreen = () => {
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
-  const screenWidth = Dimensions.get('window').width;
+  const { width: windowWidth } = useWindowDimensions();
+  const screenWidth = windowWidth - insets.left - insets.right;
   const isDark = theme === 'dark';
 
   const { data: predictionsResponse, isLoading, refetch } = usePredictions({ months: 6 });
@@ -80,7 +81,7 @@ export const PredictionsScreen = () => {
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       onRefresh={handleRefresh}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 100, paddingLeft: insets.left, paddingRight: insets.right }}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LayoutDashboard, CreditCard, TrendingUp, PieChart, Settings } from 'lucide-react-native';
 import { useThemeStore } from '../../store';
 import { colors } from '../../constants/theme';
@@ -9,11 +10,15 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
   const isDark = theme === 'dark';
+  const insets = useSafeAreaInsets();
 
   return (
     <View 
-      className="absolute px-4 bottom-5 left-5 right-5 bg-white dark:bg-slate-800 rounded-[35px] h-[70px] flex-row items-center justify-between shadow-md shadow-black/25 elevation-5"
+      className="absolute px-4 bg-white dark:bg-slate-800 rounded-[35px] h-[70px] flex-row items-center justify-between shadow-md shadow-black/25 elevation-5"
       style={{
+        bottom: Math.max(insets.bottom, 20),
+        left: Math.max(insets.left, 20),
+        right: Math.max(insets.right, 20),
         shadowColor: "#000",
         shadowOffset: {
           width: 0,

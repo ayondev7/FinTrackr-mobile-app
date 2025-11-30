@@ -14,6 +14,7 @@ import {
   ScrollView,
   Keyboard,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Banknote, Building2, Smartphone, PieChart, CheckCircle2 } from "lucide-react-native";
 import { useForm, Controller, useWatch } from "react-hook-form";
@@ -59,6 +60,7 @@ type TotalBalanceFormData = z.infer<typeof totalBalanceSchema>;
 type DistributionFormData = z.infer<typeof distributionSchema>;
 
 export const BalanceSetupScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const [step, setStep] = useState<'total' | 'distribution'>('total');
   const [totalBalance, setTotalBalance] = useState<number>(0);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -211,8 +213,12 @@ export const BalanceSetupScreen: React.FC = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 bg-white"
       >
-        <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-          <View className="flex-1 px-6 pt-12">
+        <ScrollView 
+          className="flex-1" 
+          contentContainerStyle={{ flexGrow: 1, paddingLeft: Math.max(insets.left, 24), paddingRight: Math.max(insets.right, 24), paddingTop: Math.max(insets.top, 48), paddingBottom: Math.max(insets.bottom, 24) }} 
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="flex-1">
             {/* Header with Icon */}
             <View className="items-center mb-6">
               <View style={styles.distributionIconContainer}>
@@ -474,8 +480,12 @@ export const BalanceSetupScreen: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-white"
     >
-      <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View className="flex-1 px-8 pt-16">
+      <ScrollView 
+        className="flex-1" 
+        contentContainerStyle={{ flexGrow: 1, paddingLeft: Math.max(insets.left, 32), paddingRight: Math.max(insets.right, 32), paddingTop: Math.max(insets.top, 64), paddingBottom: Math.max(insets.bottom, 24) }} 
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="flex-1">
           <View className="items-center mb-8">
             <View style={styles.iconContainer}>
               <Ionicons name="wallet-outline" size={48} color="#4F46E5" />
@@ -643,8 +653,8 @@ export const BalanceSetupScreen: React.FC = () => {
         transparent={true}
         onRequestClose={() => setShowCurrencyModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <View style={[styles.modalOverlay, { paddingLeft: insets.left, paddingRight: insets.right }]}>
+          <View style={[styles.modalContent, { paddingBottom: insets.bottom }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Currency</Text>
               <TouchableOpacity

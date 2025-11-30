@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Smartphone, Trash2, Clock } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 import { useDevices, useRemoveDevice } from '../../hooks';
@@ -36,6 +37,7 @@ export const DeviceManagementModal = ({
   primaryColor,
   dangerColor,
 }: DeviceManagementModalProps) => {
+  const insets = useSafeAreaInsets();
   const { data: devicesResponse, isLoading } = useDevices();
   const removeDevice = useRemoveDevice();
   const devices = devicesResponse?.data || [];
@@ -90,7 +92,10 @@ export const DeviceManagementModal = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 mt-20 bg-gray-50 dark:bg-slate-900 rounded-t-3xl">
+        <View 
+          className="flex-1 mt-20 bg-gray-50 dark:bg-slate-900 rounded-t-3xl"
+          style={{ marginLeft: insets.left, marginRight: insets.right }}
+        >
           <View className="flex-row items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <Text className="text-gray-900 dark:text-white text-xl font-bold">
               Manage Devices
@@ -100,7 +105,7 @@ export const DeviceManagementModal = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 p-6">
+          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) }}>
             <View className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
               <Text className="text-blue-800 dark:text-blue-300 text-sm">
                 These devices are registered to receive push notifications for your account.

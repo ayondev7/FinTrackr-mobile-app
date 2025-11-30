@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Dimensions } from 'react-native';
+import { View, Text, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AnalyticsTypeFilter,
@@ -18,7 +18,8 @@ export const AnalyticsScreen = () => {
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
-  const screenWidth = Dimensions.get('window').width;
+  const { width: windowWidth } = useWindowDimensions();
+  const screenWidth = windowWidth - insets.left - insets.right;
   const isDark = theme === 'dark';
   
   const [analyticsType, setAnalyticsType] = useState<AnalyticsType>('expense');
@@ -81,7 +82,7 @@ export const AnalyticsScreen = () => {
   return (
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 100, paddingLeft: insets.left, paddingRight: insets.right }}
       onRefresh={handleRefresh}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>

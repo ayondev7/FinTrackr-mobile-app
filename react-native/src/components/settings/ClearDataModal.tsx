@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Trash2, AlertTriangle } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 
@@ -12,6 +13,8 @@ interface ClearDataModalProps {
 }
 
 export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData, isLoading = false }: ClearDataModalProps) => {
+  const insets = useSafeAreaInsets();
+
   const handleClear = () => {
     Alert.alert(
       'Clear All Data?',
@@ -37,8 +40,15 @@ export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData, isL
       transparent={true}
       onRequestClose={isLoading ? undefined : onClose}
     >
-      <View className="flex-1 bg-black/70 items-center justify-center p-6">
-        <Card className="w-full max-w-md p-6">
+      <View 
+        className="flex-1 bg-black/70 items-center justify-center p-6"
+        style={{ paddingLeft: Math.max(insets.left, 24), paddingRight: Math.max(insets.right, 24) }}
+      >
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Card className="w-full max-w-md p-6 self-center">
           <View className="items-center mb-6">
             <View
               className="w-16 h-16 rounded-full items-center justify-center mb-4"
@@ -105,7 +115,8 @@ export const ClearDataModal = ({ visible, onClose, dangerColor, onClearData, isL
               </Text>
             </TouchableOpacity>
           </View>
-        </Card>
+          </Card>
+        </ScrollView>
       </View>
     </Modal>
   );

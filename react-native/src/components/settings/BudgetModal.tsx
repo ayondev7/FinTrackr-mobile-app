@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Save } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 import { useCategories, useUserProfile } from '../../hooks';
@@ -12,6 +13,7 @@ interface BudgetModalProps {
 }
 
 export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps) => {
+  const insets = useSafeAreaInsets();
   const { data: categoriesData, isLoading } = useCategories();
   const { data: userResponse } = useUserProfile();
   const user = userResponse?.data;
@@ -43,7 +45,10 @@ export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 mt-20 bg-gray-50 dark:bg-slate-900 rounded-t-3xl">
+        <View 
+          className="flex-1 mt-20 bg-gray-50 dark:bg-slate-900 rounded-t-3xl"
+          style={{ marginLeft: insets.left, marginRight: insets.right }}
+        >
           <View className="flex-row items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <Text className="text-gray-900 dark:text-white text-xl font-bold">
               Budget Settings
@@ -53,7 +58,7 @@ export const BudgetModal = ({ visible, onClose, warningColor }: BudgetModalProps
             </TouchableOpacity>
           </View>
           
-          <ScrollView className="flex-1 p-6">
+          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) }}>
             <View className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl">
               <Text className="text-yellow-800 dark:text-yellow-300 text-sm">
                 Set monthly budget limits for each expense category

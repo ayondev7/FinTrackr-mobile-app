@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { User } from '../types';
-import userData from '../config/user.json';
 
 interface UserState {
   user: User;
@@ -9,19 +8,18 @@ interface UserState {
 }
 
 export const useUserStore = create<UserState>((set) => {
-  // Normalize legacy `user.json` shape into the `User` type
   const initialUser: User = {
-    id: (userData as any)?.id ?? 'unknown',
-    name: (userData as any)?.name ?? 'User',
-    email: (userData as any)?.email,
-    image: (userData as any)?.image,
-    currency: (userData as any)?.currency ?? 'USD',
-    cashBalance: (userData as any)?.currentBalance ?? (userData as any)?.initialBalance ?? 0,
+    id: '',
+    name: 'User',
+    email: undefined,
+    image: undefined,
+    currency: 'USD',
+    cashBalance: 0,
     bankBalance: 0,
     digitalBalance: 0,
-    theme: ((userData as any)?.theme as 'light' | 'dark') ?? 'light',
-    createdAt: (userData as any)?.createdAt,
-    updatedAt: (userData as any)?.updatedAt,
+    theme: 'light',
+    createdAt: undefined,
+    updatedAt: undefined,
     notifyTransactions: true,
     notifyBudgetAlerts: true,
     notifyMonthlyReports: false,

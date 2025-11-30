@@ -1,11 +1,10 @@
 import React, { useRef } from 'react';
-import { View, Text, ScrollView, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Text, ScrollView, useWindowDimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Banknote, Building2, Smartphone, TrendingUp, TrendingDown } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatCurrency, formatSmartCurrency } from '../../utils/helpers';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HORIZONTAL_PADDING = 16; // px-4 = 16px on each side
-const CARD_WIDTH = SCREEN_WIDTH - (HORIZONTAL_PADDING * 2); // Full width minus padding
 
 interface AccountType {
   id: string;
@@ -26,6 +25,7 @@ interface TotalBalanceCardProps {
   balanceChangePercent: number;
   index: number;
   total: number;
+  cardWidth: number;
 }
 
 const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
@@ -34,6 +34,7 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
   balanceChangePercent,
   index,
   total,
+  cardWidth,
 }) => {
   const isPositiveChange = balanceChangePercent >= 0;
   const TrendIcon = isPositiveChange ? TrendingUp : TrendingDown;
@@ -45,7 +46,7 @@ const TotalBalanceCard: React.FC<TotalBalanceCardProps> = ({
     <View 
       className="p-6 rounded-3xl overflow-hidden"
       style={{
-        width: CARD_WIDTH,
+        width: cardWidth,
         backgroundColor: '#6366F1',
         shadowColor: '#6366F1',
         shadowOffset: { width: 0, height: 8 },
@@ -127,13 +128,15 @@ interface AccountTypeCardProps {
   currency: string;
   index: number;
   total: number;
+  cardWidth: number;
 }
 
 const AccountTypeCard: React.FC<AccountTypeCardProps> = ({ 
   account, 
   currency,
   index,
-  total 
+  total,
+  cardWidth,
 }) => {
   const IconComponent = account.icon;
   const isNegative = account.balance < 0;
@@ -142,7 +145,7 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
     <View 
       className="p-6 rounded-3xl overflow-hidden"
       style={{
-        width: CARD_WIDTH,
+        width: cardWidth,
         backgroundColor: account.color,
         shadowColor: account.color,
         shadowOffset: { width: 0, height: 8 },
@@ -243,6 +246,12 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const { width: screenWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  
+  // Calculate dynamic widths accounting for safe area
+  const effectiveScreenWidth = screenWidth;
+  const cardWidth = effectiveScreenWidth - (HORIZONTAL_PADDING * 2) - insets.left - insets.right;
   
   const accountTypes: AccountType[] = [
     {
@@ -276,7 +285,7 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffset / SCREEN_WIDTH);
+    const index = Math.round(contentOffset / effectiveScreenWidth);
     setActiveIndex(Math.max(0, Math.min(index, totalCards - 1)));
   };
 
@@ -293,24 +302,26 @@ export const AccountTypeCards: React.FC<AccountTypeCardsProps> = ({
         scrollEventThrottle={16}
       >
         {/* Total Balance Card (First) */}
-        <View style={{ width: SCREEN_WIDTH, paddingHorizontal: HORIZONTAL_PADDING }}>
+        <View style={{ width: effectiveScreenWidth, paddingHorizontal: HORIZONTAL_PADDING, paddingLeft: HORIZONTAL_PADDING + insets.left, paddingRight: HORIZONTAL_PADDING + insets.right }}>
           <TotalBalanceCard
             balance={totalBalance}
             currency={currency}
             balanceChangePercent={balanceChangePercent}
             index={0}
             total={totalCards}
+            cardWidth={cardWidth}
           />
         </View>
         
         {/* Account Type Cards */}
         {accountTypes.map((account, index) => (
-          <View key={account.id} style={{ width: SCREEN_WIDTH, paddingHorizontal: HORIZONTAL_PADDING }}>
+          <View key={account.id} style={{ width: effectiveScreenWidth, paddingHorizontal: HORIZONTAL_PADDING, paddingLeft: HORIZONTAL_PADDING + insets.left, paddingRight: HORIZONTAL_PADDING + insets.right }}>
             <AccountTypeCard
               account={account}
               currency={currency}
               index={index + 1}
               total={totalCards}
+              cardWidth={cardWidth}
             />
           </View>
         ))}

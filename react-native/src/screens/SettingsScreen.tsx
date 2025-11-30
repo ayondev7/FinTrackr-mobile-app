@@ -173,7 +173,7 @@ export const SettingsScreen = () => {
   return (
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 100, paddingLeft: insets.left, paddingRight: insets.right }}
       onRefresh={handleRefresh}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>

@@ -141,8 +141,8 @@ export const AddCategoryScreen = () => {
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-900">
       <View 
-        className="bg-white dark:bg-slate-800 px-6 pb-4"
-        style={{ paddingTop: insets.top + 16 }}
+        className="bg-white dark:bg-slate-800 pb-4"
+        style={{ paddingTop: insets.top + 16, paddingLeft: Math.max(insets.left, 24), paddingRight: Math.max(insets.right, 24) }}
       >
         <ScreenHeader
           title="New Category"
@@ -157,8 +157,12 @@ export const AddCategoryScreen = () => {
         <CategoryPreview color={selectedColor} IconComponent={IconComponent} />
       </View>
 
-      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-        <View className="p-6">
+      <ScrollView 
+        className="flex-1" 
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingLeft: Math.max(insets.left, 24), paddingRight: Math.max(insets.right, 24) }}
+      >
+        <View className="py-6">
           <Card className="mb-6 p-5">
             <Text className="text-gray-900 dark:text-white font-semibold mb-3">
               Category Name

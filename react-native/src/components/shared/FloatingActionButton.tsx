@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Plus, X, BanknoteArrowDown, Tag } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeStore } from '../../store';
@@ -12,6 +13,7 @@ export const FloatingActionButton = () => {
   const navigation = useNavigation();
   const { theme } = useThemeStore();
   const themeColors = colors[theme];
+  const insets = useSafeAreaInsets();
 
   const toggleMenu = () => {
     const toValue = isExpanded ? 0 : 1;
@@ -74,7 +76,7 @@ export const FloatingActionButton = () => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { right: Math.max(insets.right, 20), bottom: Math.max(insets.bottom, 20) + 80 }]}>
       {/* Backdrop */}
       {isExpanded && (
         <TouchableOpacity

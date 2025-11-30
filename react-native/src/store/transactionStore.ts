@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { Transaction } from '../types';
-import transactionsData from '../config/transactions.json';
 
 interface TransactionState {
   transactions: Transaction[];
@@ -14,7 +13,7 @@ interface TransactionState {
 }
 
 export const useTransactionStore = create<TransactionState>((set, get) => ({
-  transactions: transactionsData as Transaction[],
+  transactions: [],
   
   addTransaction: (transaction) =>
     set((state) => ({

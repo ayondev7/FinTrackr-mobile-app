@@ -119,7 +119,7 @@ export const TransactionsScreen = () => {
     <View className="flex-1 bg-gray-50 dark:bg-slate-900">
       <View 
         className="p-4 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-gray-700" 
-        style={{ paddingTop: insets.top + 16 }}
+        style={{ paddingTop: insets.top + 16, paddingLeft: Math.max(insets.left, 16), paddingRight: Math.max(insets.right, 16) }}
       >
         <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
           Transactions
@@ -142,7 +142,7 @@ export const TransactionsScreen = () => {
         />
       </View>
 
-      <View className="flex-1 px-4 pt-4">
+      <View className="flex-1 pt-4" style={{ paddingLeft: Math.max(insets.left, 16), paddingRight: Math.max(insets.right, 16) }}>
         <TransactionHeader
           count={totalCount}
           sortBy={sortBy}

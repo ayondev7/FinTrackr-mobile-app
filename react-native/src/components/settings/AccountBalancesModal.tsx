@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, Text, Modal, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Banknote, Building2, Smartphone, AlertTriangle, Save } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 
@@ -24,6 +25,7 @@ export const AccountBalancesModal = ({
   onUpdate,
   isLoading = false,
 }: AccountBalancesModalProps) => {
+  const insets = useSafeAreaInsets();
   const [cash, setCash] = useState('');
   const [bank, setBank] = useState('');
   const [digital, setDigital] = useState('');
@@ -121,7 +123,10 @@ export const AccountBalancesModal = ({
       onRequestClose={isLoading ? undefined : handleClose}
     >
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 mt-16 bg-gray-50 dark:bg-slate-900 rounded-t-3xl">
+        <View 
+          className="flex-1 mt-16 bg-gray-50 dark:bg-slate-900 rounded-t-3xl"
+          style={{ marginLeft: insets.left, marginRight: insets.right }}
+        >
           <View className="flex-row items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <Text className="text-gray-900 dark:text-white text-xl font-bold">
               Edit Account Balances
@@ -135,7 +140,7 @@ export const AccountBalancesModal = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: 100 }}>
+          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 100) }}>
             <View className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex-row items-start gap-3">
               <AlertTriangle size={20} color="#F59E0B" />
               <View className="flex-1">

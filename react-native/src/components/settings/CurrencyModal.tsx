@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Check } from 'lucide-react-native';
 import { Card } from '../shared/Card';
 import { CURRENCIES } from '../../constants';
@@ -12,6 +13,8 @@ interface CurrencyModalProps {
 }
 
 export const CurrencyModal = ({ visible, onClose, selectedCurrency, onSelect }: CurrencyModalProps) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal
       visible={visible}
@@ -20,7 +23,10 @@ export const CurrencyModal = ({ visible, onClose, selectedCurrency, onSelect }: 
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 mt-20 bg-gray-50 dark:bg-slate-900 rounded-t-3xl">
+        <View 
+          className="flex-1 mt-20 bg-gray-50 dark:bg-slate-900 rounded-t-3xl"
+          style={{ marginLeft: insets.left, marginRight: insets.right }}
+        >
           <View className="flex-row items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <Text className="text-gray-900 dark:text-white text-xl font-bold">
               Select Currency
@@ -30,7 +36,7 @@ export const CurrencyModal = ({ visible, onClose, selectedCurrency, onSelect }: 
             </TouchableOpacity>
           </View>
           
-          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: 100 }}>
+          <ScrollView className="flex-1 p-6" contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 100) }}>
             {CURRENCIES.map((currency) => (
               <TouchableOpacity
                 key={currency.code}

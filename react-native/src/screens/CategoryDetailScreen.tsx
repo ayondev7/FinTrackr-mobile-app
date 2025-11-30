@@ -134,7 +134,10 @@ export const CategoryDetailScreen = () => {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-gray-50 dark:bg-slate-900">
+      <ScrollView 
+        className="flex-1 bg-gray-50 dark:bg-slate-900"
+        contentContainerStyle={{ paddingLeft: insets.left, paddingRight: insets.right }}
+      >
         <View className="p-6" style={{ paddingTop: insets.top + 12 }}>
           <View className="flex-row items-center justify-between mb-4">
             <TouchableOpacity
@@ -194,8 +197,13 @@ export const CategoryDetailScreen = () => {
         animationType="fade"
         onRequestClose={handleCloseEditModal}
       >
-        <View className="flex-1 bg-black/50 items-center justify-center px-6">
-          <View className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm">
+        <View className="flex-1 bg-black/50 items-center justify-center px-6" style={{ paddingLeft: Math.max(insets.left, 24), paddingRight: Math.max(insets.right, 24) }}>
+          <ScrollView 
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm self-center">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">
                 Edit Category
@@ -259,7 +267,8 @@ export const CategoryDetailScreen = () => {
                 )}
               </TouchableOpacity>
             </View>
-          </View>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
 
@@ -269,8 +278,12 @@ export const CategoryDetailScreen = () => {
         animationType="fade"
         onRequestClose={handleCloseDeleteModal}
       >
-        <View className="flex-1 bg-black/50 items-center justify-center px-6">
-          <View className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm">
+        <View className="flex-1 bg-black/50 items-center justify-center px-6" style={{ paddingLeft: Math.max(insets.left, 24), paddingRight: Math.max(insets.right, 24) }}>
+          <ScrollView 
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm self-center">
             <View className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 items-center justify-center self-center mb-4">
               <Trash2 size={32} color="#EF4444" />
             </View>
@@ -311,7 +324,8 @@ export const CategoryDetailScreen = () => {
                 )}
               </TouchableOpacity>
             </View>
-          </View>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     </>

@@ -41,6 +41,7 @@ export const CategoriesScreen = () => {
     <RefreshableScrollView 
       className="flex-1 bg-gray-50 dark:bg-slate-900"
       onRefresh={async () => { await refetch(); }}
+      contentContainerStyle={{ paddingLeft: insets.left, paddingRight: insets.right }}
     >
       <View className="p-6" style={{ paddingTop: insets.top + 24 }}>
         <View className="flex-row items-center gap-3 mb-6">

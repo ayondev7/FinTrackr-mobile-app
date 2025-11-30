@@ -124,7 +124,7 @@ export const AddTransactionScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-900">
-      <View style={{ paddingTop: insets.top }}>
+      <View style={{ paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }}>
         <ScreenHeader
           title="Add Transaction"
           onClose={handleClose}
@@ -135,8 +135,12 @@ export const AddTransactionScreen = () => {
           isLoading={createTransaction.isPending}
         />
       </View>
-      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-        <View className="p-4">
+      <ScrollView 
+        className="flex-1" 
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingLeft: Math.max(insets.left, 16), paddingRight: Math.max(insets.right, 16) }}
+      >
+        <View className="py-4">
 
         <Card className="mb-6">
           <Controller
