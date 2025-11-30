@@ -113,7 +113,7 @@ model DeviceToken {
   id            String   @id @default(uuid())
   userId        String
   deviceId      String
-  expoPushToken String   @unique
+  expoPushToken String
   deviceName    String?
   platform      String
   lastActiveAt  DateTime @default(now())
@@ -121,8 +121,11 @@ model DeviceToken {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Allow multiple users to share the same device (same expoPushToken)
+  // Each user can only have one entry per device
   @@unique([userId, deviceId])
   @@index([userId])
+  @@index([expoPushToken])
   @@index([lastActiveAt])
   @@map("device_tokens")
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { TrendingUp, TrendingDown } from 'lucide-react-native';
 import { Card } from '../shared/Card';
-import { formatCurrency } from '../../utils/helpers';
+import { formatSmartCurrency } from '../../utils/helpers';
 
 interface AverageCardsProps {
   avgMonthlyExpense: number;
@@ -26,7 +26,7 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
           Monthly Expense
         </Text>
         <Text className="text-red-500 text-lg font-bold">
-          {formatCurrency(avgMonthlyExpense, currency)}
+          {formatSmartCurrency(avgMonthlyExpense, currency, 100000, 0)}
         </Text>
       </Card>
 
@@ -41,7 +41,7 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
           Monthly Revenue
         </Text>
         <Text className="text-green-500 text-lg font-bold">
-          {formatCurrency(avgMonthlyRevenue, currency)}
+          {formatSmartCurrency(avgMonthlyRevenue, currency, 100000, 0)}
         </Text>
       </Card>
 
@@ -64,7 +64,7 @@ export const AverageCards = ({ avgMonthlyExpense, avgMonthlyRevenue, netMonthly,
           style={{ color: isPositive ? '#10B981' : '#EF4444' }}
         >
           {isPositive ? '+' : ''}
-          {formatCurrency(netMonthly, currency)}
+          {formatSmartCurrency(netMonthly, currency, 100000, 0)}
         </Text>
       </Card>
     </View>
