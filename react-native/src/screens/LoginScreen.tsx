@@ -159,7 +159,7 @@ export const LoginScreen: React.FC = () => {
 
           <View className="mb-12 mt-2">
             <View className="flex-row items-center mb-4">
-              <View className="w-2 h-2 rounded-full bg-indigo-900 mr-3" />
+              <View className="w-2 h-2 rounded-full bg-indigo-600 mr-3" />
               <Text className="text-gray-600 text-base">
                 <Text className="font-semibold text-gray-800">Track</Text> your
                 expenses in real-time
@@ -167,7 +167,7 @@ export const LoginScreen: React.FC = () => {
             </View>
 
             <View className="flex-row items-center mb-4">
-              <View className="w-2 h-2 rounded-full bg-indigo-900 mr-3" />
+              <View className="w-2 h-2 rounded-full bg-indigo-600 mr-3" />
               <Text className="text-gray-600 text-base">
                 <Text className="font-semibold text-gray-800">Visualize</Text> your
                 spending habits
@@ -175,7 +175,7 @@ export const LoginScreen: React.FC = () => {
             </View>
 
             <View className="flex-row items-center mb-4">
-              <View className="w-2 h-2 rounded-full bg-indigo-900 mr-3" />
+              <View className="w-2 h-2 rounded-full bg-indigo-600 mr-3" />
               <Text className="text-gray-600 text-base">
                 <Text className="font-semibold text-gray-800">Achieve</Text> your
                 financial goals
@@ -203,7 +203,7 @@ export const LoginScreen: React.FC = () => {
               ) : (
                 <>
                   <View style={styles.googleIconContainer}>
-                    <Ionicons name="logo-google" size={22} color="#312e81" />
+                    <Ionicons name="logo-google" size={22} color="#4f46e5" />
                   </View>
                   <Text style={styles.googleButtonText}>
                     Continue with Google
@@ -215,11 +215,11 @@ export const LoginScreen: React.FC = () => {
 
           <Text className="text-xs text-gray-400 text-center mt-6 px-8 leading-5">
             By continuing, you agree to our{" "}
-            <Text className="text-indigo-900 font-semibold">
+            <Text className="text-indigo-600 font-semibold">
               Terms of Service
             </Text>{" "}
             and{" "}
-            <Text className="text-indigo-900 font-semibold">
+            <Text className="text-indigo-600 font-semibold">
               Privacy Policy
             </Text>
           </Text>

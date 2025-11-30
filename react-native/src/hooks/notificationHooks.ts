@@ -125,14 +125,22 @@ export const useNotifications = () => {
   }, [registerForPushNotifications]);
 
   const unregisterDeviceFromBackend = useCallback(async () => {
-    if (!deviceId) return;
-
     try {
-      await unregisterDevice.mutateAsync(deviceId);
+      // Get the device ID fresh - don't rely on state which might be stale
+      const currentDeviceId = deviceId || await getDeviceId();
+      
+      if (!currentDeviceId) {
+        console.log('No device ID available for unregister');
+        return;
+      }
+
+      await unregisterDevice.mutateAsync(currentDeviceId);
       hasRegisteredRef.current = false; // Allow re-registration after unregister
       console.log('Device unregistered from push notifications');
     } catch (error) {
       console.error('Failed to unregister device:', error);
+      // Still reset the flag to allow re-registration even if unregister fails
+      hasRegisteredRef.current = false;
     }
   }, [deviceId]);
 

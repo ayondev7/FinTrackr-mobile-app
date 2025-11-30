@@ -46,7 +46,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           resizeMode="cover"
         />
 
-        <Text className="text-lg text-indigo-900 font-semibold mb-2" style={{ letterSpacing: 2 }}>
+        <Text className="text-lg text-indigo-600 font-semibold mb-2" style={{ letterSpacing: 2 }}>
           Track • Analyze • Prosper
         </Text>
       </Animated.View>

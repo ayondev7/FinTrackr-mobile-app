@@ -10,6 +10,17 @@ export const registerDevice = asyncHandler(async (req: AuthRequest, res: Respons
 
   const validatedData = registerDeviceSchema.parse(req.body);
 
+  // Clean up any existing tokens with the same expoPushToken or deviceId from OTHER users
+  // This handles the case when a user logs out and another user logs in on the same device
+  await prisma.deviceToken.deleteMany({
+    where: {
+      OR: [
+        { expoPushToken: validatedData.expoPushToken, userId: { not: userId } },
+        { deviceId: validatedData.deviceId, userId: { not: userId } },
+      ],
+    },
+  });
+
   const deviceToken = await prisma.deviceToken.upsert({
     where: {
       userId_deviceId: {
