@@ -59,10 +59,10 @@ export const StatsCardsGrid: React.FC<StatsCardsGridProps> = ({ stats, isDark, c
               <CreditCard size={24} color="#FFFFFF" />
             </View>
             <View 
-              className="w-8 h-8 rounded-full items-center justify-center"
+              className="px-2 py-1 rounded-lg items-center justify-center"
               style={{ backgroundColor: isDark ? '#8B5CF6' : '#A78BFA' }}
             >
-              <Text className="text-white text-lg font-bold">{stats.totalTransactions}</Text>
+              <Text className="text-white text-xs font-bold">{stats.totalTransactions}</Text>
             </View>
           </View>
           <Text className="text-purple-600 dark:text-purple-300 text-xs font-bold uppercase tracking-wide mb-1">

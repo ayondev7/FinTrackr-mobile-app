@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, MinusCircle } from 'lucide-react-native';
+import { TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react-native';
 import { formatCurrency } from '../../utils/helpers';
 
 interface BalanceTrendCardProps {
@@ -68,35 +68,35 @@ export const BalanceTrendCard = ({ isPositive, isDark, netMonthly, currency }: B
             Balance Trend
           </Text>
           <View className="flex-row items-center gap-2">
-            <View
-              className="p-2 rounded-xl"
-              style={{ backgroundColor: getIconBgColor() }}
-            >
-              {!hasData ? (
-                <MinusCircle size={28} color="#6B7280" strokeWidth={2.5} />
-              ) : isPositive ? (
-                <TrendingUp size={28} color="#10B981" strokeWidth={2.5} />
-              ) : (
-                <TrendingDown size={28} color="#EF4444" strokeWidth={2.5} />
-              )}
-            </View>
+            {hasData && (
+              <View
+                className="p-2 rounded-xl"
+                style={{ backgroundColor: getIconBgColor() }}
+              >
+                {isPositive ? (
+                  <TrendingUp size={28} color="#10B981" strokeWidth={2.5} />
+                ) : (
+                  <TrendingDown size={28} color="#EF4444" strokeWidth={2.5} />
+                )}
+              </View>
+            )}
             <Text className={`text-3xl font-bold ${getTrendColor()}`}>
               {getTrendLabel()}
             </Text>
           </View>
         </View>
-        <View
-          className="w-14 h-14 rounded-2xl items-center justify-center"
-          style={{ backgroundColor: getStatusBgColor() }}
-        >
-          {!hasData ? (
-            <MinusCircle size={28} color="#6B7280" strokeWidth={2} />
-          ) : isPositive ? (
-            <CheckCircle size={28} color="#10B981" strokeWidth={2} />
-          ) : (
-            <AlertCircle size={28} color="#EF4444" strokeWidth={2} />
-          )}
-        </View>
+        {hasData && (
+          <View
+            className="w-14 h-14 rounded-2xl items-center justify-center"
+            style={{ backgroundColor: getStatusBgColor() }}
+          >
+            {isPositive ? (
+              <CheckCircle size={28} color="#10B981" strokeWidth={2} />
+            ) : (
+              <AlertCircle size={28} color="#EF4444" strokeWidth={2} />
+            )}
+          </View>
+        )}
       </View>
       <View 
         className="p-4 rounded-2xl"
