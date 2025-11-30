@@ -44,6 +44,8 @@ export const SettingsScreen = () => {
   const { unregisterDeviceFromBackend } = useNotifications();
   const user = userResponse?.data;
 
+  const [notificationLoadingKey, setNotificationLoadingKey] = useState<keyof NotificationSettings | null>(null);
+
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
   const [exportModalVisible, setExportModalVisible] = useState(false);
@@ -85,10 +87,13 @@ export const SettingsScreen = () => {
 
   const handleNotificationUpdate = async (key: keyof NotificationSettings, value: boolean) => {
     try {
+      setNotificationLoadingKey(key);
       await updateNotificationSettings.mutateAsync({ [key]: value });
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update notification settings';
       showError('Update Failed', errorMessage);
+    } finally {
+      setNotificationLoadingKey(null);
     }
   };
 
@@ -293,7 +298,7 @@ export const SettingsScreen = () => {
         }}
         onUpdate={handleNotificationUpdate}
         primaryColor={themeColors.primary}
-        isLoading={updateNotificationSettings.isPending}
+        loadingKey={notificationLoadingKey}
       />
 
       <ExportModal

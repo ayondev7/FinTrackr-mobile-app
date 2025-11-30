@@ -16,6 +16,7 @@ interface NotificationModalProps {
   onUpdate: (key: keyof NotificationSettings, value: boolean) => void;
   primaryColor: string;
   isLoading?: boolean;
+  loadingKey?: keyof NotificationSettings | null;
 }
 
 export const NotificationModal = ({ 
@@ -25,6 +26,7 @@ export const NotificationModal = ({
   onUpdate, 
   primaryColor,
   isLoading = false,
+  loadingKey = null,
 }: NotificationModalProps) => {
   const notificationOptions: Array<{
     key: keyof NotificationSettings;
@@ -102,8 +104,18 @@ export const NotificationModal = ({
                         </Text>
                       </View>
                     </View>
-                    {isLoading ? (
-                      <ActivityIndicator size="small" color={primaryColor} />
+                    {isLoading || loadingKey ? (
+                      loadingKey === option.key || isLoading ? (
+                        <ActivityIndicator size="small" color={primaryColor} />
+                      ) : (
+                        <Switch
+                          value={option.value}
+                          onValueChange={(value) => onUpdate(option.key, value)}
+                          trackColor={{ false: '#D1D5DB', true: primaryColor }}
+                          thumbColor="#FFFFFF"
+                          disabled={true}
+                        />
+                      )
                     ) : (
                       <Switch
                         value={option.value}
