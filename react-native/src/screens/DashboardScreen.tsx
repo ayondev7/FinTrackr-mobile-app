@@ -61,7 +61,6 @@ export const DashboardScreen = () => {
       onRefresh={handleRefresh}
     >
       <View style={{ paddingTop: insets.top + 16 }}>
-        {/* Balance Cards - Horizontal Scroll with Total + Account Types */}
         <AccountTypeCards 
           currency={currency}
           totalBalance={balance}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ChevronRight } from 'lucide-react-native';
 import { TransactionItem } from '../shared/TransactionItem';
 import { Transaction } from '../../types';
@@ -15,15 +16,16 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   primaryColor,
   currency,
 }) => {
+  const navigation = useNavigation();
   return (
     <>
       <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-lg font-bold text-gray-900 dark:text-white">
+        <Text className="text-lg font-semibold text-gray-900 dark:text-white">
           Recent Transactions
         </Text>
-        <TouchableOpacity className="flex-row items-center">
+        <TouchableOpacity className="flex-row items-center" onPress={() => navigation.navigate('Transactions' as never)}>
           <Text
-            className="text-sm font-medium mr-1"
+            className="text-base font-medium mr-1"
             style={{ color: primaryColor }}
           >
             See All

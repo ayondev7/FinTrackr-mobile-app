@@ -25,20 +25,17 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
     return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
-  // Get budgets that need attention (near limit or over)
   const alertBudgets = budgets.filter((budget) => budget.needsAlert || budget.isOverBudget);
 
-  // Sort by percentage (highest first)
   const sortedBudgets = [...budgets].sort((a, b) => b.percentage - a.percentage);
 
-  // Take top 3 for preview
   const previewBudgets = sortedBudgets.slice(0, 3);
 
   if (isLoading) {
     return (
       <>
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-bold text-gray-900 dark:text-white">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white">
             Budgets
           </Text>
         </View>
@@ -53,7 +50,7 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
     return (
       <>
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-bold text-gray-900 dark:text-white">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white">
             Budgets
           </Text>
         </View>
@@ -84,7 +81,7 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
     <>
       <View className="flex-row items-center justify-between mb-4">
         <View className="flex-row items-center gap-2">
-          <Text className="text-lg font-bold text-gray-900 dark:text-white">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white">
             Budgets
           </Text>
           {alertBudgets.length > 0 && (
@@ -106,7 +103,6 @@ export const BudgetOverview = ({ currency, primaryColor }: BudgetOverviewProps) 
         </TouchableOpacity>
       </View>
 
-      {/* Alert Banner if needed */}
       {alertBudgets.length > 0 && (
         <TouchableOpacity
           onPress={() => navigation.navigate('Budgets' as never)}
