@@ -9,18 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Simple request logger for debugging incoming requests
 app.use((req, res, next) => {
-  try {
-    console.log(`[HTTP] ${req.method} ${req.originalUrl}`);
-    console.log('Headers:', JSON.stringify(req.headers));
-    // body might be large; log only when present
-    if (req.body && Object.keys(req.body).length > 0) {
-      console.log('Body:', JSON.stringify(req.body));
-    }
-  } catch (err) {
-    console.log('Error logging request:', err);
-  }
   next();
 });
 
