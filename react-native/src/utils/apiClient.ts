@@ -1,32 +1,6 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { config } from '../config';
-import { getTokens, saveTokens, clearTokens } from './authStorage';
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { config } from "../config";
+import { getTokens, saveTokens, clearTokens } from "./authStorage";
 
 interface QueueItem {
   resolve: (token: string) => void;
@@ -50,9 +24,9 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 export const apiClient = axios.create({
   baseURL: `${config.apiBaseUrl}/api`,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  timeout: 15000,
+  timeout:90000,
 });
 
 apiClient.interceptors.request.use(
@@ -71,7 +45,9 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -96,14 +72,18 @@ apiClient.interceptors.response.use(
         const { refreshToken } = await getTokens();
 
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          throw new Error("No refresh token available");
         }
 
-        const response = await axios.post(`${config.apiBaseUrl}/api/auth/refresh`, {
-          refreshToken,
-        });
+        const response = await axios.post(
+          `${config.apiBaseUrl}/api/auth/refresh`,
+          {
+            refreshToken,
+          }
+        );
 
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+          response.data.data;
 
         await saveTokens(newAccessToken, newRefreshToken);
 
@@ -123,10 +103,22 @@ apiClient.interceptors.response.use(
       }
     }
 
-    if (error.code === 'ECONNABORTED') {
-      console.error('Request timeout');
-    } else if (error.code === 'ERR_NETWORK') {
-      console.error('Network error - check if backend is running');
+    if (error.code === "ECONNABORTED") {
+      console.error("Request timeout");
+    } else if (error.code === "ERR_NETWORK") {
+      console.error("Network error - check if backend is running");
+    }
+
+    try {
+      const serverData =
+        (error.response && (error.response.data as any)) || null;
+      const serverErrorMessage =
+        serverData?.error || serverData?.message || null;
+      if (serverErrorMessage) {
+        (error as any).message = serverErrorMessage;
+      }
+    } catch (e) {
+     
     }
 
     return Promise.reject(error);
@@ -146,8 +138,7 @@ export const apiRequest = {
   patch: <T>(url: string, data?: object) =>
     apiClient.patch<T>(url, data).then((res) => res.data),
 
-  delete: <T>(url: string) =>
-    apiClient.delete<T>(url).then((res) => res.data),
+  delete: <T>(url: string) => apiClient.delete<T>(url).then((res) => res.data),
 };
 
 export default apiClient;
