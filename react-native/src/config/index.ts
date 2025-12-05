@@ -1,14 +1,9 @@
-import {
-  EXPO_PUBLIC_API_BASE_URL,
-  GOOGLE_ANDROID_CLIENT_ID,
-  GOOGLE_WEB_CLIENT_ID,
-} from '@env';
 
 export const config = {
-  apiBaseUrl: EXPO_PUBLIC_API_BASE_URL,
+  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
   google: {
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID || '',
-    webClientId: GOOGLE_WEB_CLIENT_ID || '',
+    androidClientId: process.env.GOOGLE_ANDROID_CLIENT_ID || '',
+    webClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
   },
 };
 
