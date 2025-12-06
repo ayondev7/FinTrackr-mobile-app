@@ -14,7 +14,6 @@ import { colors } from '../constants/theme';
 import { DollarSign } from 'lucide-react-native';
 import { getCurrencySymbol } from '../utils';
 
-// Validation schema matching backend expectations
 const transactionSchema = z.object({
   type: z.enum(['expense', 'revenue']),
   amount: z.string()
@@ -72,16 +71,6 @@ export const AddTransactionScreen = () => {
     (cat) => (cat.type || '').toLowerCase() === type
   );
 
-  // Show shared full-screen loader while essential data is being fetched
-  if (isLoadingCategories || isLoadingUser) {
-    return (
-      <View className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center">
-        <Loader size={64} />
-      </View>
-    );
-  }
-
-  // Reset category when type changes if current category doesn't match
   useEffect(() => {
     if (categoryId) {
       const selectedCat = categories.find((c) => c.id === categoryId);
@@ -90,6 +79,14 @@ export const AddTransactionScreen = () => {
       }
     }
   }, [type, categoryId, categories, setValue]);
+
+  if (isLoadingCategories || isLoadingUser) {
+    return (
+      <View className="flex-1 bg-gray-50 dark:bg-slate-900 justify-center items-center">
+        <Loader size={64} />
+      </View>
+    );
+  }
 
   const onSubmit = async (data: TransactionFormData) => {
     Keyboard.dismiss();
